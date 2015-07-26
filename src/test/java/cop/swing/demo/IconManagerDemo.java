@@ -117,7 +117,7 @@ public class IconManagerDemo extends JFrame {
             removeAll();
             GridBagConstraints gbc = createConstraints();
 
-            for (ImageKey key : iconFile.getSortedKeys()) {
+            for (ImageKey key : iconFile.getKeys()) {
                 IconImage iconImage = iconFile.getImage(key);
                 JLabel icon = createLabelIcon(iconFile.getImage(key).getIcon(), showBorder);
                 JLabel sizeLabel = showSize ? new JLabel(iconImage.getHeader().getImageKey().toString()) : null;
