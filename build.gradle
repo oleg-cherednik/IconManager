@@ -19,6 +19,7 @@ dependencies {
 
     testCompile 'cop.swing:layout-organizer:1.0'
     testCompile 'commons-io:commons-io:2.4'
+//    testCompile 'com.ucware:icontools:1.0.0'
 }
 
 sourceSets {

@@ -54,7 +54,8 @@ public class IconBitmapReader extends ImageReader {
 
 	// ========== ImageReader ==========
 
-	public void setInput(Object input) {
+	@Override
+    public void setInput(Object input) {
 		if (input != null && !(input instanceof ImageInputStream)) {
 			try {
 				input = ImageIO.createImageInputStream(input);

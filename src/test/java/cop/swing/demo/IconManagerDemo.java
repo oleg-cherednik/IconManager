@@ -1,5 +1,6 @@
 package cop.swing.demo;
 
+import com.ucware.icontools.IconTools;
 import cop.swing.icoman.IconFile;
 import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconManager;
@@ -35,7 +36,10 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Random;
 
 /**
@@ -59,7 +63,6 @@ public class IconManagerDemo extends JFrame {
         panel.setBorder(BorderFactory.createEtchedBorder());
         panel.setBackground(Color.gray);
 
-        settingsPanel.onSelectIcon(SettingsPanel.DEF_ICON_ID);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         pack();
     }
@@ -84,6 +87,7 @@ public class IconManagerDemo extends JFrame {
 
         public IconManagerPanel() {
             init();
+//            foo();
         }
 
         private void init() {
@@ -108,6 +112,26 @@ public class IconManagerDemo extends JFrame {
                 this.showSize = showSize;
                 showIcon(iconFile);
             } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void foo() {
+            try (InputStream in = new FileInputStream("d:/foo.ico")) {
+                Icon[] imageIcons = IconTools.readIcons(in);
+                removeAll();
+                GridBagConstraints gbc = createConstraints();
+
+                for (Icon imageIcon : imageIcons) {
+                    JLabel icon = createLabelIcon(imageIcon, showBorder);
+                    JLabel sizeLabel = showSize ? new JLabel(imageIcon.getIconWidth() + "x" + imageIcon.getIconHeight()) : null;
+                    add(createPanel(icon, sizeLabel), gbc);
+                }
+
+                updateUI();
+            } catch(FileNotFoundException e) {
+                e.printStackTrace();
+            } catch(IOException e) {
                 e.printStackTrace();
             }
         }
@@ -242,22 +266,24 @@ public class IconManagerDemo extends JFrame {
             dialog.setFileFilter(FileFilterImpl.ICO);
 
             if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File file = dialog.getSelectedFile().getAbsoluteFile();
-                String id = FilenameUtils.getBaseName(file.getName()).toLowerCase();
-                String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
+                for (File file : dialog.getSelectedFiles()) {
+                    file = file.getAbsoluteFile();
+                    String id = FilenameUtils.getBaseName(file.getName()).toLowerCase();
+                    String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
 
-                try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
-                    IconFile iconFile = iconManager.addIcon(id, in);
+                    try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
+                        IconFile iconFile = iconManager.addIcon(id, in);
 
-                    IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
-                    iconKeyCombo.addItem(iconKey);
-                    iconKeyCombo.setSelectedItem(iconKey);
-                } catch(FormatNotSupportedException e) {
-                    String message = String.format("File format '%s' is not supported", ext);
-                    JOptionPane.showMessageDialog(null, message, "Could not open file", JOptionPane.ERROR_MESSAGE);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Internal error", "Could not open file", JOptionPane.ERROR_MESSAGE);
+                        IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
+                        iconKeyCombo.addItem(iconKey);
+                        iconKeyCombo.setSelectedItem(iconKey);
+                    } catch(FormatNotSupportedException e) {
+                        String message = String.format("File format '%s' is not supported", ext);
+                        JOptionPane.showMessageDialog(null, message, "Could not open file", JOptionPane.ERROR_MESSAGE);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Internal error", "Could not open file", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         }
@@ -319,7 +345,7 @@ public class IconManagerDemo extends JFrame {
             private final String description;
 
             private FileFilterImpl(String ext, String description) {
-                this.ext = "." + ext;
+                this.ext = '.' + ext;
                 this.description = description;
             }
 

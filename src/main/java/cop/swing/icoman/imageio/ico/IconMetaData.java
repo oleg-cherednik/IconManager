@@ -1,6 +1,5 @@
 package cop.swing.icoman.imageio.ico;
 
-import cop.swing.icoman.imageio.ico.IconMetaDataFormat;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -17,87 +16,92 @@ import java.util.List;
  * @since 01.09.2013
  */
 public final class IconMetaData extends IIOMetadata {
-	private static final String NAME_KEY = "key";
-	private static final String NAME_VALUE = "value";
-	private static final String NAME_NODE = "KeywordValuePair";
+    private static final String NAME_KEY = "key";
+    private static final String NAME_VALUE = "value";
+    private static final String NAME_NODE = "KeywordValuePair";
 
-	private static final boolean STANDARD_METADATA_FORMAT_SUPPORTED = false;
-	private static final String NATIVE_METADATA_FORMAT_NAME = IconMetaDataFormat.NAME;
-	private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IconMetaDataFormat.class.getName();
+    private static final boolean STANDARD_METADATA_FORMAT_SUPPORTED = false;
+    private static final String NATIVE_METADATA_FORMAT_NAME = IconMetaDataFormat.NAME;
+    private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IconMetaDataFormat.class.getName();
 
-	private final List<String> keys = new ArrayList<>();
-	private final List<String> values = new ArrayList<>();
+    private final List<String> keys = new ArrayList<>();
+    private final List<String> values = new ArrayList<>();
 
-	public IconMetaData() {
-		super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null,
-				null);
-	}
+    public IconMetaData() {
+        super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null,
+                null);
+    }
 
-	void put(String key, String value) {
-		keys.add(key);
-		values.add(value);
-	}
+    void put(String key, String value) {
+        keys.add(key);
+        values.add(value);
+    }
 
-	// ========== IIOMetadata ==========
+    // ========== IIOMetadata ==========
 
-	public IIOMetadataFormat getMetadataFormat(String formatName) {
-		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
-			throw new IllegalArgumentException("Bad format name!");
-		return IconMetaDataFormat.getInstance();
-	}
+    @Override
+    public IIOMetadataFormat getMetadataFormat(String formatName) {
+        if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
+            throw new IllegalArgumentException("Bad format name!");
+        return IconMetaDataFormat.getInstance();
+    }
 
-	public Node getAsTree(String formatName) {
-		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
-			throw new IllegalArgumentException("Bad format name!");
+    @Override
+    public Node getAsTree(String formatName) {
+        if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
+            throw new IllegalArgumentException("Bad format name!");
 
-		IIOMetadataNode root = new IIOMetadataNode(NATIVE_METADATA_FORMAT_NAME);
-		Iterator<String> itValue = values.iterator();
+        IIOMetadataNode root = new IIOMetadataNode(NATIVE_METADATA_FORMAT_NAME);
+        Iterator<String> itValue = values.iterator();
 
-		for (String key : keys) {
-			IIOMetadataNode node = new IIOMetadataNode(NAME_NODE);
-			node.setAttribute(NAME_KEY, key);
-			node.setAttribute(NAME_VALUE, itValue.next());
-			root.appendChild(node);
-		}
+        for (String key : keys) {
+            IIOMetadataNode node = new IIOMetadataNode(NAME_NODE);
+            node.setAttribute(NAME_KEY, key);
+            node.setAttribute(NAME_VALUE, itValue.next());
+            root.appendChild(node);
+        }
 
-		return root;
-	}
+        return root;
+    }
 
-	public boolean isReadOnly() {
-		return true;
-	}
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 
-	public void reset() {
-		keys.clear();
-		values.clear();
-	}
+    @Override
+    public void reset() {
+        keys.clear();
+        values.clear();
+    }
 
-	public void mergeTree(String formatName, Node root) throws IIOInvalidTreeException {
-		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
-			throw new IllegalArgumentException("Bad format name!");
+    @Override
+    public void mergeTree(String formatName, Node root) throws IIOInvalidTreeException {
+        if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
+            throw new IllegalArgumentException("Bad format name!");
 
-		Node node = root;
+        Node node = root;
 
-		if (!node.getNodeName().equals(NATIVE_METADATA_FORMAT_NAME))
-			throw new IIOInvalidTreeException("Root must be '" + NATIVE_METADATA_FORMAT_NAME + '\'', node);
+        if (!node.getNodeName().equals(NATIVE_METADATA_FORMAT_NAME))
+            throw new IIOInvalidTreeException("Root must be '" + NATIVE_METADATA_FORMAT_NAME + '\'', node);
 
-		node = node.getFirstChild();
+        node = node.getFirstChild();
 
-		while (node != null) {
-			if (!node.getNodeName().equals(NAME_NODE))
-				throw new IIOInvalidTreeException("Node name not KeywordValuePair!", node);
+        while (node != null) {
+            if (!node.getNodeName().equals(NAME_NODE))
+                throw new IIOInvalidTreeException("Node name not KeywordValuePair!", node);
 
-			NamedNodeMap attributes = node.getAttributes();
-			Node key = attributes.getNamedItem(NAME_KEY);
-			Node value = attributes.getNamedItem(NAME_VALUE);
+            NamedNodeMap attributes = node.getAttributes();
+            Node key = attributes.getNamedItem(NAME_KEY);
+            Node value = attributes.getNamedItem(NAME_VALUE);
 
-			if (key == null || value == null)
-				throw new IIOInvalidTreeException("Keyword or value missing!", node);
+            if (key == null || value == null)
+                throw new IIOInvalidTreeException("Keyword or value missing!", node);
 
-			keys.add(key.getNodeValue());
-			values.add(value.getNodeValue());
+            keys.add(key.getNodeValue());
+            values.add(value.getNodeValue());
 
-			node = node.getNextSibling();
-		}
-	}
+            node = node.getNextSibling();
+        }
+    }
 }

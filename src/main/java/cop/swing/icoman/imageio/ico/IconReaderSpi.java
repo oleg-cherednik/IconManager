@@ -14,85 +14,88 @@ import java.util.Locale;
  * @since 01.09.2013
  */
 public final class IconReaderSpi extends ImageReaderSpi {
-	private static final String[] FORMAT_NAMES = { "ico", "ICO" };
-	private static final String[] EXT = { "ico" };
-	private static final String[] MIME_TYPE = { "image/vnd.microsoft.icon", "image/x-ico" };
+    private static final String[] FORMAT_NAMES = { "ico", "ICO" };
+    private static final String[] EXT = { "ico" };
+    private static final String[] MIME_TYPE = { "image/vnd.microsoft.icon", "image/x-ico" };
 
-	static {
-		register();
-	}
+    static {
+        register();
+    }
 
-	private IconReaderSpi() {
-		super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE,
-				IconReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null,
-				null, false, IconMetaDataFormat.NAME, IconMetaData.class.getName(), null, null
-		);
-	}
+    private IconReaderSpi() {
+        super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE,
+                IconReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null,
+                null, false, IconMetaDataFormat.NAME, IconMetaData.class.getName(), null, null
+        );
+    }
 
-	/**
-	 * Returns <code>true</code> if the supplied source object appears to be of the format supported by this reader.
-	 *
-	 * @param source the object (typically an <code>ImageInputStream</code>) to be decoded.
-	 * @return <code>true</code> if it is likely that this stream can be decoded.
-	 * @throws IOException if an I/O error occurs while reading the stream.
-	 */
-	public boolean canDecodeInput(Object source) throws IOException {
-		if (source instanceof ImageInputStream) {
-			byte[] buff = new byte[4];
-			ImageInputStream in = (ImageInputStream)source;
-			in.mark();
-			in.readFully(buff);
-			in.reset();
-			//check header
-			return (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00);
-			// boolean res= (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00);
-			//  System.err.println("Can Read image: " + res);
-			// return res;
-		}
-		return true;
-	}
+    /**
+     * Returns <code>true</code> if the supplied source object appears to be of the format supported by this reader.
+     *
+     * @param source the object (typically an <code>ImageInputStream</code>) to be decoded.
+     * @return <code>true</code> if it is likely that this stream can be decoded.
+     * @throws IOException if an I/O error occurs while reading the stream.
+     */
+    @Override
+    public boolean canDecodeInput(Object source) throws IOException {
+        if (source instanceof ImageInputStream) {
+            byte[] buff = new byte[4];
+            ImageInputStream in = (ImageInputStream)source;
+            in.mark();
+            in.readFully(buff);
+            in.reset();
+            //check header
+            return buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00;
+            // boolean res= (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00);
+            //  System.err.println("Can Read image: " + res);
+            // return res;
+        }
+        return true;
+    }
 
-	// ========== static ==========
+    /**
+     * Returns an instance of the <code>ImageReader</code> implementation  associated with this service provider.
+     *
+     * @param extension a plug-in specific extension object, which may be                  <code>null</code>.
+     * @return an <code>ImageReader</code> instance.
+     */
+    @Override
+    public ImageReader createReaderInstance(Object extension) {
+        return new IconReader(this);
+    }
 
-	private static volatile boolean isRegistered;
+    /**
+     * Returns a brief, human-readable description of this service provider and
+     * its associated implementation.
+     *
+     * @param locale a <code>Locale</code> for which the return value should be
+     *               localized.
+     * @return a <code>String</code> containing a description of this service
+     * provider.
+     * @todo Implement this javax.imageio.spi.IIOServiceProvider method
+     */
+    @Override
+    public String getDescription(Locale locale) {
+        return "Microsoft IconFile Format (ICO) Reader version: " + VersionData.getVersion();
+    }
 
-	public static synchronized void register() {
-		if (isRegistered) return;
+    // ========== static ==========
 
-		isRegistered = true;
+    private static volatile boolean isRegistered;
 
-		try {
-			Object registeredReader = IIORegistry.getDefaultInstance().getServiceProviderByClass(IconReaderSpi.class);
-			if (registeredReader == null) {
-				Object reader = new IconReaderSpi();
-				IIORegistry.getDefaultInstance().registerServiceProvider(reader);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
+    public static synchronized void register() {
+        if (isRegistered) return;
 
-	/**
-	 * Returns an instance of the <code>ImageReader</code> implementation  associated with this service provider.
-	 *
-	 * @param extension a plug-in specific extension object, which may be                  <code>null</code>.
-	 * @return an <code>ImageReader</code> instance.
-	 */
-	public ImageReader createReaderInstance(Object extension) {
-		return new IconReader(this);
-	}
+        isRegistered = true;
 
-	/**
-	 * Returns a brief, human-readable description of this service provider and
-	 * its associated implementation.
-	 *
-	 * @param locale a <code>Locale</code> for which the return value should be
-	 *               localized.
-	 * @return a <code>String</code> containing a description of this service
-	 *         provider.
-	 * @todo Implement this javax.imageio.spi.IIOServiceProvider method
-	 */
-	public String getDescription(Locale locale) {
-		return "Microsoft IconFile Format (ICO) Reader version: " + VersionData.getVersion();
-	}
+        try {
+            Object registeredReader = IIORegistry.getDefaultInstance().getServiceProviderByClass(IconReaderSpi.class);
+            if (registeredReader == null) {
+                Object reader = new IconReaderSpi();
+                IIORegistry.getDefaultInstance().registerServiceProvider(reader);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

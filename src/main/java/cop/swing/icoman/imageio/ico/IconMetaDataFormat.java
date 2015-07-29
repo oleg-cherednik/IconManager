@@ -28,6 +28,7 @@ public final class IconMetaDataFormat extends IIOMetadataFormatImpl {
 
 	// ========== IIOMetadataFormat ==========
 
+	@Override
 	public boolean canNodeAppear(String name, ImageTypeSpecifier imageType) {
 		return "KeywordValuePair".equals(name);
 	}
