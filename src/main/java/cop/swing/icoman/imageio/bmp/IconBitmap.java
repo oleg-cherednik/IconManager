@@ -12,18 +12,18 @@ import java.io.IOException;
  */
 public class IconBitmap {
     private final BitmapInfoHeader header;
-    private final Color[] data;
+    private final Color[] colorTable;
     private final byte[] bitMasks;
-    private final byte[] colorTable;
+    private final byte[] data;
 
     public IconBitmap(ImageInputStream in) throws IOException {
         header = new BitmapInfoHeader(in);
-        data = readData(header, in);
-        bitMasks = readBitMasks(header, in);
         colorTable = readColorTable(header, in);
+        bitMasks = readBitMasks(header, in);
+        data = readData(header, in);
     }
 
-    private static Color[] readData(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+    private static Color[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int bitCount = header.getBiBitCount();
         int size = bitCount <= 8 ? (int)Math.pow(2.0, bitCount) : 0;
 
@@ -54,7 +54,7 @@ public class IconBitmap {
         return buf;
     }
 
-    private static byte[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+    private static byte[] readData(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int width = header.getBiWidth();
         int height = header.getBiHeight() / 2;
         byte[] buf = new byte[(width + 31) / 32 * 4 * height];
@@ -68,15 +68,15 @@ public class IconBitmap {
         return header;
     }
 
-    public Color[] getData() {
-        return data;
+    public Color[] getColorTable() {
+        return colorTable;
     }
 
     public byte[] getBitMasks() {
         return bitMasks;
     }
 
-    public byte[] getColorTable() {
-        return colorTable;
+    public byte[] getData() {
+        return data;
     }
 }
