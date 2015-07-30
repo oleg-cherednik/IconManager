@@ -5,6 +5,7 @@ import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
 
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.ImageIcon;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,6 +59,11 @@ public final class IconFile implements Iterable<IconImage> {
                 return image;
 
         throw new ImageNotFoundException(pos, images.size());
+    }
+
+    @NotNull
+    public ImageIcon getIcon(ImageKey key) throws ImageNotFoundException, IOException {
+        return getImage(key).getIcon();
     }
 
     @NotNull

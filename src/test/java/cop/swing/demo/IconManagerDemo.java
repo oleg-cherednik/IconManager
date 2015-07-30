@@ -119,10 +119,13 @@ public class IconManagerDemo extends JFrame {
 
             for (ImageKey key : iconFile.getKeys()) {
                 IconImage iconImage = iconFile.getImage(key);
-                JLabel icon = createLabelIcon(iconFile.getImage(key).getIcon(), showBorder);
+                JLabel icon = createLabelIcon(iconFile.getIcon(key), showBorder);
                 JLabel sizeLabel = showSize ? new JLabel(iconImage.getHeader().getImageKey().toString()) : null;
                 add(createPanel(icon, sizeLabel), gbc);
             }
+
+            gbc.weighty = 1;
+            add(Box.createVerticalGlue(), gbc);
 
             updateUI();
         }
