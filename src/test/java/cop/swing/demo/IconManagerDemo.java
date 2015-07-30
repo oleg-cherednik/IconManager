@@ -1,6 +1,5 @@
 package cop.swing.demo;
 
-import com.ucware.icontools.IconTools;
 import cop.swing.icoman.IconFile;
 import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconManager;
@@ -37,10 +36,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Random;
 
 /**
@@ -88,7 +84,6 @@ public class IconManagerDemo extends JFrame {
 
         public IconManagerPanel() {
             init();
-//            foo();
         }
 
         private void init() {
@@ -113,26 +108,6 @@ public class IconManagerDemo extends JFrame {
                 this.showSize = showSize;
                 showIcon(iconFile);
             } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void foo() {
-            try (InputStream in = new FileInputStream("d:/foo1.ico")) {
-                Icon[] imageIcons = IconTools.readIcons(in);
-                removeAll();
-                GridBagConstraints gbc = createConstraints();
-
-                for (Icon imageIcon : imageIcons) {
-                    JLabel icon = createLabelIcon(imageIcon, showBorder);
-                    JLabel sizeLabel = showSize ? new JLabel(imageIcon.getIconWidth() + "x" + imageIcon.getIconHeight()) : null;
-                    add(createPanel(icon, sizeLabel), gbc);
-                }
-
-                updateUI();
-            } catch(FileNotFoundException e) {
-                e.printStackTrace();
-            } catch(IOException e) {
                 e.printStackTrace();
             }
         }
@@ -239,10 +214,10 @@ public class IconManagerDemo extends JFrame {
         }
 
         private void foo() {
-            try (ImageInputStream in = ImageIO.createImageInputStream(new File("d:/foo1.ico"))){
+            try (ImageInputStream in = ImageIO.createImageInputStream(new File("d:/foo1.ico"))) {
                 IconFile iconFile = iconManager.addIcon("foo", in);
                 iconKeyCombo.addItem(new IconKey("foo", iconFile.getImagesAmount()));
-            }catch(IOException e){
+            } catch(IOException e) {
                 e.printStackTrace();
             } catch(IconManagerException e) {
                 e.printStackTrace();

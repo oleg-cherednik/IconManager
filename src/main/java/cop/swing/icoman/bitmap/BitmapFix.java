@@ -1,6 +1,5 @@
 package cop.swing.icoman.bitmap;
 
-import cop.swing.icoman.imageio.bmp.BitMask;
 import cop.swing.icoman.imageio.bmp.IconBitmap;
 
 import javax.imageio.stream.ImageInputStream;
@@ -50,11 +49,11 @@ public final class BitmapFix extends Bitmap {
         if (bitCount <= 8) {
             int n7;
             int n8;
-            int[] arrn = new int[width * height];
+            int[] buf1 = new int[width * height];
             if (bitCount == 8) {
-                if (bitMasks.length == arrn.length) {
-                    for (n8 = 0; n8 < arrn.length; ++n8) {
-                        arrn[n8] = bitMasks[n8] & 255;
+                if (bitMasks.length == buf1.length) {
+                    for (n8 = 0; n8 < buf1.length; ++n8) {
+                        buf1[n8] = bitMasks[n8] & 255;
                     }
                 } else {
                     n2 = 0;
@@ -62,7 +61,7 @@ public final class BitmapFix extends Bitmap {
                     n5 = 0;
                     n6 = bitMasks.length / height - width;
                     for (n8 = 0; n8 < bitMasks.length; ++n8) {
-                        arrn[n2++] = bitMasks[n8] & 255;
+                        buf1[n2++] = bitMasks[n8] & 255;
                         if (++n5 != n4) continue;
                         n5 = 0;
                         n8 += n6;
@@ -70,10 +69,10 @@ public final class BitmapFix extends Bitmap {
                 }
             } else if (bitCount == 4) {
                 n = 0;
-                if (bitMasks.length * 2 == arrn.length) {
+                if (bitMasks.length * 2 == buf1.length) {
                     for (n8 = 0; n8 < bitMasks.length; ++n8) {
-                        arrn[n++] = (bitMasks[n8] & 255) >> 4;
-                        arrn[n++] = (bitMasks[n8] & 255) >> 4 << 4 ^ bitMasks[n8] & 255;
+                        buf1[n++] = (bitMasks[n8] & 255) >> 4;
+                        buf1[n++] = (bitMasks[n8] & 255) >> 4 << 4 ^ bitMasks[n8] & 255;
                     }
                 } else {
                     n2 = 0;
@@ -83,7 +82,7 @@ public final class BitmapFix extends Bitmap {
                     n8 = 1;
                     for (n7 = 0; n7 < bitMasks.length; ++n7) {
                         if (n8 != 0) {
-                            arrn[n++] = (bitMasks[n7] & 255) >> 4;
+                            buf1[n++] = (bitMasks[n7] & 255) >> 4;
                         }
                         if (n8 != 0 && ++n5 == n4) {
                             n5 = 0;
@@ -93,7 +92,7 @@ public final class BitmapFix extends Bitmap {
                             n8 = 1;
                         }
                         if (n8 != 0) {
-                            arrn[n++] = (bitMasks[n7] & 255) >> 4 << 4 ^ bitMasks[n7] & 255;
+                            buf1[n++] = (bitMasks[n7] & 255) >> 4 << 4 ^ bitMasks[n7] & 255;
                         }
                         if (n8 != 0 && ++n5 == n4) {
                             n5 = 0;
@@ -115,7 +114,7 @@ public final class BitmapFix extends Bitmap {
                     ++n5;
                     for (n7 = 7; n7 >= 0; --n7) {
                         if (n6 >= n3) continue;
-                        arrn[n2++] = (1 << n7 & bitMasks[n8]) != 0 ? 1 : 0;
+                        buf1[n2++] = (1 << n7 & bitMasks[n8]) != 0 ? 1 : 0;
                         ++n6;
                     }
                     if (n5 != n4) continue;
@@ -124,10 +123,10 @@ public final class BitmapFix extends Bitmap {
                 }
             }
             n = 0;
-            BitMask[] arra = iconBitmap.getData();
+            Color[] data = iconBitmap.getData();
             for (n7 = height - 1; n7 >= 0; --n7) {
                 for (int j = 0; j < width; ++j) {
-                    Color color = new Color(arra[arrn[n]].red, arra[arrn[n]].green, arra[arrn[n]].blue, buf[n] & 255);
+                    Color color = new Color(data[buf1[n]].getRed(), data[buf1[n]].getGreen(), data[buf1[n]].getBlue(), buf[n] & 255);
                     bufferedImage.setRGB(j, n7, color.getRGB());
                     ++n;
                 }

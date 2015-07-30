@@ -3,6 +3,7 @@ package cop.swing.icoman.imageio.bmp;
 import cop.swing.icoman.bitmap.BitmapInfoHeader;
 
 import javax.imageio.stream.ImageInputStream;
+import java.awt.Color;
 import java.io.IOException;
 
 /**
@@ -11,7 +12,7 @@ import java.io.IOException;
  */
 public class IconBitmap {
     private final BitmapInfoHeader header;
-    private BitMask[] data;
+    private Color[] data;
     private final byte[] bitMasks;
     private final byte[] colorTable;
 
@@ -23,10 +24,10 @@ public class IconBitmap {
         int size = bitCount <= 8 ? (int)Math.pow(2.0, bitCount) : 0;
 
         if (size > 0) {
-            data = new BitMask[size];
+            data = new Color[size];
 
             for (int i = 0; i < data.length; ++i)
-                data[i] = new BitMask(in);
+                data[i] = readColor(in);
         }
 
         bitMasks = new byte[(width * bitCount + 31) / 32 * 4 * height];
@@ -35,11 +36,19 @@ public class IconBitmap {
         in.read(colorTable);
     }
 
+    private static Color readColor(ImageInputStream in) throws IOException {
+        int blue = (int)in.readByte() & 255;
+        int green = (int)in.readByte() & 255;
+        int red = (int)in.readByte() & 255;
+        in.skipBytes(1);    // reserved
+        return new Color(red, green, blue);
+    }
+
     public BitmapInfoHeader getHeader() {
         return header;
     }
 
-    public BitMask[] getData() {
+    public Color[] getData() {
         return data;
     }
 
