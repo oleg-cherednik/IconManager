@@ -15,10 +15,11 @@ public final class BitmapFix extends Bitmap {
         readImage(in);
     }
 
-    private static void bitLess8(BitmapInfoHeader header, byte[] buf, Color[] colorTable, byte[] bitMasks, byte[] data, BufferedImage bufferedImage) {
+    private static BufferedImage bitLess8(BitmapInfoHeader header, byte[] alphaTable, Color[] colorTable, byte[] bitMasks, byte... data) {
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         int n;
         int n2 = 0;
         int n3 = width;
@@ -104,15 +105,20 @@ public final class BitmapFix extends Bitmap {
         for (n7 = height - 1; n7 >= 0; --n7) {
             for (int j = 0; j < width; ++j) {
                 Color color = new Color(colorTable[buf1[n]].getRed(), colorTable[buf1[n]].getGreen(), colorTable[buf1[n]].getBlue(),
-                        buf[n] & 255);
+                        alphaTable[n] & 255);
                 bufferedImage.setRGB(j, n7, color.getRGB());
                 ++n;
             }
         }
+
+        return bufferedImage;
     }
 
-    private void bitGreater8(BitmapInfoHeader header, byte[] buf, byte[] bitMasks, BufferedImage bufferedImage) {
+    private BufferedImage bitGreater8(BitmapInfoHeader header, byte[] alphaTable, byte... bitMasks) {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
         int n = 0;
         int n6 = 0;
@@ -124,7 +130,7 @@ public final class BitmapFix extends Bitmap {
                     int n10 = bitMasks[n++] & 255;
                     int n11 = bitMasks[n++] & 255;
                     int n12 = bitMasks[n++] & 255;
-                    Color color = new Color(n12, n11, n10, buf[n9++] & 255);
+                    Color color = new Color(n12, n11, n10, alphaTable[n9++] & 255);
                     bufferedImage.setRGB(k, j, color.getRGB());
                 }
                 n += n6;
@@ -141,6 +147,8 @@ public final class BitmapFix extends Bitmap {
                 }
             }
         }
+
+        return bufferedImage;
     }
 
     // ========== Bitmap ==========
@@ -152,38 +160,39 @@ public final class BitmapFix extends Bitmap {
         byte[] bitMasks = readBitMasks(header, in);
         byte[] data = readData(header, in);
         int bitCount = header.getBiBitCount();
+        byte[] alphaTable = createAlphaTable(header, data);
+
+        return bitCount <= 8 ? bitLess8(header, alphaTable, colorTable, bitMasks, data) : bitGreater8(header, alphaTable, bitMasks);
+    }
+
+    // ========== static ==========
+
+    private static byte[] createAlphaTable(BitmapInfoHeader header, byte... data) {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
         byte[] buf = new byte[width * height];
 
-        int n;
-        int n2 = 0;
-        int n3 = width;
+        int pos = 0;
         int n4 = data.length / height;
         int n5 = 0;
         int n6 = 0;
+
         for (int i = 0; i < data.length; ++i) {
             ++n5;
-            for (n = 7; n >= 0; --n) {
-                if (n6 >= n3) continue;
-                buf[n2++] = (byte)((1 << n & data[i]) != 0 ? 0 : -1);
+            for (int j = 7; j >= 0; j--) {
+                if (n6 >= width)
+                    continue;
+                buf[pos++] = (byte)((1 << j & data[i]) != 0 ? 0 : -1);
                 ++n6;
             }
-            if (n5 != n4) continue;
+            if (n5 != n4)
+                continue;
             n5 = 0;
             n6 = 0;
         }
 
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-
-        if (bitCount <= 8) {
-            bitLess8(header, buf, colorTable, bitMasks, data, bufferedImage);
-        } else {
-            bitGreater8(header, buf, bitMasks, bufferedImage);
-        }
-
-        return bufferedImage;
+        return buf;
     }
-
-    // ========== static ==========
 
     private static Color[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int bitCount = header.getBiBitCount();
