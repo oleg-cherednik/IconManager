@@ -324,7 +324,7 @@ public class IconManagerDemo extends JFrame {
         }
 
         private static final class FileFilterImpl extends FileFilter {
-            private static final FileFilter ICO = new FileFilterImpl("ico", "Windows icon");
+            private static final FileFilter ICO = new FileFilterImpl("ico", "Windows Icon");
             private static final FileFilter ICL = new FileFilterImpl("icl", "Windows Icon Library File");
             private static final FileFilter ICNS = new FileFilterImpl("icns", "Mac OS X Icon Resource File");
 
