@@ -15,7 +15,9 @@ public final class BitmapFix extends Bitmap {
         readImage(in);
     }
 
-    private void bitLess8(BitmapInfoHeader header, byte[] buf, Color[] colorTable, byte[] bitMasks, byte[] data, BufferedImage bufferedImage) {
+    private static void bitLess8(BitmapInfoHeader header, byte[] buf, Color[] colorTable, byte[] bitMasks, byte[] data, BufferedImage bufferedImage) {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
         int n;
         int n2 = 0;
@@ -109,6 +111,38 @@ public final class BitmapFix extends Bitmap {
         }
     }
 
+    private void bitGreater8(BitmapInfoHeader header, byte[] buf, byte[] bitMasks, BufferedImage bufferedImage) {
+        int bitCount = header.getBiBitCount();
+
+        int n = 0;
+        int n6 = 0;
+        if (bitCount == 24) {
+            int n9 = 0;
+            n6 = bitMasks.length == 3 * height * width ? 0 : bitMasks.length / height - width * 3;
+            for (int j = height - 1; j >= 0; --j) {
+                for (int k = 0; k < width; ++k) {
+                    int n10 = bitMasks[n++] & 255;
+                    int n11 = bitMasks[n++] & 255;
+                    int n12 = bitMasks[n++] & 255;
+                    Color color = new Color(n12, n11, n10, buf[n9++] & 255);
+                    bufferedImage.setRGB(k, j, color.getRGB());
+                }
+                n += n6;
+            }
+        } else if (bitCount == 32) {
+            for (int j = height - 1; j >= 0; --j) {
+                for (int k = 0; k < width; ++k) {
+                    int n13 = bitMasks[n++] & 255;
+                    int n14 = bitMasks[n++] & 255;
+                    int n15 = bitMasks[n++] & 255;
+                    int n16 = bitMasks[n++] & 255;
+                    Color color = new Color(n15, n14, n13, n16);
+                    bufferedImage.setRGB(k, j, color.getRGB());
+                }
+            }
+        }
+    }
+
     // ========== Bitmap ==========
 
     @Override
@@ -137,38 +171,13 @@ public final class BitmapFix extends Bitmap {
             n5 = 0;
             n6 = 0;
         }
-        n = 0;
+
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
         if (bitCount <= 8) {
             bitLess8(header, buf, colorTable, bitMasks, data, bufferedImage);
         } else {
-            n = 0;
-            if (bitCount == 24) {
-                int n9 = 0;
-                n6 = bitMasks.length == 3 * height * width ? 0 : bitMasks.length / height - width * 3;
-                for (int j = height - 1; j >= 0; --j) {
-                    for (int k = 0; k < width; ++k) {
-                        int n10 = bitMasks[n++] & 255;
-                        int n11 = bitMasks[n++] & 255;
-                        int n12 = bitMasks[n++] & 255;
-                        Color color = new Color(n12, n11, n10, buf[n9++] & 255);
-                        bufferedImage.setRGB(k, j, color.getRGB());
-                    }
-                    n += n6;
-                }
-            } else if (bitCount == 32) {
-                for (int j = height - 1; j >= 0; --j) {
-                    for (int k = 0; k < width; ++k) {
-                        int n13 = bitMasks[n++] & 255;
-                        int n14 = bitMasks[n++] & 255;
-                        int n15 = bitMasks[n++] & 255;
-                        int n16 = bitMasks[n++] & 255;
-                        Color color = new Color(n15, n14, n13, n16);
-                        bufferedImage.setRGB(k, j, color.getRGB());
-                    }
-                }
-            }
+            bitGreater8(header, buf, bitMasks, bufferedImage);
         }
 
         return bufferedImage;
@@ -198,7 +207,7 @@ public final class BitmapFix extends Bitmap {
 
     private static byte[] readBitMasks(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int width = header.getBiWidth();
-        int height = header.getBiHeight() / 2;
+        int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
         byte[] buf = new byte[(width * bitCount + 31) / 32 * 4 * height];
 
@@ -209,7 +218,7 @@ public final class BitmapFix extends Bitmap {
 
     private static byte[] readData(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int width = header.getBiWidth();
-        int height = header.getBiHeight() / 2;
+        int height = header.getBiHeight();
         byte[] buf = new byte[(width + 31) / 32 * 4 * height];
 
         in.read(buf);

@@ -25,7 +25,7 @@ public abstract class Bitmap {
     protected Bitmap(BitmapInfoHeader header) {
         this.header = header;
         width = header.getBiWidth();
-        height = header.getBiHeight() / 2;
+        height = header.getBiHeight();
     }
 
     protected final void readImage(ImageInputStream is) throws IOException {

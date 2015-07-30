@@ -51,7 +51,7 @@ public final class IndexedBitmap extends Bitmap {
 		Graphics2D g = image.createGraphics();
 		//g.setBackground(Color.white);
 
-		for (int y = header.getBiHeight() / 2 - 1; y >= 0; y--) {
+		for (int y = header.getBiHeight() - 1; y >= 0; y--) {
 			for (int x = 0; x < header.getBiWidth(); x++) {
 				if (!hasAlpha(x, y)) {
 					g.setColor(getRGB(x, y));
