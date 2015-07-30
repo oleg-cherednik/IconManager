@@ -1,5 +1,7 @@
 package cop.swing.icoman.bitmap;
 
+import cop.swing.icoman.exceptions.FormatNotSupportedException;
+
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
@@ -13,11 +15,11 @@ import java.io.InputStream;
 public final class RgbBitmap extends Bitmap {
     private final int readBytes;
 
-    public RgbBitmap(BitmapInfoHeader header, int readBytes, InputStream in) throws IOException {
+    public RgbBitmap(BitmapInfoHeader header, int readBytes, InputStream in) throws IOException, FormatNotSupportedException {
         this(header, readBytes, ImageIO.createImageInputStream(in));
     }
 
-    public RgbBitmap(BitmapInfoHeader header, int readBytes, ImageInputStream in) throws IOException {
+    public RgbBitmap(BitmapInfoHeader header, int readBytes, ImageInputStream in) throws IOException, FormatNotSupportedException {
         super(header);
         this.readBytes = readBytes;
         readImage(in);

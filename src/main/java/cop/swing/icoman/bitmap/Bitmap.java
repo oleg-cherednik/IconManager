@@ -1,5 +1,6 @@
 package cop.swing.icoman.bitmap;
 
+import cop.swing.icoman.exceptions.FormatNotSupportedException;
 import cop.swing.icoman.exceptions.IconManagerException;
 
 import javax.imageio.stream.ImageInputStream;
@@ -28,7 +29,7 @@ public abstract class Bitmap {
         height = header.getBiHeight();
     }
 
-    protected final void readImage(ImageInputStream is) throws IOException {
+    protected final void readImage(ImageInputStream is) throws IOException, FormatNotSupportedException {
         image = createImage(is);
     }
 
@@ -40,7 +41,7 @@ public abstract class Bitmap {
         return image;
     }
 
-    protected abstract BufferedImage createImage(ImageInputStream in) throws IOException;
+    protected abstract BufferedImage createImage(ImageInputStream in) throws IOException, FormatNotSupportedException;
 
     private void append(StringBuffer sb, boolean first, Field[] data)
             throws IllegalAccessException, IllegalArgumentException {

@@ -124,7 +124,7 @@ public final class ImageKey implements Comparable<ImageKey> {
     private static String getString(int width, int height, int colors) {
         StringBuilder buf = new StringBuilder();
 
-        buf.append(width).append('x').append(height).append(' ');
+        buf.append(width).append('x').append(height);
 
         if (colors == HIGH_COLOR)
             buf.append(" High Color");
