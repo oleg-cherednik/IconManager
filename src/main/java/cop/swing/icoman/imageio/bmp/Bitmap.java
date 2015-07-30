@@ -1,6 +1,6 @@
-package cop.swing.icoman.bitmap;
+package cop.swing.icoman.imageio.bmp;
 
-import cop.swing.icoman.exceptions.FormatNotSupportedException;
+import cop.swing.icoman.exceptions.IconManagerException;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Color;
@@ -9,18 +9,10 @@ import java.io.IOException;
 
 /**
  * @author Oleg Cherednik
- * @since 30.07.2015
+ * @since 01.09.2013
  */
-public final class BitmapFix extends Bitmap {
-    public BitmapFix(BitmapInfoHeader header, ImageInputStream in) throws IOException, FormatNotSupportedException {
-        super(header);
-        readImage(in);
-    }
-
-    // ========== Bitmap ==========
-
-    @Override
-    protected BufferedImage createImage(ImageInputStream in) throws IOException, FormatNotSupportedException {
+public final class Bitmap {
+    public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
         Color[] colorTable = readColorTable(header, in);
         byte[] mask = readBitMasks(header, in);
@@ -42,10 +34,76 @@ public final class BitmapFix extends Bitmap {
         if (bitCount == 32)
             return createImage32(width, height, mask);
 
-        throw new FormatNotSupportedException("Bitmap with " + bitCount + "bit is not supported");
+        throw new IconManagerException("Bitmap with " + bitCount + "bit is not supported");
     }
 
-    // ========== static ==========
+    private static Color[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+        int bitCount = header.getBiBitCount();
+        int size = bitCount <= 8 ? (int)Math.pow(2.0, bitCount) : 0;
+
+        if (size == 0)
+            return null;
+
+        Color[] data = new Color[size];
+
+        for (int i = 0; i < data.length; ++i) {
+            int blue = (int)in.readByte() & 255;
+            int green = (int)in.readByte() & 255;
+            int red = (int)in.readByte() & 255;
+            in.skipBytes(1);    // reserved
+            data[i] = new Color(red, green, blue);
+        }
+
+        return data;
+    }
+
+    private static byte[] readBitMasks(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
+        int bitCount = header.getBiBitCount();
+        byte[] buf = new byte[(width * bitCount + 31) / 32 * 4 * height];
+
+        in.read(buf);
+
+        return buf;
+    }
+
+    private static byte[] readData(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
+        byte[] buf = new byte[(width + 31) / 32 * 4 * height];
+
+        in.read(buf);
+
+        return buf;
+    }
+
+    private static byte[] createAlphaTable(BitmapInfoHeader header, byte... data) {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
+        byte[] buf = new byte[width * height];
+
+        int pos = 0;
+        int n4 = data.length / height;
+        int n5 = 0;
+        int n6 = 0;
+
+        for (int i = 0; i < data.length; ++i) {
+            ++n5;
+            for (int j = 7; j >= 0; j--) {
+                if (n6 >= width)
+                    continue;
+                buf[pos++] = (byte)((1 << j & data[i]) != 0 ? 0 : -1);
+                ++n6;
+            }
+            if (n5 != n4)
+                continue;
+            n5 = 0;
+            n6 = 0;
+        }
+
+        return buf;
+    }
 
     private static BufferedImage createImage1(int width, int height, byte[] data, Color[] colors, byte[] alpha, byte... mask) {
         int[] buf = new int[width * height];
@@ -189,71 +247,6 @@ public final class BitmapFix extends Bitmap {
         return image;
     }
 
-    private static byte[] createAlphaTable(BitmapInfoHeader header, byte... data) {
-        int width = header.getBiWidth();
-        int height = header.getBiHeight();
-        byte[] buf = new byte[width * height];
-
-        int pos = 0;
-        int n4 = data.length / height;
-        int n5 = 0;
-        int n6 = 0;
-
-        for (int i = 0; i < data.length; ++i) {
-            ++n5;
-            for (int j = 7; j >= 0; j--) {
-                if (n6 >= width)
-                    continue;
-                buf[pos++] = (byte)((1 << j & data[i]) != 0 ? 0 : -1);
-                ++n6;
-            }
-            if (n5 != n4)
-                continue;
-            n5 = 0;
-            n6 = 0;
-        }
-
-        return buf;
-    }
-
-    private static Color[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
-        int bitCount = header.getBiBitCount();
-        int size = bitCount <= 8 ? (int)Math.pow(2.0, bitCount) : 0;
-
-        if (size == 0)
-            return null;
-
-        Color[] data = new Color[size];
-
-        for (int i = 0; i < data.length; ++i) {
-            int blue = (int)in.readByte() & 255;
-            int green = (int)in.readByte() & 255;
-            int red = (int)in.readByte() & 255;
-            in.skipBytes(1);    // reserved
-            data[i] = new Color(red, green, blue);
-        }
-
-        return data;
-    }
-
-    private static byte[] readBitMasks(BitmapInfoHeader header, ImageInputStream in) throws IOException {
-        int width = header.getBiWidth();
-        int height = header.getBiHeight();
-        int bitCount = header.getBiBitCount();
-        byte[] buf = new byte[(width * bitCount + 31) / 32 * 4 * height];
-
-        in.read(buf);
-
-        return buf;
-    }
-
-    private static byte[] readData(BitmapInfoHeader header, ImageInputStream in) throws IOException {
-        int width = header.getBiWidth();
-        int height = header.getBiHeight();
-        byte[] buf = new byte[(width + 31) / 32 * 4 * height];
-
-        in.read(buf);
-
-        return buf;
+    private Bitmap() {
     }
 }

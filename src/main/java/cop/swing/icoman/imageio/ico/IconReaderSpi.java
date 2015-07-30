@@ -44,19 +44,15 @@ public final class IconReaderSpi extends ImageReaderSpi {
             in.mark();
             in.readFully(buff);
             in.reset();
-            //check header
-            return buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00;
-            // boolean res= (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00);
-            //  System.err.println("Can Read image: " + res);
-            // return res;
+            return isHeaderValid(buff);
         }
-        return true;
+        return false;
     }
 
     /**
      * Returns an instance of the <code>ImageReader</code> implementation  associated with this service provider.
      *
-     * @param extension a plug-in specific extension object, which may be                  <code>null</code>.
+     * @param extension a plug-in specific extension object, which may be {@code null}.
      * @return an <code>ImageReader</code> instance.
      */
     @Override
@@ -84,7 +80,8 @@ public final class IconReaderSpi extends ImageReaderSpi {
     private static volatile boolean isRegistered;
 
     public static synchronized void register() {
-        if (isRegistered) return;
+        if (isRegistered)
+            return;
 
         isRegistered = true;
 
@@ -97,5 +94,9 @@ public final class IconReaderSpi extends ImageReaderSpi {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isHeaderValid(byte... buff) {
+        return buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00;
     }
 }

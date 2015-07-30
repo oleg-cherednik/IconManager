@@ -1,10 +1,7 @@
-package cop.swing.icoman.bitmap;
+package cop.swing.icoman.imageio.bmp;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteOrder;
 
 /**
  * @author Oleg Cherednik
@@ -106,13 +103,5 @@ public final class BitmapInfoHeader {
 
     public int getBiColorsImportant() {
         return biColorsImportant;
-    }
-
-    // ========== static ==========
-
-    private static ImageInputStream createImageInputStream(InputStream in) throws IOException {
-        ImageInputStream is = ImageIO.createImageInputStream(in);
-        is.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        return is;
     }
 }

@@ -41,16 +41,7 @@ public class IconReader extends ImageReader {
 
             ImageInputStream in = (ImageInputStream)input;
             in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            byte[] buff = new byte[4];
             in.mark();
-            in.readFully(buff);
-            in.reset();
-            //check header
-            boolean res = buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0x01 && buff[3] == 0x00;
-            if (!res) {
-                System.err.println(
-                        "ICOReader: Incorrect header -- this should have been detected by the ICOReaderSpi -- did anyone tamper with the inputstream (for example the WBMPImageReader sometimes does that)? make sure you have a fresh imageinputstream before calling the read method!.....");
-            }
             IconFile file = IconFile.read(in);
             icon = file;
             return file;

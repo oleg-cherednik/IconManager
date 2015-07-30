@@ -1,7 +1,5 @@
 package cop.swing.icoman.imageio.bmp;
 
-import cop.swing.icoman.bitmap.Bitmap;
-import cop.swing.icoman.bitmap.BitmapInfoHeader;
 import cop.swing.icoman.exceptions.IconManagerException;
 
 import javax.imageio.IIOException;
@@ -40,7 +38,7 @@ public class IconBitmapReader extends ImageReader {
             header = new BitmapInfoHeader(in);
             in.reset();
 
-            return image = Bitmap.getBitmap(header, in).getImage();
+            return image = Bitmap.readImage(in);
         } catch(IconManagerException e) {
             header = null;
             image = null;
@@ -71,6 +69,7 @@ public class IconBitmapReader extends ImageReader {
      * @return the height of the image, as an <code>int</code>
      * @throws IOException if an error occurs reading the height information from the input source
      */
+    @Override
     public int getHeight(int index) throws IOException {
         try {
             return header.getBiHeight();
@@ -111,6 +110,7 @@ public class IconBitmapReader extends ImageReader {
      * @throws IOException if an error occurs during reading.
      * @todo Implement this javax.imageio.ImageReader method
      */
+    @Override
     public IIOMetadata getImageMetadata(int index) throws IOException {
         try {
             getImage();
@@ -142,6 +142,7 @@ public class IconBitmapReader extends ImageReader {
      *                     from the input source.
      * @todo Implement this javax.imageio.ImageReader method
      */
+    @Override
     public Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {
         return new Iterator<ImageTypeSpecifier>() {
             boolean hasN = true;
@@ -176,6 +177,7 @@ public class IconBitmapReader extends ImageReader {
      *                     input source.
      * @todo Implement this javax.imageio.ImageReader method
      */
+    @Override
     public int getNumImages(boolean allowSearch) throws IOException {
         return 1;
     }
@@ -190,6 +192,7 @@ public class IconBitmapReader extends ImageReader {
      * @throws IOException if an error occurs during reading.
      * @todo Implement this javax.imageio.ImageReader method
      */
+    @Override
     public IIOMetadata getStreamMetadata() throws IOException {
         return null;
     }
@@ -203,6 +206,7 @@ public class IconBitmapReader extends ImageReader {
      *                     the input source.
      * @todo Implement this javax.imageio.ImageReader method
      */
+    @Override
     public int getWidth(int imageIndex) throws IOException {
         try {
             return header.getBiWidth();
