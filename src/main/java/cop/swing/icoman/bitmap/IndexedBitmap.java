@@ -21,12 +21,12 @@ public final class IndexedBitmap extends Bitmap {
 	private final byte[] XOR;
 	private final byte[] AND;
 
-	public IndexedBitmap(InputStream in, int width, int height) throws IOException, IconManagerException {
-		this(ImageIO.createImageInputStream(in), width, height);
+	public IndexedBitmap(BitmapInfoHeader header, InputStream in) throws IOException, IconManagerException {
+		this(header, ImageIO.createImageInputStream(in));
 	}
 
-	public IndexedBitmap(ImageInputStream in, int width, int height) throws IOException, IconManagerException {
-		super(in, width, height);
+	public IndexedBitmap(BitmapInfoHeader header, ImageInputStream in) throws IOException, IconManagerException {
+		super(header);
 
 		int XORmaskSize = header.getBiWidth() * header.getBiHeight() / 2 * header.getBiBitCount() / 8;
 		int ANDMaskSize = Math.max(header.getBiWidth(), 32) * header.getBiHeight() / 2 / 8;
@@ -41,7 +41,7 @@ public final class IndexedBitmap extends Bitmap {
 		readImage(in);
 	}
 
-	protected BufferedImage createImage(ImageInputStream is) throws IOException {
+	protected BufferedImage createImage(ImageInputStream in) throws IOException {
 		if (width < 1 || height < 1) {
 			System.err.println("java.lang.IllegalArgumentException: Width (0) and height (0) cannot be <= 0");
 			return null;

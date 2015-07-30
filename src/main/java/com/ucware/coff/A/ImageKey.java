@@ -3,8 +3,8 @@ package com.ucware.coff.A;
 import com.ucware.coff.Field;
 import com.ucware.coff.Header;
 
-public class D extends Header {
-    public D() {
+public class ImageKey extends Header {
+    public ImageKey() {
         super(new Field("bWidth", 1),
                 new Field("bHeight", 1),
                 new Field("bColorCount", 1),

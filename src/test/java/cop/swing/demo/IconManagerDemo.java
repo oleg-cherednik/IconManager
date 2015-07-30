@@ -6,6 +6,7 @@ import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconManager;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
+import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
 import org.apache.commons.io.FilenameUtils;
 
@@ -117,7 +118,7 @@ public class IconManagerDemo extends JFrame {
         }
 
         public void foo() {
-            try (InputStream in = new FileInputStream("d:/foo.ico")) {
+            try (InputStream in = new FileInputStream("d:/foo1.ico")) {
                 Icon[] imageIcons = IconTools.readIcons(in);
                 removeAll();
                 GridBagConstraints gbc = createConstraints();
@@ -233,6 +234,17 @@ public class IconManagerDemo extends JFrame {
                 IconFile iconFile = iconManager.addIcon(DEF_ICON_ID, DEF_ICON_FILE);
                 iconKeyCombo.addItem(new IconKey(DEF_ICON_ID, iconFile.getImagesAmount()));
             } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void foo() {
+            try (ImageInputStream in = ImageIO.createImageInputStream(new File("d:/foo1.ico"))){
+                IconFile iconFile = iconManager.addIcon("foo", in);
+                iconKeyCombo.addItem(new IconKey("foo", iconFile.getImagesAmount()));
+            }catch(IOException e){
+                e.printStackTrace();
+            } catch(IconManagerException e) {
                 e.printStackTrace();
             }
         }

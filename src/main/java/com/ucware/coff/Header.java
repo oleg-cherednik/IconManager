@@ -2,6 +2,7 @@ package com.ucware.coff;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import javax.imageio.stream.ImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,6 +85,21 @@ public class Header implements A1 {
     }
 
     public static <T extends Header>T read(ByteArrayInputStream in, T header) throws IOException {
+        for (Field field : header.fields) {
+            byte[] buf = new byte[field.size];
+            int n = in.read(buf);
+            field.setData(buf);
+
+            if (field.size == n)
+                continue;
+
+            throw new IOException("Not all bytes read");
+        }
+
+        return header;
+    }
+
+    public static <T extends Header>T read(ImageInputStream in, T header) throws IOException {
         for (Field field : header.fields) {
             byte[] buf = new byte[field.size];
             int n = in.read(buf);

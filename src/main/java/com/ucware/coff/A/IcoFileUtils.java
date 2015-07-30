@@ -8,63 +8,61 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class IcoFileUtils {
-    public static E A(IconImageHeader iconImageHeader, byte[] buf) {
-        D d = new D();
-        Header.A(iconImageHeader, d, "bWidth");
-        Header.A(iconImageHeader, d, "bHeight");
-        Header.A(iconImageHeader, d, "bColorCount");
-        Header.A(iconImageHeader, d, "bReserved");
-        Header.A(iconImageHeader, d, "wPlanes");
-        Header.A(iconImageHeader, d, "wBitCount");
-        Header.A(iconImageHeader, d, "dwBytesInRes");
-        return new E(d, buf);
-    }
-
-    public static IconFileHeaderHolder readHeader(File file) throws IOException {
-        IconFileHeaderHolder header;
-        FileRandomAccess in = new FileRandomAccess(new RandomAccessFile(file, "r"));
+public final class IcoFileUtils {
+    public static IconFile read(File file) throws IOException {
+        IconFile iconFile;
+        FileRandomAccess in = null;
 
         try {
-            header = readHeader(in);
+            in = new FileRandomAccess(new RandomAccessFile(file, "r"));
+            iconFile = read(in);
         } catch(Throwable e) {
-            in.delegate.close();
             throw e;
+        } finally {
+            if (in != null)
+                in.delegate.close();
         }
-        in.delegate.close();
-        return header;
+
+        return iconFile;
     }
 
-    public static IconFileHeaderHolder readHeader(RandomAccessData in) throws IOException {
-        IconFileHeader iconFileHeader = Header.read(in, new IconFileHeader());
-        if (iconFileHeader.getField("idReserved").readLong() != 0) {
+    public static IconFile read(RandomAccessData in) throws IOException {
+        IconFileHeader header = Header.read(in, new IconFileHeader());
+
+        if (header.getField("idReserved").readLong() != 0)
             throw new IOException("Not an icon");
-        }
-        if (iconFileHeader.getField("idType").readLong() != 1) {
+        if (header.getField("idType").readLong() != 1)
             throw new IllegalArgumentException("Not an icon");
+
+        IconFile iconFile = new IconFile(header);
+
+        for (int i = 0; i < header.getImageCount(); ++i) {
+            ImageKey key = Header.read(in, new ImageKey());
+            int size = key.getField("dwBytesInRes").readInt();
+            iconFile.addImage(new IconFileImage(key, new byte[size]));
         }
-        IconFileHeaderHolder g = new IconFileHeaderHolder(iconFileHeader);
-        for (int i = 0; i < iconFileHeader.getImageCount(); ++i) {
-            D d = Header.read(in, new D());
-            g.add(new E(d, null));
-        }
-        for (int j = 0; j < iconFileHeader.getImageCount(); ++j) {
-            E e = g.get(j);
-            in.seek(e.B().getField("dwImageOffset").readLong());
-            byte[] arrby = new byte[e.B().getField("dwBytesInRes").readInt()];
-            if (in.read(arrby) != arrby.length) {
+        for (int j = 0; j < header.getImageCount(); ++j) {
+            IconFileImage iconFileImage = iconFile.getImage(j);
+            ImageKey key = iconFileImage.getKey();
+            long offs = key.getField("dwImageOffset").readLong();
+
+            in.seek(offs);
+            byte[] data = iconFileImage.getData();
+
+            if (in.read(data) != data.length)
                 throw new IOException("Not all bytes read");
-            }
-            g.get(j).A(arrby);
         }
-        return g;
+        return iconFile;
     }
 
     public static void main(String... args) {
         try {
-            readHeader(new File(args[0]));
+            read(new File(args[0]));
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private IcoFileUtils() {
     }
 }

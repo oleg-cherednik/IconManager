@@ -1,7 +1,5 @@
 package cop.swing.icoman.bitmap;
 
-import cop.swing.icoman.bitmap.Bitmap;
-
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
@@ -13,35 +11,35 @@ import java.io.InputStream;
  * @since 01.09.2013
  */
 public final class RgbBitmap extends Bitmap {
-	private final int readBytes;
+    private final int readBytes;
 
-	public RgbBitmap(InputStream in, int readBytes, int width, int height) throws IOException {
-		this(ImageIO.createImageInputStream(in), readBytes, width, height);
-	}
+    public RgbBitmap(BitmapInfoHeader header, int readBytes, InputStream in) throws IOException {
+        this(header, readBytes, ImageIO.createImageInputStream(in));
+    }
 
-	public RgbBitmap(ImageInputStream in, int readBytes, int width, int height) throws IOException {
-		super(in, width, height);
-		this.readBytes = readBytes;
-		readImage(in);
-	}
+    public RgbBitmap(BitmapInfoHeader header, int readBytes, ImageInputStream in) throws IOException {
+        super(header);
+        this.readBytes = readBytes;
+        readImage(in);
+    }
 
-	// ========== Bitmap ==========
+    // ========== Bitmap ==========
 
-	@Override
-	protected BufferedImage createImage(ImageInputStream is) throws IOException {
-		final int w = height;
-		final int h = width;
+    @Override
+    protected BufferedImage createImage(ImageInputStream in) throws IOException {
+        final int w = height;
+        final int h = width;
 
-		//boolean debuginf = readBytes > 3 && w == 32;
-		int[] pixeldata = new int[h * w];
-		for (int rijNr = 0; rijNr < w; rijNr++) {
-			byte[] rij = new byte[h * readBytes];
-			is.read(rij);
-			int rByte = 0;
-			int oPos = (w - rijNr - 1) * h;
-			for (int colNr = 0; colNr < h; colNr++) {
-				// BGR -> RGB
-				int pos = oPos++;
+        //boolean debuginf = readBytes > 3 && w == 32;
+        int[] pixeldata = new int[h * w];
+        for (int rijNr = 0; rijNr < w; rijNr++) {
+            byte[] rij = new byte[h * readBytes];
+            in.read(rij);
+            int rByte = 0;
+            int oPos = (w - rijNr - 1) * h;
+            for (int colNr = 0; colNr < h; colNr++) {
+                // BGR -> RGB
+                int pos = oPos++;
 /*        if (false && readBytes > 2) {
           int r = rij[rByte + 2] & 0xFF;
           int g = rij[rByte + 1] & 0xFF;
@@ -58,36 +56,36 @@ public final class RgbBitmap extends Bitmap {
           rByte += readBytes;
         } else {
  */
-				//added &0xFF to every byte read... this seems to solve all the trouble
-				//I had with the 32bit icons
-				pixeldata[pos] =
-						(rij[rByte++] & 0xFF); //8bit pixel data (blue)
-				if (readBytes > 1) //16bit pixel data
-					pixeldata[pos] += ((rij[rByte++] & 0xFF) << 8); //greeen
-				else
-					pixeldata[pos] += (0 << 8);
-				if (readBytes > 2) //24bit pixel data
-					pixeldata[pos] += ((rij[rByte++] & 0xFF) << 16); //red
-				else
-					pixeldata[pos] += (0 << 16);
+                //added &0xFF to every byte read... this seems to solve all the trouble
+                //I had with the 32bit icons
+                pixeldata[pos] =
+                        (rij[rByte++] & 0xFF); //8bit pixel data (blue)
+                if (readBytes > 1) //16bit pixel data
+                    pixeldata[pos] += ((rij[rByte++] & 0xFF) << 8); //greeen
+                else
+                    pixeldata[pos] += (0 << 8);
+                if (readBytes > 2) //24bit pixel data
+                    pixeldata[pos] += ((rij[rByte++] & 0xFF) << 16); //red
+                else
+                    pixeldata[pos] += (0 << 16);
 
-				if (readBytes > 3) //32bit alpha channel
-					pixeldata[pos] += ((rij[rByte++] & 0xFF) << 24);
-					// else if (pixeldata[pos] == 0)
-					//   pixeldata[pos] += (0 << 24); //<!-- bugfix if the alphamask is not present, it should be set to transparent, not to fully visible. note: this is not the way to do it, now all black pixels become transparent
-				else
-					pixeldata[pos] += ((255) << 24);
-			}
-			//}
-		}
-		BufferedImage bIm;
-		// if (readBytes>3){
-		bIm = new BufferedImage(h, w, BufferedImage.TYPE_INT_ARGB);
-		// }  else{
-		//  bIm = new BufferedImage(entry.getWidth(), entry.getHeight(), BufferedImage.TYPE_INT_RGB);
-		//}
+                if (readBytes > 3) //32bit alpha channel
+                    pixeldata[pos] += ((rij[rByte++] & 0xFF) << 24);
+                    // else if (pixeldata[pos] == 0)
+                    //   pixeldata[pos] += (0 << 24); //<!-- bugfix if the alphamask is not present, it should be set to transparent, not to fully visible. note: this is not the way to do it, now all black pixels become transparent
+                else
+                    pixeldata[pos] += ((255) << 24);
+            }
+            //}
+        }
+        BufferedImage bIm;
+        // if (readBytes>3){
+        bIm = new BufferedImage(h, w, BufferedImage.TYPE_INT_ARGB);
+        // }  else{
+        //  bIm = new BufferedImage(entry.getWidth(), entry.getHeight(), BufferedImage.TYPE_INT_RGB);
+        //}
 
-		bIm.setRGB(0, 0, h, w, pixeldata, 0, h);
-		return bIm;
-	}
+        bIm.setRGB(0, 0, h, w, pixeldata, 0, h);
+        return bIm;
+    }
 }

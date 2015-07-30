@@ -17,12 +17,12 @@ public class LocalPanel extends JFrame {
         A = (JPanel)getContentPane();
         B.setLayout(new FlowLayout(0));
         setTitle("DemoReader");
-        Icon[] arricon = IconTools.readIcons(new File(icoFile));
+        Icon[] icons = IconTools.readIcons(new File(icoFile));
         setTitle("DemoReader");
-        for (int i = 0; i < arricon.length; ++i) {
-            Icon icon = arricon[i];
+        for (int i = 0; i < icons.length; ++i) {
+            Icon icon = icons[i];
             IconImage iconImage = (IconImage)icon;
-            String string2 = "" + iconImage.getIconWidth() + "x" + iconImage.getIconHeight() + "@" + iconImage.C();
+            String string2 = "" + iconImage.getIconWidth() + "x" + iconImage.getIconHeight() + "@" + iconImage.getBitCount();
             B.add(new JButton(string2, icon));
         }
         A.add(B);
