@@ -17,112 +17,117 @@ public final class BitmapFix extends Bitmap {
         readImage(in);
     }
 
-    private static BufferedImage createImage1(int width, int height, byte[] data, Color[] colors, byte[] alpha, byte... mask) {
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-        int n;
-        int n2 = 0;
-        int n3 = width;
-        int n4 = data.length / height;
-        int n5 = 0;
-        int n6 = 0;
-        int n7;
-        int n8;
-        int[] buf1 = new int[width * height];
+    // ========== Bitmap ==========
 
-        n2 = 0;
-        n3 = width;
-        n4 = data.length / height;
-        n5 = 0;
-        n6 = 0;
-        for (n8 = 0; n8 < mask.length; ++n8) {
-            ++n5;
-            for (n7 = 7; n7 >= 0; --n7) {
-                if (n6 >= n3) continue;
-                buf1[n2++] = (1 << n7 & mask[n8]) != 0 ? 1 : 0;
+    @Override
+    protected BufferedImage createImage(ImageInputStream in) throws IOException, FormatNotSupportedException {
+        BitmapInfoHeader header = new BitmapInfoHeader(in);
+        Color[] colorTable = readColorTable(header, in);
+        byte[] mask = readBitMasks(header, in);
+        byte[] data = readData(header, in);
+        byte[] alpha = createAlphaTable(header, data);
+
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
+        int bitCount = header.getBiBitCount();
+
+        if (bitCount == 1)
+            return createImage1(width, height, data, colorTable, alpha, mask);
+        if (bitCount == 4)
+            return createImage4(width, height, colorTable, alpha, mask);
+        if (bitCount == 8)
+            return createImage8(width, height, colorTable, alpha, mask);
+        if (bitCount == 24)
+            return createImage24(width, height, alpha, mask);
+        if (bitCount == 32)
+            return createImage32(width, height, mask);
+
+        throw new FormatNotSupportedException("Bitmap with " + bitCount + "bit is not supported");
+    }
+
+    // ========== static ==========
+
+    private static BufferedImage createImage1(int width, int height, byte[] data, Color[] colors, byte[] alpha, byte... mask) {
+        int[] buf = new int[width * height];
+        int n4 = data.length / height;
+
+        for (int offsMask = 0, offs = 0, n5 = 0, n6 = 0; offsMask < mask.length; ++offsMask) {
+            n5++;
+
+            for (int i = 7; i >= 0; i--) {
+                if (n6 >= width)
+                    continue;
+
+                buf[offs++] = (1 << i & mask[offsMask]) != 0 ? 1 : 0;
                 ++n6;
             }
-            if (n5 != n4) continue;
+
+            if (n5 != n4)
+                continue;
+
             n5 = 0;
             n6 = 0;
         }
 
-        return createImage(width, height, colors, alpha, buf1);
+        return createImage(width, height, colors, alpha, buf);
     }
 
-    private static BufferedImage createImage4(int width, int height, byte[] data, Color[] colors, byte[] alpha, byte[] mask) {
-        int n;
-        int n2 = 0;
-        int n3 = width;
-        int n4 = data.length / height;
-        int n5 = 0;
-        int n6 = 0;
-        int n7;
-        int n8;
-        int[] buf1 = new int[width * height];
+    private static BufferedImage createImage4(int width, int height, Color[] colors, byte[] alpha, byte[] mask) {
+        int[] buf = new int[width * height];
 
-        n = 0;
-        if (mask.length * 2 == buf1.length) {
-            for (n8 = 0; n8 < mask.length; ++n8) {
-                buf1[n++] = (mask[n8] & 255) >> 4;
-                buf1[n++] = (mask[n8] & 255) >> 4 << 4 ^ mask[n8] & 255;
+        if (mask.length * 2 == buf.length) {
+            for (int offsMask = 0, offs = 0; offsMask < mask.length; offsMask++) {
+                buf[offs++] = (mask[offsMask] & 255) >> 4;
+                buf[offs++] = (mask[offsMask] & 255) >> 4 << 4 ^ mask[offsMask] & 255;
             }
         } else {
-            n2 = 0;
-            n4 = n3;
-            n5 = 0;
-            n6 = mask.length * 2 / height - width;
-            n8 = 1;
-            for (n7 = 0; n7 < mask.length; ++n7) {
-                if (n8 != 0) {
-                    buf1[n++] = (mask[n7] & 255) >> 4;
-                }
-                if (n8 != 0 && ++n5 == n4) {
+            int n6 = mask.length * 2 / height - width;
+
+            for (int offsMask = 0, offs = 0, n5 = 0, n8 = 1; offsMask < mask.length; offsMask++) {
+                if (n8 != 0)
+                    buf[offs++] = (mask[offsMask] & 255) >> 4;
+                if (n8 != 0 && ++n5 == width) {
                     n5 = 0;
                     n8 = 0;
                 } else if (n8 == 0 && n5 == n6) {
                     n5 = 0;
                     n8 = 1;
                 }
-                if (n8 != 0) {
-                    buf1[n++] = (mask[n7] & 255) >> 4 << 4 ^ mask[n7] & 255;
-                }
-                if (n8 != 0 && ++n5 == n4) {
+
+                if (n8 != 0)
+                    buf[offs++] = (mask[offsMask] & 255) >> 4 << 4 ^ mask[offsMask] & 255;
+                if (n8 != 0 && ++n5 == width) {
                     n5 = 0;
                     n8 = 0;
                     continue;
                 }
-                if (n8 != 0 || n5 != n6) continue;
+                if (n8 != 0 || n5 != n6)
+                    continue;
                 n5 = 0;
                 n8 = 1;
             }
         }
 
-        return createImage(width, height, colors, alpha, buf1);
+        return createImage(width, height, colors, alpha, buf);
     }
 
-    private static BufferedImage createImage8(int width, int height, byte[] data, Color[] colors, byte[] alpha, byte... mask) {
-        int n;
-        int n2 = 0;
-        int n3 = width;
-        int n4 = data.length / height;
-        int n5 = 0;
-        int n6 = 0;
-        int n7;
+    private static BufferedImage createImage8(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
         int[] buf = new int[width * height];
 
         if (mask.length == buf.length)
             for (int offs = 0; offs < buf.length; offs++)
                 buf[offs] = mask[offs] & 255;
         else {
-            n2 = 0;
-            n4 = n3;
-            n5 = 0;
-            n6 = mask.length / height - width;
-            for (int n8 = 0; n8 < mask.length; ++n8) {
-                buf[n2++] = mask[n8] & 255;
-                if (++n5 != n4) continue;
+            int size = mask.length / height - width;
+
+            for (int offsMask = 0, offs = 0, n5 = 0; offsMask < mask.length; offsMask++, offs++) {
+                buf[offs] = mask[offsMask] & 255;
+
+                if (++n5 != width)
+                    continue;
+
                 n5 = 0;
-                n8 += n6;
+                offsMask += size;
             }
         }
 
@@ -171,58 +176,18 @@ public final class BitmapFix extends Bitmap {
     private static BufferedImage createImage(int width, int height, Color[] colors, byte[] alpha, int... buf) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
-//        for (int y = height - 1, offAlpha = 0; y >= 0; y--) {
-//            for (int x = 0; x < width; x++) {
-//                int red = colorTable[buf[offAlpha]].getRed();
-//                int green = colorTable[buf[offAlpha]].getGreen();
-//                int blue = colorTable[buf[offAlpha]].getBlue();
-//                int rgb = new Color(red, green, blue, alpha[offAlpha] & 255).getRGB();
-//                image.setRGB(x, y, rgb);
-//            }
-//        }
-
-        int n = 0;
-        for (int n7 = height - 1; n7 >= 0; --n7) {
-            for (int j = 0; j < width; ++j) {
-                Color color = new Color(colors[buf[n]].getRed(), colors[buf[n]].getGreen(), colors[buf[n]].getBlue(),
-                        alpha[n] & 255);
-                image.setRGB(j, n7, color.getRGB());
-                ++n;
+        for (int y = height - 1, offs = 0; y >= 0; y--) {
+            for (int x = 0; x < width; x++, offs++) {
+                int red = colors[buf[offs]].getRed();
+                int green = colors[buf[offs]].getGreen();
+                int blue = colors[buf[offs]].getBlue();
+                int rgb = new Color(red, green, blue, alpha[offs] & 255).getRGB();
+                image.setRGB(x, y, rgb);
             }
         }
 
         return image;
     }
-
-    // ========== Bitmap ==========
-
-    @Override
-    protected BufferedImage createImage(ImageInputStream in) throws IOException, FormatNotSupportedException {
-        BitmapInfoHeader header = new BitmapInfoHeader(in);
-        Color[] colorTable = readColorTable(header, in);
-        byte[] mask = readBitMasks(header, in);
-        byte[] data = readData(header, in);
-        byte[] alpha = createAlphaTable(header, data);
-
-        int width = header.getBiWidth();
-        int height = header.getBiHeight();
-        int bitCount = header.getBiBitCount();
-
-        if (bitCount == 1)
-            return createImage1(width, height, data, colorTable, alpha, mask);
-        if (bitCount == 4)
-            return createImage4(width, height, data, colorTable, alpha, mask);
-        if (bitCount == 8)
-            return createImage8(width, height, data, colorTable, alpha, mask);
-        if (bitCount == 24)
-            return createImage24(width, height, alpha, mask);
-        if (bitCount == 32)
-            return createImage32(width, height, mask);
-
-        throw new FormatNotSupportedException("Bitmap with " + bitCount + "bit is not supported");
-    }
-
-    // ========== static ==========
 
     private static byte[] createAlphaTable(BitmapInfoHeader header, byte... data) {
         int width = header.getBiWidth();
