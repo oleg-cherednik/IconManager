@@ -50,10 +50,6 @@ public final class BitmapInfoHeader {
 //			2Eh	4	the number of colors in the color palette, or 0 to default to 2n.
 //	32h	4	the number of important colors used, or 0 when every color is important; generally ignored.
 
-	public BitmapInfoHeader(InputStream in) throws IOException {
-		this(createImageInputStream(in));
-	}
-
 	public BitmapInfoHeader(ImageInputStream in) throws IOException {
 		biSize = (int)in.readUnsignedInt();
 		biWidth = in.readInt();

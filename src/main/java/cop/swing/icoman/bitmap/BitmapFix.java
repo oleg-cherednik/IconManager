@@ -1,7 +1,7 @@
 package cop.swing.icoman.bitmap;
 
-import com.ucware.icontools.BitMask;
-import com.ucware.icontools.IconBitmap;
+import cop.swing.icoman.imageio.bmp.BitMask;
+import cop.swing.icoman.imageio.bmp.IconBitmap;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Color;
@@ -25,9 +25,7 @@ public final class BitmapFix extends Bitmap {
         //		IconFileImage iconImage
         int n;
         IconBitmap iconBitmap = new IconBitmap(in);
-        int height1 = iconBitmap.getBitmap().getBitmapInfoHeader().getHeight();
-        int width1 = iconBitmap.getBitmap().getBitmapInfoHeader().getWidth();
-        int bitCount = iconBitmap.getBitmap().getBitmapInfoHeader().getField("biBitCount").readInt();
+        int bitCount = iconBitmap.getHeader().getBiBitCount();
         byte[] buf = new byte[width * height];
         byte[] colorTable = iconBitmap.getColorTable();
         int n2 = 0;
@@ -126,13 +124,10 @@ public final class BitmapFix extends Bitmap {
                 }
             }
             n = 0;
-            BitMask[] arra = iconBitmap.getBitmap().getData();
+            BitMask[] arra = iconBitmap.getData();
             for (n7 = height - 1; n7 >= 0; --n7) {
                 for (int j = 0; j < width; ++j) {
-                    Color color = new Color(arra[arrn[n]].getField("rgbRed").readInt(), arra[arrn[n]].getField("rgbGreen").readInt(),
-                            arra[arrn[n]].getField(
-                                    "rgbBlue").readInt(),
-                            buf[n] & 255);
+                    Color color = new Color(arra[arrn[n]].red, arra[arrn[n]].green, arra[arrn[n]].blue, buf[n] & 255);
                     bufferedImage.setRGB(j, n7, color.getRGB());
                     ++n;
                 }
