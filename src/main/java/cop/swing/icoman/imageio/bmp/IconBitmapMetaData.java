@@ -40,12 +40,14 @@ public final class IconBitmapMetaData extends IIOMetadata {
 
 	// ========== IIOMetadata ==========
 
+	@Override
 	public IIOMetadataFormat getMetadataFormat(String formatName) {
 		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
 			throw new IllegalArgumentException("Bad format name!");
 		return IconMetaDataFormat.getInstance();
 	}
 
+	@Override
 	public Node getAsTree(String formatName) {
 		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
 			throw new IllegalArgumentException("Bad format name!");
@@ -63,15 +65,18 @@ public final class IconBitmapMetaData extends IIOMetadata {
 		return root;
 	}
 
+	@Override
 	public boolean isReadOnly() {
 		return true;
 	}
 
+	@Override
 	public void reset() {
 		keys.clear();
 		values.clear();
 	}
 
+	@Override
 	public void mergeTree(String formatName, Node root) throws IIOInvalidTreeException {
 		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
 			throw new IllegalArgumentException("Bad format name!");

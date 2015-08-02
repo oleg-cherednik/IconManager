@@ -7,6 +7,7 @@ import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
 import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
+import cop.swing.icoman.icns.IcnsFile;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -216,17 +217,6 @@ public class IconManagerDemo extends JFrame {
             }
         }
 
-        private void foo() {
-            try (ImageInputStream in = ImageIO.createImageInputStream(new File("d:/foo1.ico"))) {
-                IconFile iconFile = iconManager.addIcon("foo", in);
-                iconKeyCombo.addItem(new IconKey("foo", iconFile.getImagesAmount()));
-            } catch(IOException e) {
-                e.printStackTrace();
-            } catch(IconManagerException e) {
-                e.printStackTrace();
-            }
-        }
-
         public void onSelectIcon(String id) {
             try {
                 panel.showIcon(iconManager.getIconFile(id));
@@ -260,6 +250,18 @@ public class IconManagerDemo extends JFrame {
                     file = file.getAbsoluteFile();
                     String id = FilenameUtils.getBaseName(file.getName()).toLowerCase();
                     String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
+
+                    if("icns".equals(ext)) {
+                        try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
+                            Object res = IcnsFile.read(in);
+                            int a = 0;
+                            a++;
+                        } catch(IconManagerException e) {
+                            e.printStackTrace();
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
                         IconFile iconFile = iconManager.addIcon(id, in);
