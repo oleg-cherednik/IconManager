@@ -1,9 +1,9 @@
 package cop.swing.icoman.imageio.bmp;
 
 import cop.swing.icoman.VersionData;
-import cop.swing.icoman.imageio.ico.IconMetaData;
-import cop.swing.icoman.imageio.ico.IconMetaDataFormat;
-import cop.swing.icoman.imageio.ico.IconReader;
+import cop.swing.icoman.ico.imageio.IcoMetaData;
+import cop.swing.icoman.ico.imageio.IcoMetaDataFormat;
+import cop.swing.icoman.ico.imageio.IcoReader;
 
 import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
@@ -28,8 +28,8 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
 
     private IconBitmapReaderSpi() {
         super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE,
-                IconReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null,
-                null, false, IconMetaDataFormat.NAME, IconMetaData.class.getName(), null, null
+                IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null,
+                null, false, IcoMetaDataFormat.NAME, IcoMetaData.class.getName(), null, null
         );
     }
 

@@ -1,6 +1,6 @@
 package cop.swing.icoman.imageio.bmp;
 
-import cop.swing.icoman.imageio.ico.IconMetaDataFormat;
+import cop.swing.icoman.ico.imageio.IcoMetaDataFormat;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -22,8 +22,8 @@ public final class IconBitmapMetaData extends IIOMetadata {
 	private static final String NAME_NODE = "KeywordValuePair";
 
 	private static final boolean STANDARD_METADATA_FORMAT_SUPPORTED = false;
-	private static final String NATIVE_METADATA_FORMAT_NAME = IconMetaDataFormat.NAME;
-	private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IconMetaDataFormat.class.getName();
+	private static final String NATIVE_METADATA_FORMAT_NAME = IcoMetaDataFormat.NAME;
+	private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IcoMetaDataFormat.class.getName();
 
 	private final List<String> keys = new ArrayList<>();
 	private final List<String> values = new ArrayList<>();
@@ -44,7 +44,7 @@ public final class IconBitmapMetaData extends IIOMetadata {
 	public IIOMetadataFormat getMetadataFormat(String formatName) {
 		if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
 			throw new IllegalArgumentException("Bad format name!");
-		return IconMetaDataFormat.getInstance();
+		return IcoMetaDataFormat.getInstance();
 	}
 
 	@Override

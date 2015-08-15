@@ -1,17 +1,14 @@
 package cop.swing.demo;
 
-import cop.swing.icoman.IconFile;
 import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconManager;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
-import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
-import cop.swing.icoman.icns.IcnsFile;
+import cop.swing.icoman.ico.IcoFile;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -81,7 +78,7 @@ public class IconManagerDemo extends JFrame {
     static class IconManagerPanel extends JPanel {
         private boolean showBorder = true;
         private boolean showSize = true;
-        private IconFile iconFile;
+        private IcoFile icoFile;
 
         public IconManagerPanel() {
             init();
@@ -98,7 +95,7 @@ public class IconManagerDemo extends JFrame {
         public void setShowBorder(boolean showBorder) {
             try {
                 this.showBorder = showBorder;
-                showIcon(iconFile);
+                showIcon(icoFile);
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -107,20 +104,20 @@ public class IconManagerDemo extends JFrame {
         public void setShowSize(boolean showSize) {
             try {
                 this.showSize = showSize;
-                showIcon(iconFile);
+                showIcon(icoFile);
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
 
-        public void showIcon(IconFile iconFile) throws ImageNotFoundException, IOException {
-            this.iconFile = iconFile;
+        public void showIcon(IcoFile icoFile) throws ImageNotFoundException, IOException {
+            this.icoFile = icoFile;
             removeAll();
             GridBagConstraints gbc = createConstraints();
 
-            for (ImageKey key : iconFile.getKeys()) {
-                IconImage iconImage = iconFile.getImage(key);
-                JLabel icon = createLabelIcon(iconFile.getIcon(key), showBorder);
+            for (ImageKey key : icoFile.getKeys()) {
+                IconImage iconImage = icoFile.getImage(key);
+                JLabel icon = createLabelIcon(icoFile.getIcon(key), showBorder);
                 JLabel sizeLabel = showSize ? new JLabel(iconImage.getHeader().getImageKey().toString()) : null;
                 add(createPanel(icon, sizeLabel), gbc);
             }
@@ -210,8 +207,8 @@ public class IconManagerDemo extends JFrame {
 
         private void addDefaultIcon() {
             try {
-                IconFile iconFile = iconManager.addIcon(DEF_ICON_ID, DEF_ICON_FILE);
-                iconKeyCombo.addItem(new IconKey(DEF_ICON_ID, iconFile.getImagesAmount()));
+                IcoFile icoFile = iconManager.addIcon(DEF_ICON_ID, DEF_ICON_FILE);
+                iconKeyCombo.addItem(new IconKey(DEF_ICON_ID, icoFile.getImagesAmount()));
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -251,22 +248,21 @@ public class IconManagerDemo extends JFrame {
                     String id = FilenameUtils.getBaseName(file.getName()).toLowerCase();
                     String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
 
-                    if("icns".equals(ext)) {
-                        try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
-                            Object res = IcnsFile.read(in);
-                            int a = 0;
-                            a++;
-                        } catch(IconManagerException e) {
-                            e.printStackTrace();
-                        } catch(IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+//                    if ("icns".equals(ext)) {
+//                        try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
+//                            Object res = IcnsFile.read(in);
+//                            int a = 0;
+//                            a++;
+//                        } catch(IconManagerException e) {
+//                            e.printStackTrace();
+//                        } catch(IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
 
-                    try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
-                        IconFile iconFile = iconManager.addIcon(id, in);
-
-                        IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
+                    try {
+                        IcoFile icoFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
+                        IconKey iconKey = new IconKey(id, icoFile.getImagesAmount());
                         iconKeyCombo.addItem(iconKey);
                         iconKeyCombo.setSelectedItem(iconKey);
                     } catch(FormatNotSupportedException e) {

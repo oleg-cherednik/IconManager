@@ -1,4 +1,4 @@
-package cop.swing.icoman.imageio.ico;
+package cop.swing.icoman.ico.imageio;
 
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.metadata.IIOMetadataFormatImpl;
@@ -9,16 +9,16 @@ import javax.imageio.metadata.IIOMetadataFormatImpl;
  *      API Guide. Writing Reader Plug-Ins</a>
  * @since 01.09.2013
  */
-public final class IconMetaDataFormat extends IIOMetadataFormatImpl {
-	public static final String NAME = IconMetaData.class.getName() + "_1.0";
+public final class IcoMetaDataFormat extends IIOMetadataFormatImpl {
+	public static final String NAME = IcoMetaData.class.getName() + "_1.0";
 
-	private static final IconMetaDataFormat INSTANCE = new IconMetaDataFormat();
+	private static final IcoMetaDataFormat INSTANCE = new IcoMetaDataFormat();
 
-	public static IconMetaDataFormat getInstance() {
+	public static IcoMetaDataFormat getInstance() {
 		return INSTANCE;
 	}
 
-	private IconMetaDataFormat() {
+	private IcoMetaDataFormat() {
 		super(NAME, CHILD_POLICY_REPEAT - 1);
 
 		addElement("KeywordValuePair", NAME, CHILD_POLICY_EMPTY);

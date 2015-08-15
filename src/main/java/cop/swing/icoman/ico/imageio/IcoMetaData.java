@@ -1,4 +1,4 @@
-package cop.swing.icoman.imageio.ico;
+package cop.swing.icoman.ico.imageio;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -15,19 +15,19 @@ import java.util.List;
  * @author Oleg Cherednik
  * @since 01.09.2013
  */
-public final class IconMetaData extends IIOMetadata {
+public final class IcoMetaData extends IIOMetadata {
     private static final String NAME_KEY = "key";
     private static final String NAME_VALUE = "value";
     private static final String NAME_NODE = "KeywordValuePair";
 
     private static final boolean STANDARD_METADATA_FORMAT_SUPPORTED = false;
-    private static final String NATIVE_METADATA_FORMAT_NAME = IconMetaDataFormat.NAME;
-    private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IconMetaDataFormat.class.getName();
+    private static final String NATIVE_METADATA_FORMAT_NAME = IcoMetaDataFormat.NAME;
+    private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IcoMetaDataFormat.class.getName();
 
     private final List<String> keys = new ArrayList<>();
     private final List<String> values = new ArrayList<>();
 
-    public IconMetaData() {
+    public IcoMetaData() {
         super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null,
                 null);
     }
@@ -43,7 +43,7 @@ public final class IconMetaData extends IIOMetadata {
     public IIOMetadataFormat getMetadataFormat(String formatName) {
         if (!formatName.equals(NATIVE_METADATA_FORMAT_NAME))
             throw new IllegalArgumentException("Bad format name!");
-        return IconMetaDataFormat.getInstance();
+        return IcoMetaDataFormat.getInstance();
     }
 
     @Override

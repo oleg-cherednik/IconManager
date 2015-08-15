@@ -1,5 +1,6 @@
-package cop.swing.icoman;
+package cop.swing.icoman.ico;
 
+import cop.swing.icoman.BitmapType;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
 import cop.swing.icoman.exceptions.IconManagerException;
 
@@ -12,14 +13,14 @@ import static cop.swing.icoman.BitmapType.parseCode;
  * @author Oleg Cherednik
  * @since 03.07.2013
  */
-public final class IconFileHeader {
-    public static final IconFileHeader NULL = new IconFileHeader(BitmapType.NONE, 0);
+public final class IcoFileHeader {
+    public static final IcoFileHeader NULL = new IcoFileHeader(BitmapType.NONE, 0);
     public static final int SIZE = 6;
 
     private final BitmapType type; // size: 2, offs: 0x2
     private final int imageCount; // size: 2, offs: 0x4
 
-    public static IconFileHeader readHeader(ImageInputStream in) throws IconManagerException, IOException {
+    public static IcoFileHeader readHeader(ImageInputStream in) throws IconManagerException, IOException {
         if (in.readUnsignedShort() != 0)
             throw new FormatNotSupportedException("Expected ico format; 'header offs:0, size:2' is reserved, should be 0");
 
@@ -28,10 +29,10 @@ public final class IconFileHeader {
 
         check(type, imageCount);
 
-        return new IconFileHeader(type, imageCount);
+        return new IcoFileHeader(type, imageCount);
     }
 
-    private IconFileHeader(BitmapType type, int imageCount) {
+    private IcoFileHeader(BitmapType type, int imageCount) {
         assert type != null && type != BitmapType.NONE;
         assert imageCount > 0;
 
