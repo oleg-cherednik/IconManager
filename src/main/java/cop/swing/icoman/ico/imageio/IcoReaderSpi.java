@@ -8,7 +8,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 /**
- * This is spi for ico files as one file. For each image inside this file, we have another spi: {@link IcoReaderSpiOld}
+ * This is spi for ico files as one file
  *
  * @author Oleg Cherednik
  * @since 15.08.2015
