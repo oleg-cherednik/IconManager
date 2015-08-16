@@ -20,7 +20,7 @@ public final class IcoFileHeader {
     private final BitmapType type; // size: 2, offs: 0x2
     private final int imageCount; // size: 2, offs: 0x4
 
-    public static IcoFileHeader readHeader(ImageInputStream in) throws IconManagerException, IOException {
+    public static IcoFileHeader read(ImageInputStream in) throws IconManagerException, IOException {
         if (in.readUnsignedShort() != 0)
             throw new FormatNotSupportedException("Expected ico format; 'header offs:0, size:2' is reserved, should be 0");
 

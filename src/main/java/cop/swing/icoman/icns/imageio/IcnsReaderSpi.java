@@ -23,9 +23,7 @@ public final class IcnsReaderSpi extends IconReaderSpi {
 
     @Override
     public boolean canDecodeInput(ImageInputStream in) throws IOException {
-        byte[] buf = new byte[4];
-        in.readFully(buf);
-        return isHeaderValid(buf);
+        return isHeaderValid(readHeader(in));
     }
 
     @Override
@@ -41,5 +39,11 @@ public final class IcnsReaderSpi extends IconReaderSpi {
 
     public static boolean isHeaderValid(byte... buf) {
         return buf[0] == 'i' && buf[1] == 'c' && buf[2] == 'n' && buf[3] == 's';
+    }
+
+    public static byte[] readHeader(ImageInputStream in) throws IOException {
+        byte[] buf = new byte[4];
+        in.readFully(buf);
+        return buf;
     }
 }

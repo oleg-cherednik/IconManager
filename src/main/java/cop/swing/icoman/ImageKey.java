@@ -25,6 +25,10 @@ public final class ImageKey implements Comparable<ImageKey> {
     private final int height; // size: 1, offs: 0x1 (0-255, 0=256 pixels)
     private final int colors; // size: 1, offs: 0x2 (0=256 - high/true color)
 
+    public static ImageKey createKey(int size, int bitsPerPixel) {
+        return createKey(size, size, bitsPerPixel);
+    }
+
     public static ImageKey createHighColorKey(int size) {
         return createKey(size, size, BITS_HIGH_COLOR);
     }
@@ -37,7 +41,7 @@ public final class ImageKey implements Comparable<ImageKey> {
         return createKey(size, size, BITS_XP);
     }
 
-    static ImageKey createKey(int width, int height, int bitsPerPixel) {
+    public static ImageKey createKey(int width, int height, int bitsPerPixel) {
         check(width, height, bitsPerPixel);
 
         int colors = getColors(bitsPerPixel);

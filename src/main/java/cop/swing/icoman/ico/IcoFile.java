@@ -2,7 +2,6 @@ package cop.swing.icoman.ico;
 
 import cop.swing.icoman.BitmapType;
 import cop.swing.icoman.IconFile;
-import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconImageHeader;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
@@ -26,17 +25,17 @@ import java.util.TreeSet;
  * @author Oleg Cherednik
  * @since 03.07.2013
  */
-public final class IcoFile extends IconFile implements Iterable<IconImage> {
+public final class IcoFile extends IconFile implements Iterable<IcoImage> {
     private final IcoFileHeader header;
-    private final Map<ImageKey, IconImage> images;
+    private final Map<ImageKey, IcoImage> images;
 
     public static IcoFile read(ImageInputStream in) throws IOException, IconManagerException {
-        IcoFileHeader header = IcoFileHeader.readHeader(in);
-        Map<ImageKey, IconImage> images = readImages(header, in);
+        IcoFileHeader header = IcoFileHeader.read(in);
+        Map<ImageKey, IcoImage> images = readImages(header, in);
         return new IcoFile(header, images);
     }
 
-    private IcoFile(IcoFileHeader header, Map<ImageKey, IconImage> images) {
+    private IcoFile(IcoFileHeader header, Map<ImageKey, IcoImage> images) {
         assert header != null && header != IcoFileHeader.NULL;
         assert images != null && !images.isEmpty();
 
@@ -56,10 +55,10 @@ public final class IcoFile extends IconFile implements Iterable<IconImage> {
     }
 
     @NotNull
-    public IconImage getImage(int pos) throws ImageNotFoundException {
+    public IcoImage getImage(int pos) throws ImageNotFoundException {
         int i = 0;
 
-        for (IconImage image : images.values())
+        for (IcoImage image : images.values())
             if (i++ == pos)
                 return image;
 
@@ -72,8 +71,8 @@ public final class IcoFile extends IconFile implements Iterable<IconImage> {
     }
 
     @NotNull
-    public IconImage getImage(ImageKey key) throws ImageNotFoundException {
-        IconImage image = images.get(key);
+    public IcoImage getImage(ImageKey key) throws ImageNotFoundException {
+        IcoImage image = images.get(key);
 
         if (image == null)
             throw new ImageNotFoundException(key);
@@ -107,17 +106,17 @@ public final class IcoFile extends IconFile implements Iterable<IconImage> {
         return Collections.unmodifiableList(headers);
     }
 
-    private static Map<ImageKey, IconImage> readImages(IcoFileHeader fileHeader, ImageInputStream in)
+    private static Map<ImageKey, IcoImage> readImages(IcoFileHeader fileHeader, ImageInputStream in)
             throws IOException, IconManagerException {
         List<IconImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
-        Map<ImageKey, IconImage> images = new LinkedHashMap<>(imageHeaders.size());
+        Map<ImageKey, IcoImage> images = new LinkedHashMap<>(imageHeaders.size());
         int offs = IcoFileHeader.SIZE + imageHeaders.size() * IconImageHeader.SIZE;
 
         for (IconImageHeader imageHeader : imageHeaders) {
             checkOffs(offs, imageHeader);
             byte[] data = readData(imageHeader.getSize(), in);
 
-            if (images.put(imageHeader.getImageKey(), IconImage.createImage(imageHeader, data)) != null)
+            if (images.put(imageHeader.getImageKey(), IcoImage.createImage(imageHeader, data)) != null)
                 throw new ImageDuplicationException(imageHeader.getImageKey());
 
             offs += imageHeader.getSize();
@@ -141,7 +140,7 @@ public final class IcoFile extends IconFile implements Iterable<IconImage> {
     // ========== Iterable ==========
 
     @Override
-    public Iterator<IconImage> iterator() {
+    public Iterator<IcoImage> iterator() {
         return images.values().iterator();
     }
 }

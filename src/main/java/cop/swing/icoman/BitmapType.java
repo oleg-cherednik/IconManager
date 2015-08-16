@@ -2,7 +2,7 @@ package cop.swing.icoman;
 
 import cop.swing.icoman.exceptions.IconManagerException;
 
-import java.io.DataInput;
+import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 /**
@@ -13,7 +13,7 @@ public enum BitmapType {
 	NONE(0),
 	ICO(1) {
 		@Override
-		public IconImageHeader createImageHeader(int id, DataInput in) throws IOException, IconManagerException {
+		public IconImageHeader createImageHeader(int id, ImageInputStream in) throws IOException, IconManagerException {
 			return IconImageHeader.readHeader(id, in);
 		}
 	},
@@ -25,7 +25,7 @@ public enum BitmapType {
 		this.code = code;
 	}
 
-	public IconImageHeader createImageHeader(int id, DataInput in) throws IOException, IconManagerException {
+	public IconImageHeader createImageHeader(int id, ImageInputStream in) throws IOException, IconManagerException {
 		throw new IconManagerException("'header.type' " + name() + " if image no. " + id + " + is not supported");
 	}
 

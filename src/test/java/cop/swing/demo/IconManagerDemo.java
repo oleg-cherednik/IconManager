@@ -1,6 +1,6 @@
 package cop.swing.demo;
 
-import cop.swing.icoman.IconImage;
+import cop.swing.icoman.ico.IcoImage;
 import cop.swing.icoman.IconManager;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
@@ -116,9 +116,9 @@ public class IconManagerDemo extends JFrame {
             GridBagConstraints gbc = createConstraints();
 
             for (ImageKey key : icoFile.getKeys()) {
-                IconImage iconImage = icoFile.getImage(key);
+                IcoImage icoImage = icoFile.getImage(key);
                 JLabel icon = createLabelIcon(icoFile.getIcon(key), showBorder);
-                JLabel sizeLabel = showSize ? new JLabel(iconImage.getHeader().getImageKey().toString()) : null;
+                JLabel sizeLabel = showSize ? new JLabel(icoImage.getHeader().getImageKey().toString()) : null;
                 add(createPanel(icon, sizeLabel), gbc);
             }
 

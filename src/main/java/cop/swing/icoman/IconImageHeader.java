@@ -2,6 +2,7 @@ package cop.swing.icoman;
 
 import cop.swing.icoman.exceptions.IconManagerException;
 
+import javax.imageio.stream.ImageInputStream;
 import java.io.DataInput;
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ public final class IconImageHeader {
 	private final int size; // size: 4, offs: 0x8 (bitmap data size)
 	private final int offs; // size: 4, offs: 0xC (bitmap data offset)
 
-	public static IconImageHeader readHeader(int id, DataInput in) throws IconManagerException, IOException {
+	public static IconImageHeader readHeader(int id, ImageInputStream in) throws IconManagerException, IOException {
 		int width = fix(in.readUnsignedByte());
 		int height = fix(in.readUnsignedByte());
 		in.readUnsignedByte();  // colors

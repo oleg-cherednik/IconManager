@@ -27,7 +27,6 @@ public class IcoReader extends IconReader {
                 return icon;
 
             in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            in.mark();
             return icon = IcoFile.read(in);
         } catch(IconManagerException e) {
             throw new IOException(e);

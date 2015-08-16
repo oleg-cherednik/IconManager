@@ -26,8 +26,7 @@ public class IcnsReader extends IconReader {
             if (icon != null)
                 return icon;
 
-            in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            in.mark();
+            in.setByteOrder(ByteOrder.BIG_ENDIAN);
             return icon = IcnsFile.read(in);
         } catch(IconManagerException e) {
             throw new IOException(e);
