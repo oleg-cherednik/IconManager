@@ -90,21 +90,7 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
 
     // ========== static ==========
 
-    private static volatile boolean isRegistered;
-
     public static synchronized void register() {
-        if (isRegistered) return;
-
-        isRegistered = true;
-
-        try {
-            Object registeredReader = IIORegistry.getDefaultInstance().getServiceProviderByClass(IconBitmapReaderSpi.class);
-            if (registeredReader == null) {
-                Object reader = new IconBitmapReaderSpi();
-                IIORegistry.getDefaultInstance().registerServiceProvider(reader);
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        IIORegistry.getDefaultInstance().registerServiceProvider(new IconBitmapReaderSpi());
     }
 }

@@ -76,9 +76,10 @@ public final class IcnsFile extends IconFile implements Iterable<IcnsImage> {
 
         for (Map.Entry<ImageKey, byte[]> entry : mapData.entrySet()) {
             ImageKey key = entry.getKey();
+            Type type = Type.parseImageKey(key);
             byte[] data = entry.getValue();
-            byte[] mask = mapMask.get(Type.parseImageKey(key).mask);
-            images.put(key, image = new IcnsImage(key));
+            byte[] mask = mapMask.get(type.mask);
+            images.put(key, image = new IcnsImage(key, type));
             image.setData(data);
             image.setMask(mask);
             image.createIcon();

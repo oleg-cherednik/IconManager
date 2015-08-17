@@ -15,12 +15,14 @@ import java.io.IOException;
  */
 public final class IcnsImage implements IconImage {
     private final ImageKey key;
+    private final Type type;
     private byte[] data;
     private byte[] mask;
     private ImageIcon icon;
 
-    public IcnsImage(ImageKey key) {
+    public IcnsImage(ImageKey key, Type type) {
         this.key = key;
+        this.type = type;
     }
 
     public void setData(byte... data) {

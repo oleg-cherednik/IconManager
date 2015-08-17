@@ -5,7 +5,6 @@ import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.IconNotFoundException;
 import cop.swing.icoman.icns.imageio.IcnsReaderSpi;
 import cop.swing.icoman.ico.imageio.IcoReaderSpi;
-import cop.swing.icoman.imageio.bmp.IconBitmapReaderSpi;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;
@@ -88,9 +87,6 @@ public final class IconManager {
     private static void register() {
         IcoReaderSpi.register();
         IcnsReaderSpi.register();
-
-//        IcoReaderSpi.register();
-        IconBitmapReaderSpi.register();
     }
 
     private static IconFile read(String filename) throws IOException {

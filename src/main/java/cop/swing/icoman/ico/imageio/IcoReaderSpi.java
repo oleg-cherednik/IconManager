@@ -2,6 +2,7 @@ package cop.swing.icoman.ico.imageio;
 
 import cop.swing.icoman.imageio.IconReader;
 import cop.swing.icoman.imageio.IconReaderSpi;
+import cop.swing.icoman.imageio.bmp.IconBitmapReaderSpi;
 
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.stream.ImageInputStream;
@@ -29,6 +30,7 @@ public final class IcoReaderSpi extends IconReaderSpi {
     // ========== static ==========
 
     public static synchronized void register() {
+        IconBitmapReaderSpi.register();
         IIORegistry.getDefaultInstance().registerServiceProvider(new IcoReaderSpi());
     }
 
