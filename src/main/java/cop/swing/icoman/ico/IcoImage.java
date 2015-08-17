@@ -1,5 +1,6 @@
 package cop.swing.icoman.ico;
 
+import cop.swing.icoman.IconIO;
 import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconImageHeader;
 
@@ -18,9 +19,7 @@ public final class IcoImage implements IconImage {
     private final ImageIcon icon;
 
     public static IcoImage read(IconImageHeader header, ImageInputStream in) throws IOException {
-        byte[] data = new byte[header.getSize()];
-        in.readFully(data);
-        return new IcoImage(header, new ImageIcon(ImageIO.read(new ByteArrayInputStream(data))));
+        return new IcoImage(header, new ImageIcon(ImageIO.read(new ByteArrayInputStream(IconIO.readBytes(header.getSize(), in)))));
     }
 
     private IcoImage(IconImageHeader header, ImageIcon icon) {

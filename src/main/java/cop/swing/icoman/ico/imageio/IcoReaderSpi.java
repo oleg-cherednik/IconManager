@@ -24,9 +24,7 @@ public final class IcoReaderSpi extends IconReaderSpi {
 
     @Override
     public boolean canDecodeInput(ImageInputStream in) throws IOException {
-        byte[] buf = new byte[4];
-        in.readFully(buf);
-        return isHeaderValid(buf);
+        return isHeaderValid(in.readInt());
     }
     // ========== static ==========
 
@@ -34,7 +32,7 @@ public final class IcoReaderSpi extends IconReaderSpi {
         IIORegistry.getDefaultInstance().registerServiceProvider(new IcoReaderSpi());
     }
 
-    public static boolean isHeaderValid(byte... buf) {
-        return buf[0] == 0x00 && buf[1] == 0x00 && buf[2] == 0x01 && buf[3] == 0x00;
+    public static boolean isHeaderValid(int marker) {
+        return marker == 0x100;
     }
 }

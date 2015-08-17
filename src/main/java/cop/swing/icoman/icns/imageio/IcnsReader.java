@@ -1,6 +1,5 @@
 package cop.swing.icoman.icns.imageio;
 
-import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.icns.IcnsFile;
 import cop.swing.icoman.imageio.IconReader;
 
@@ -28,7 +27,7 @@ public class IcnsReader extends IconReader {
 
             in.setByteOrder(ByteOrder.BIG_ENDIAN);
             return icon = IcnsFile.read(in);
-        } catch(IconManagerException e) {
+        } catch(Exception e) {
             throw new IOException(e);
         }
     }

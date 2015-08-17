@@ -28,12 +28,6 @@ public final class IconIO {
         return buf;
     }
 
-    public static String readString(int totalChars, ImageInputStream in) throws IOException {
-        byte[] buf = new byte[totalChars];
-        in.readFully(buf);
-        return new String(buf);
-    }
-
     /** @see ImageIO#scanForPlugins() */
     public static void scanForPlugins() {
         ImageIO.scanForPlugins();
