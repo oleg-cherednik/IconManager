@@ -1,9 +1,10 @@
 package cop.swing.icoman.ico;
 
+import cop.swing.icoman.IconImage;
 import cop.swing.icoman.IconImageHeader;
-import cop.swing.icoman.exceptions.IconManagerException;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.ImageIcon;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,24 +13,28 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 03.07.2013
  */
-public final class IcoImage {
+public final class IcoImage implements IconImage {
     private final IconImageHeader header;
     private final ImageIcon icon;
 
-    public static IcoImage createImage(IconImageHeader header, byte... data) throws IconManagerException, IOException {
-        check(header, data);
-        return new IcoImage(header, data);
+    public static IcoImage read(IconImageHeader header, ImageInputStream in) throws IOException {
+        byte[] data = new byte[header.getSize()];
+        in.readFully(data);
+        return new IcoImage(header, new ImageIcon(ImageIO.read(new ByteArrayInputStream(data))));
     }
 
-    private IcoImage(IconImageHeader header, byte... data) throws IOException {
+    private IcoImage(IconImageHeader header, ImageIcon icon) {
         this.header = header;
-        icon = new ImageIcon(ImageIO.read(new ByteArrayInputStream(data)));
+        this.icon = icon;
     }
 
     public IconImageHeader getHeader() {
         return header;
     }
 
+    // ========== IconImage ==========
+
+    @Override
     public ImageIcon getIcon() {
         return icon;
     }
@@ -39,16 +44,5 @@ public final class IcoImage {
     @Override
     public String toString() {
         return header.toString();
-    }
-
-    // ========== static ==========
-
-    private static void check(IconImageHeader header, byte... data) throws IconManagerException {
-        if (header == null)
-            throw new IconManagerException("header is not set");
-        if (data == null || data.length == 0)
-            throw new IconManagerException("data is not set");
-        if (header.getSize() != data.length)
-            throw new IconManagerException("data size is not equals to 'header.size'");
     }
 }

@@ -1,11 +1,10 @@
 package cop.swing.demo;
 
-import cop.swing.icoman.ico.IcoImage;
+import cop.swing.icoman.IconFile;
 import cop.swing.icoman.IconManager;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
-import cop.swing.icoman.ico.IcoFile;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -78,7 +77,7 @@ public class IconManagerDemo extends JFrame {
     static class IconManagerPanel extends JPanel {
         private boolean showBorder = true;
         private boolean showSize = true;
-        private IcoFile icoFile;
+        private IconFile iconFile;
 
         public IconManagerPanel() {
             init();
@@ -95,7 +94,7 @@ public class IconManagerDemo extends JFrame {
         public void setShowBorder(boolean showBorder) {
             try {
                 this.showBorder = showBorder;
-                showIcon(icoFile);
+                showIcon(iconFile);
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -104,21 +103,20 @@ public class IconManagerDemo extends JFrame {
         public void setShowSize(boolean showSize) {
             try {
                 this.showSize = showSize;
-                showIcon(icoFile);
+                showIcon(iconFile);
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
 
-        public void showIcon(IcoFile icoFile) throws ImageNotFoundException, IOException {
-            this.icoFile = icoFile;
+        public void showIcon(IconFile iconFile) throws ImageNotFoundException, IOException {
+            this.iconFile = iconFile;
             removeAll();
             GridBagConstraints gbc = createConstraints();
 
-            for (ImageKey key : icoFile.getKeys()) {
-                IcoImage icoImage = icoFile.getImage(key);
-                JLabel icon = createLabelIcon(icoFile.getIcon(key), showBorder);
-                JLabel sizeLabel = showSize ? new JLabel(icoImage.getHeader().getImageKey().toString()) : null;
+            for (ImageKey key : iconFile.getKeys()) {
+                JLabel icon = createLabelIcon(iconFile.getIcon(key), showBorder);
+                JLabel sizeLabel = showSize ? new JLabel(key.toString()) : null;
                 add(createPanel(icon, sizeLabel), gbc);
             }
 
@@ -207,7 +205,7 @@ public class IconManagerDemo extends JFrame {
 
         private void addDefaultIcon() {
             try {
-                IcoFile icoFile = iconManager.addIcon(DEF_ICON_ID, DEF_ICON_FILE);
+                IconFile icoFile = iconManager.addIcon(DEF_ICON_ID, DEF_ICON_FILE);
                 iconKeyCombo.addItem(new IconKey(DEF_ICON_ID, icoFile.getImagesAmount()));
             } catch(Exception e) {
                 e.printStackTrace();
@@ -261,7 +259,7 @@ public class IconManagerDemo extends JFrame {
 //                    }
 
                     try {
-                        IcoFile icoFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
+                        IconFile icoFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
                         IconKey iconKey = new IconKey(id, icoFile.getImagesAmount());
                         iconKeyCombo.addItem(iconKey);
                         iconKeyCombo.setSelectedItem(iconKey);

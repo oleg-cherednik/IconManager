@@ -22,6 +22,18 @@ import java.util.Iterator;
 public final class IconIO {
     private static final IIORegistry REGISTRY = IIORegistry.getDefaultInstance();
 
+    public static byte[] readBytes(int total, ImageInputStream in) throws IOException {
+        byte[] buf = new byte[total];
+        in.readFully(buf);
+        return buf;
+    }
+
+    public static String readString(int totalChars, ImageInputStream in) throws IOException {
+        byte[] buf = new byte[totalChars];
+        in.readFully(buf);
+        return new String(buf);
+    }
+
     /** @see ImageIO#scanForPlugins() */
     public static void scanForPlugins() {
         ImageIO.scanForPlugins();
@@ -57,7 +69,6 @@ public final class IconIO {
             return null;
 
         IconReader reader = it.next();
-//        ImageReadParam param = reader.getDefaultReadParam();
         reader.setInput(in);
 
         try {
@@ -161,7 +172,7 @@ public final class IconIO {
             try {
                 spi = (IconReaderSpi)iter.next();
                 return spi.createReaderInstance();
-            } catch (IOException e) {
+            } catch(IOException e) {
                 // Deregister the spi in this case, but only as
                 // an ImageReaderSpi
                 REGISTRY.deregisterServiceProvider(spi, IconReaderSpi.class);

@@ -1,15 +1,27 @@
 package cop.swing.icoman.icns;
 
+import cop.swing.icoman.IconImage;
+import cop.swing.icoman.ImageKey;
+
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 /**
  * @author Oleg Cherednik
  * @since 16.08.2015
  */
-public final class IcnsImage {
+public final class IcnsImage implements IconImage {
+    private final ImageKey key;
     private byte[] data;
     private byte[] mask;
     private ImageIcon icon;
+
+    public IcnsImage(ImageKey key) {
+        this.key = key;
+    }
 
     public void setData(byte... data) {
         this.data = data;
@@ -19,4 +31,26 @@ public final class IcnsImage {
         this.mask = mask;
     }
 
+    public void createIcon() throws IOException {
+        try {
+            if (data != null) {
+                BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
+                if (image != null)
+                    icon = new ImageIcon(image);
+            } else if (mask != null) {
+                BufferedImage image = ImageIO.read(new ByteArrayInputStream(mask));
+                if (image != null)
+                    icon = new ImageIcon(image);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ========== IconImage ==========
+
+    @Override
+    public ImageIcon getIcon() {
+        return icon;
+    }
 }

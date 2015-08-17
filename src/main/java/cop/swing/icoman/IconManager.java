@@ -4,7 +4,6 @@ import cop.swing.icoman.exceptions.IconDuplicationException;
 import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.IconNotFoundException;
 import cop.swing.icoman.icns.imageio.IcnsReaderSpi;
-import cop.swing.icoman.ico.IcoFile;
 import cop.swing.icoman.ico.imageio.IcoReaderSpi;
 import cop.swing.icoman.imageio.bmp.IconBitmapReaderSpi;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +25,7 @@ import java.util.Set;
 public final class IconManager {
     private static final IconManager INSTANCE = new IconManager();
 
-    private final Map<String, IcoFile> icons = new LinkedHashMap<>();
+    private final Map<String, IconFile> icons = new LinkedHashMap<>();
 
     public static IconManager getInstance() {
         return INSTANCE;
@@ -44,20 +43,20 @@ public final class IconManager {
     }
 
     @NotNull
-    public IcoFile addIcon(String id, String filename) throws IconManagerException, IOException {
-        IcoFile icon = read(filename);
+    public IconFile addIcon(String id, String filename) throws IconManagerException, IOException {
+        IconFile icon = read(filename);
         addIcon(id, icon);
         return icon;
     }
 
     @NotNull
-    public IcoFile addIcon(String id, ImageInputStream in) throws IconManagerException, IOException {
+    public IconFile addIcon(String id, ImageInputStream in) throws IconManagerException, IOException {
         if (in == null)
             throw new IOException(String.format("Resource '%s' doesn't exists", id));
         return addIcon(id, read(in));
     }
 
-    public IcoFile addIcon(String id, IcoFile icon) throws IconManagerException {
+    public IconFile addIcon(String id, IconFile icon) throws IconManagerException {
         if (StringUtils.isBlank(id) || icon == null)
             throw new IconManagerException("id/icon is not set");
         if (icons.put(id, icon) != null)
@@ -70,8 +69,8 @@ public final class IconManager {
     }
 
     @NotNull
-    public IcoFile getIconFile(String id) throws IconNotFoundException {
-        IcoFile icon = icons.get(id);
+    public IconFile getIconFile(String id) throws IconNotFoundException {
+        IconFile icon = icons.get(id);
 
         if (icon == null)
             throw new IconNotFoundException(id);
@@ -94,11 +93,11 @@ public final class IconManager {
         IconBitmapReaderSpi.register();
     }
 
-    private static IcoFile read(String filename) throws IOException {
-        return read(ImageIO.createImageInputStream(IcoFile.class.getClassLoader().getResourceAsStream(filename)));
+    private static IconFile read(String filename) throws IOException {
+        return read(ImageIO.createImageInputStream(IconManager.class.getClassLoader().getResourceAsStream(filename)));
     }
 
-    private static IcoFile read(ImageInputStream in) throws IOException {
-        return (IcoFile)IconIO.read(in);
+    private static IconFile read(ImageInputStream in) throws IOException {
+        return IconIO.read(in);
     }
 }

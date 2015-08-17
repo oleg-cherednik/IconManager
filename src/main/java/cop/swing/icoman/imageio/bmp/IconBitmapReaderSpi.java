@@ -98,8 +98,7 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
         isRegistered = true;
 
         try {
-            Object registeredReader = IIORegistry.getDefaultInstance().getServiceProviderByClass(
-                    IconBitmapReaderSpi.class);
+            Object registeredReader = IIORegistry.getDefaultInstance().getServiceProviderByClass(IconBitmapReaderSpi.class);
             if (registeredReader == null) {
                 Object reader = new IconBitmapReaderSpi();
                 IIORegistry.getDefaultInstance().registerServiceProvider(reader);

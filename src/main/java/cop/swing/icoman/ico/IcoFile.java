@@ -43,11 +43,10 @@ public final class IcoFile extends IconFile implements Iterable<IcoImage> {
         this.images = images;
     }
 
-    public IcoFileHeader getHeader() {
-        return header;
-    }
+    // ========== IconFile ==========
 
     @NotNull
+    @Override
     public Set<ImageKey> getKeys() {
         if (images.isEmpty())
             return Collections.emptySet();
@@ -55,22 +54,13 @@ public final class IcoFile extends IconFile implements Iterable<IcoImage> {
     }
 
     @NotNull
-    public IcoImage getImage(int pos) throws ImageNotFoundException {
-        int i = 0;
-
-        for (IcoImage image : images.values())
-            if (i++ == pos)
-                return image;
-
-        throw new ImageNotFoundException(pos, images.size());
-    }
-
-    @NotNull
-    public ImageIcon getIcon(ImageKey key) throws ImageNotFoundException, IOException {
+    @Override
+    public ImageIcon getIcon(ImageKey key) throws ImageNotFoundException {
         return getImage(key).getIcon();
     }
 
     @NotNull
+    @Override
     public IcoImage getImage(ImageKey key) throws ImageNotFoundException {
         IcoImage image = images.get(key);
 
@@ -80,6 +70,7 @@ public final class IcoFile extends IconFile implements Iterable<IcoImage> {
         return image;
     }
 
+    @Override
     public int getImagesAmount() {
         return images.size();
     }
@@ -93,8 +84,7 @@ public final class IcoFile extends IconFile implements Iterable<IcoImage> {
 
     // ========== static ==========
 
-    private static List<IconImageHeader> readImageHeaders(int total, ImageInputStream in)
-            throws IOException, IconManagerException {
+    private static List<IconImageHeader> readImageHeaders(int total, ImageInputStream in) throws IOException, IconManagerException {
         assert total > 0;
         assert in != null;
 
@@ -106,29 +96,21 @@ public final class IcoFile extends IconFile implements Iterable<IcoImage> {
         return Collections.unmodifiableList(headers);
     }
 
-    private static Map<ImageKey, IcoImage> readImages(IcoFileHeader fileHeader, ImageInputStream in)
-            throws IOException, IconManagerException {
+    private static Map<ImageKey, IcoImage> readImages(IcoFileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
         List<IconImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
         Map<ImageKey, IcoImage> images = new LinkedHashMap<>(imageHeaders.size());
         int offs = IcoFileHeader.SIZE + imageHeaders.size() * IconImageHeader.SIZE;
 
         for (IconImageHeader imageHeader : imageHeaders) {
             checkOffs(offs, imageHeader);
-            byte[] data = readData(imageHeader.getSize(), in);
 
-            if (images.put(imageHeader.getImageKey(), IcoImage.createImage(imageHeader, data)) != null)
+            if (images.put(imageHeader.getImageKey(), IcoImage.read(imageHeader, in)) != null)
                 throw new ImageDuplicationException(imageHeader.getImageKey());
 
             offs += imageHeader.getSize();
         }
 
-        return Collections.unmodifiableMap(images);
-    }
-
-    private static byte[] readData(int size, ImageInputStream in) throws IOException {
-        byte[] data = new byte[size];
-        in.readFully(data);
-        return data;
+        return images.isEmpty() ? Collections.<ImageKey, IcoImage>emptyMap() : Collections.unmodifiableMap(images);
     }
 
     private static void checkOffs(int expected, IconImageHeader imageHeader) throws IconManagerException {

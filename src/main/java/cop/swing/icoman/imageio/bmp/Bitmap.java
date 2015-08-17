@@ -130,7 +130,7 @@ public final class Bitmap {
         return createImage(width, height, colors, alpha, buf);
     }
 
-    private static BufferedImage createImage4(int width, int height, Color[] colors, byte[] alpha, byte[] mask) {
+    private static BufferedImage createImage4(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
         int[] buf = new int[width * height];
 
         if (mask.length * 2 == buf.length) {
