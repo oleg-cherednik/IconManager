@@ -243,27 +243,15 @@ public class IconManagerDemo extends JFrame {
             if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 for (File file : dialog.getSelectedFiles()) {
                     file = file.getAbsoluteFile();
-                    String id = FilenameUtils.getBaseName(file.getName()).toLowerCase();
+                    String id = file.getName();
                     String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
-
-//                    if ("icns".equals(ext)) {
-//                        try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
-//                            Object res = IcnsFile.read(in);
-//                            int a = 0;
-//                            a++;
-//                        } catch(IconManagerException e) {
-//                            e.printStackTrace();
-//                        } catch(IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
 
                     try {
                         IconFile icoFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
                         IconKey iconKey = new IconKey(id, icoFile.getImagesAmount());
                         iconKeyCombo.addItem(iconKey);
                         iconKeyCombo.setSelectedItem(iconKey);
-                    } catch(FormatNotSupportedException e) {
+                    } catch(FormatNotSupportedException ignored) {
                         String message = String.format("File format '%s' is not supported", ext);
                         JOptionPane.showMessageDialog(null, message, "Could not open file", JOptionPane.ERROR_MESSAGE);
                     } catch(Exception e) {

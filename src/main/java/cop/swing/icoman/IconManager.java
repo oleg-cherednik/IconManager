@@ -58,8 +58,11 @@ public final class IconManager {
     public IconFile addIcon(String id, IconFile icon) throws IconManagerException {
         if (StringUtils.isBlank(id) || icon == null)
             throw new IconManagerException("id/icon is not set");
-        if (icons.put(id, icon) != null)
+        if (icons.containsKey(id))
             throw new IconDuplicationException(id);
+
+        icons.put(id, icon);
+
         return icon;
     }
 
