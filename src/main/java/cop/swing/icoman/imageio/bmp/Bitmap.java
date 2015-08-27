@@ -14,14 +14,14 @@ import java.io.IOException;
 public final class Bitmap {
     public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
-        Color[] colorTable = readColorTable(header, in);
+        int[] colorTable = readColorTable(header, in);
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
 
         byte[] mask = readBitMasks(header, in);
         byte[] data = readData(header, in);
-        byte[] alpha = create1bitAlpha(header, data);
+        int[] alpha = create1bitAlpha(header, data);
 
         if (bitCount == 1)
             return create1bitImage(width, height, data);
@@ -37,21 +37,21 @@ public final class Bitmap {
         throw new IconManagerException("Bitmap with " + bitCount + "bit is not supported");
     }
 
-    private static Color[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+    private static int[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int bitCount = header.getBiBitCount();
         int size = bitCount <= 8 ? (int)Math.pow(2.0, bitCount) : 0;
 
         if (size == 0)
             return null;
 
-        Color[] data = new Color[size];
+        int[] data = new int[size];
 
         for (int i = 0; i < data.length; ++i) {
-            int blue = (int)in.readByte() & 255;
-            int green = (int)in.readByte() & 255;
-            int red = (int)in.readByte() & 255;
+            int blue = in.readByte() & 0xFF;
+            int green = in.readByte() & 0xFF;
+            int red = in.readByte() & 0xFF;
             in.skipBytes(1);    // reserved
-            data[i] = new Color(red, green, blue);
+            data[i] = rgb(red, green, blue);
         }
 
         return data;
@@ -78,10 +78,10 @@ public final class Bitmap {
         return buf;
     }
 
-    private static byte[] create1bitAlpha(BitmapInfoHeader header, byte... data) {
+    private static int[] create1bitAlpha(BitmapInfoHeader header, byte... data) {
         int width = header.getBiWidth();
         int height = header.getBiHeight();
-        byte[] buf = new byte[width * height];
+        int[] buf = new int[width * height];
 
         int pos = 0;
         int n4 = data.length / height;
@@ -108,7 +108,7 @@ public final class Bitmap {
     public static BufferedImage create1bitImage(int width, int height, byte[] data) {
         int[] buf = decode1bitArray(width, height, data);
         int[] alpha = create1bitAlpha(width, height, data);
-        return createImageNew(width, height, COLORS_2, alpha, buf);
+        return createImage(width, height, COLORS_2, alpha, buf);
     }
 
     public static BufferedImage create8bitsImage(int width, int height, byte[] data, byte[] mask) {
@@ -118,7 +118,7 @@ public final class Bitmap {
     private static BufferedImage create8bitsImage(int width, int height, int[] colors, byte[] data, byte[] mask) {
         int[] buf = decode8bitArray(width, height, data);
         int[] alpha = create1bitAlpha(width, height, mask);
-        return createImageNew(width, height, colors, alpha, buf);
+        return createImage(width, height, colors, alpha, buf);
     }
 
     private static int[] decode1bitArray(int width, int height, byte... data) {
@@ -185,7 +185,7 @@ public final class Bitmap {
         }
     }
 
-    private static BufferedImage createImage4(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
+    private static BufferedImage createImage4(int width, int height, int[] colors, int[] alpha, byte... mask) {
         int[] buf = new int[width * height];
 
         if (mask.length * 2 == buf.length) {
@@ -224,7 +224,7 @@ public final class Bitmap {
         return createImage(width, height, colors, alpha, buf);
     }
 
-    public static BufferedImage createImage8(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
+    public static BufferedImage createImage8(int width, int height, int[] colors, int[] alpha, byte... mask) {
         int[] buf = new int[width * height];
 
         if (mask.length == buf.length)
@@ -247,7 +247,7 @@ public final class Bitmap {
         return createImage(width, height, colors, alpha, buf);
     }
 
-    private static BufferedImage createImage24(int width, int height, byte[] alpha, byte... mask) {
+    private static BufferedImage createImage24(int width, int height, int[] alpha, byte... mask) {
         int offsMask = 0;
         int offsAlpha = 0;
         int size = mask.length == 3 * height * width ? 0 : mask.length / height - width * 3;
@@ -286,23 +286,7 @@ public final class Bitmap {
         return image;
     }
 
-    public static BufferedImage createImage(int width, int height, Color[] colors, byte[] alpha, int... buf) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-
-        for (int y = height - 1, offs = 0; y >= 0; y--) {
-            for (int x = 0; x < width; x++, offs++) {
-                int red = colors[buf[offs]].getRed();
-                int green = colors[buf[offs]].getGreen();
-                int blue = colors[buf[offs]].getBlue();
-                int rgb = new Color(red, green, blue, alpha[offs] & 255).getRGB();
-                image.setRGB(x, y, rgb);
-            }
-        }
-
-        return image;
-    }
-
-    public static BufferedImage createImageNew(int width, int height, int[] colors, int[] alpha, int... buf) {
+    public static BufferedImage createImage(int width, int height, int[] colors, int[] alpha, int[] buf) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
         for (int y = height - 1, offs = 0; y >= 0; y--)
