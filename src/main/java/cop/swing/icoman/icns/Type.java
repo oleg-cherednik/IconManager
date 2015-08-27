@@ -21,15 +21,30 @@ public enum Type {
     ICNS_256x256_32BIT_ARGB_DATA("ic08", ImageKey.createXpKey(256), null),
 
     // 32-bit image types - 8-bit mask type
-    ICNS_128x128_32BIT_DATA("it32", ImageKey.createXpKey(128), ImageKey.createKey(128, 8)),
+    ICNS_128x128_32BIT_DATA("it32", ImageKey.createXpKey(128), ImageKey.createKey(128, 8)) {},
     ICNS_48x48_32BIT_DATA("ih32", ImageKey.createXpKey(48), ImageKey.createKey(48, 8)),
     ICNS_32x32_32BIT_DATA("il32", ImageKey.createXpKey(32), ImageKey.createKey(32, 8)),
     ICNS_16x16_32BIT_DATA("is32", ImageKey.createXpKey(16), ImageKey.createKey(16, 8)),
 
     // 8-bit image types - 1-bit mask types
-    ICNS_48x48_8BIT_DATA("ich8", ImageKey.createKey(48, 8), ImageKey.createKey(48, 1)),
-    ICNS_32x32_8BIT_DATA("icl8", ImageKey.createKey(32, 8), ImageKey.createKey(32, 1)),
-    ICNS_16x16_8BIT_DATA("ics8", ImageKey.createKey(16, 8), ImageKey.createKey(16, 1)),
+    ICNS_48x48_8BIT_DATA("ich8", ImageKey.createKey(48, 8), ImageKey.createKey(48, 1)) {
+        @Override
+        public BufferedImage createImage(ImageKey key, byte[] data, byte... mask) {
+            return Bitmap.create8bitsImage(key.width(), key.height(), data, mask);
+        }
+    },
+    ICNS_32x32_8BIT_DATA("icl8", ImageKey.createKey(32, 8), ImageKey.createKey(32, 1)) {
+        @Override
+        public BufferedImage createImage(ImageKey key, byte[] data, byte... mask) {
+            return Bitmap.create8bitsImage(key.width(), key.height(), data, mask);
+        }
+    },
+    ICNS_16x16_8BIT_DATA("ics8", ImageKey.createKey(16, 8), ImageKey.createKey(16, 1)) {
+        @Override
+        public BufferedImage createImage(ImageKey key, byte[] data, byte... mask) {
+            return Bitmap.create8bitsImage(key.width(), key.height(), data, mask);
+        }
+    },
     ICNS_16x12_8BIT_DATA("icm8", ImageKey.createKey(16, 12, 8), ImageKey.createKey(16, 12, 1)),
 
     // 4 bit image types - 1-bit mask types

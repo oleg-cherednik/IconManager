@@ -12,9 +12,6 @@ import java.io.IOException;
  * @since 01.09.2013
  */
 public final class Bitmap {
-    private static final int KEY_COLOR_8BIT_BLACK = 0;
-    private static final int KEY_COLOR_8BIT_WHITE = 15;
-
     public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
         Color[] colorTable = readColorTable(header, in);
@@ -24,7 +21,7 @@ public final class Bitmap {
 
         byte[] mask = readBitMasks(header, in);
         byte[] data = readData(header, in);
-        byte[] alpha = createAlphaTable(header, data);
+        byte[] alpha = create1bitAlpha(header, data);
 
         if (bitCount == 1)
             return create1bitImage(width, height, data);
@@ -35,7 +32,7 @@ public final class Bitmap {
         if (bitCount == 24)
             return createImage24(width, height, alpha, mask);
         if (bitCount == 32)
-            return createImage32(width, height, mask);
+            return create32bitImage(width, height, mask);
 
         throw new IconManagerException("Bitmap with " + bitCount + "bit is not supported");
     }
@@ -81,7 +78,7 @@ public final class Bitmap {
         return buf;
     }
 
-    private static byte[] createAlphaTable(BitmapInfoHeader header, byte... data) {
+    private static byte[] create1bitAlpha(BitmapInfoHeader header, byte... data) {
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         byte[] buf = new byte[width * height];
@@ -108,29 +105,48 @@ public final class Bitmap {
         return buf;
     }
 
-    public static BufferedImage create1bitImage(int width, int height, byte... data) {
-        byte[] buf = decode1bitArray(width, height, data);
-        byte[] alpha = createAlphaTable(width, height, data);
-        return createImageNew(width, height, Bitmap.COLORS8, alpha, buf);
+    public static BufferedImage create1bitImage(int width, int height, byte[] data) {
+        int[] buf = decode1bitArray(width, height, data);
+        int[] alpha = create1bitAlpha(width, height, data);
+        return createImageNew(width, height, COLORS_2, alpha, buf);
     }
 
-    private static byte[] decode1bitArray(int width, int height, byte... data) {
-        byte[] buf = new byte[width * height];
+    public static BufferedImage create8bitsImage(int width, int height, byte[] data, byte[] mask) {
+        return create8bitsImage(width, height, COLORS_256, data, mask);
+    }
+
+    private static BufferedImage create8bitsImage(int width, int height, int[] colors, byte[] data, byte[] mask) {
+        int[] buf = decode8bitArray(width, height, data);
+        int[] alpha = create1bitAlpha(width, height, mask);
+        return createImageNew(width, height, colors, alpha, buf);
+    }
+
+    private static int[] decode1bitArray(int width, int height, byte... data) {
+        int[] buf = new int[width * height];
 
         for (int i = 0, offs = 0, x = 0; i < data.length; i++, x = i % 2 == 0 ? 0 : x)
             for (int j = 7; j >= 0; j--, x++)
                 if (x < width && offs < buf.length)
-                    buf[offs++] = (byte)((1 << j & data[i]) != 0 ? KEY_COLOR_8BIT_BLACK : KEY_COLOR_8BIT_WHITE);
+                    buf[offs++] = (byte)((1 << j & data[i]) != 0 ? 1 : 0);
 
         return rotate180(width, height, buf);
     }
 
-    private static byte[] rotate180(int width, int height, byte... data) {
+    private static int[] decode8bitArray(int width, int height, byte... data) {
+        int[] buf = new int[width * height];
+
+        for (int i = 0; i < data.length; i++)
+            buf[i] = data[i] & 0xFF;
+
+        return rotate180(width, height, buf);
+    }
+
+    private static int[] rotate180(int width, int height, int... data) {
         for (int i = 0; i < height / 2; i++) {
             for (int j = 0; j < width; j++) {
                 int a = i * width + j;
                 int b = data.length - i * width - width + j;
-                byte tmp = data[a];
+                int tmp = data[a];
                 data[a] = data[b];
                 data[b] = tmp;
             }
@@ -139,8 +155,8 @@ public final class Bitmap {
         return data;
     }
 
-    private static byte[] createAlphaTable(int width, int height, byte... mask) {
-        byte[] buf = new byte[width * height];
+    public static int[] create1bitAlpha(int width, int height, byte... mask) {
+        int[] buf = new int[width * height];
 
         for (int i = 0, offs = 0, x = 0; i < mask.length; i++, x = i % 2 == 0 ? 0 : x)
             for (int j = 7; j >= 0; j--, x++)
@@ -150,11 +166,21 @@ public final class Bitmap {
         return rotate180(width, height, buf);
     }
 
-    public static void print(int width, int height, byte... buf) {
+    public static int[] create8bitsAlpha(int width, int height, byte... mask) {
+        int[] buf = new int[width * height];
+
+        for (int i = 0, offs = 0, x = 0; i < mask.length; i++, x = i % 2 == 0 ? 0 : x)
+            for (int j = 7; j >= 0; j--, x++)
+                if (x < width && offs < buf.length)
+                    buf[offs++] = (byte)((1 << j & mask[i]) != 0 ? 0xFF : 0x0);
+
+        return rotate180(width, height, buf);
+    }
+
+    public static void print(int width, int height, int... buf) {
         for (int i = 0, offs = 0; i < height; i++) {
             for (int j = 0; j < width; j++, offs++)
-//                System.out.print(buf[offs] == 0 ? '.' : '#');
-                System.out.print(buf[offs] + " ");
+                System.out.print(buf[offs] == 0x0 ? '#' : '.');
             System.out.println();
         }
     }
@@ -164,15 +190,15 @@ public final class Bitmap {
 
         if (mask.length * 2 == buf.length) {
             for (int offsMask = 0, offs = 0; offsMask < mask.length; offsMask++) {
-                buf[offs++] = (mask[offsMask] & 255) >> 4;
-                buf[offs++] = (mask[offsMask] & 255) >> 4 << 4 ^ mask[offsMask] & 255;
+                buf[offs++] = (byte)((mask[offsMask] & 255) >> 4);
+                buf[offs++] = (byte)((mask[offsMask] & 255) >> 4 << 4 ^ mask[offsMask] & 255);
             }
         } else {
             int n6 = mask.length * 2 / height - width;
 
             for (int offsMask = 0, offs = 0, n5 = 0, n8 = 1; offsMask < mask.length; offsMask++) {
                 if (n8 != 0)
-                    buf[offs++] = (mask[offsMask] & 255) >> 4;
+                    buf[offs++] = (byte)((mask[offsMask] & 255) >> 4);
                 if (n8 != 0 && ++n5 == width) {
                     n5 = 0;
                     n8 = 0;
@@ -182,7 +208,7 @@ public final class Bitmap {
                 }
 
                 if (n8 != 0)
-                    buf[offs++] = (mask[offsMask] & 255) >> 4 << 4 ^ mask[offsMask] & 255;
+                    buf[offs++] = (byte)((mask[offsMask] & 255) >> 4 << 4 ^ mask[offsMask] & 255);
                 if (n8 != 0 && ++n5 == width) {
                     n5 = 0;
                     n8 = 0;
@@ -242,7 +268,7 @@ public final class Bitmap {
         return image;
     }
 
-    private static BufferedImage createImage32(int width, int height, byte... mask) {
+    public static BufferedImage create32bitImage(int width, int height, byte... mask) {
         int offsMask = 0;
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
@@ -276,23 +302,38 @@ public final class Bitmap {
         return image;
     }
 
-    public static BufferedImage createImageNew(int width, int height, Color[] colors, byte[] alpha, byte... buf) {
+    public static BufferedImage createImageNew(int width, int height, int[] colors, int[] alpha, int... buf) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
-        for (int y = height - 1, offs = 0; y >= 0; y--) {
-            for (int x = 0; x < width; x++, offs++) {
-                int red = colors[buf[offs]].getRed();
-                int green = colors[buf[offs]].getGreen();
-                int blue = colors[buf[offs]].getBlue();
-                int rgb = new Color(red, green, blue, alpha[offs] & 0xFF).getRGB();
-                image.setRGB(x, y, rgb);
-            }
-        }
+        for (int y = height - 1, offs = 0; y >= 0; y--)
+            for (int x = 0; x < width; x++, offs++)
+                image.setRGB(x, y, rgb(colors[buf[offs]], alpha[offs]));
 
         return image;
     }
 
-    public static final Color[] COLORS8 = {
+    private static int rgb(Color color, int alpha) {
+        return rgb(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+    }
+
+    private static int rgb(int rgb, int alpha) {
+        return rgb(rgb >> 16, rgb >> 8, rgb, alpha);
+    }
+
+    private static int rgb(int red, int green, int blue) {
+        return rgb(red, green, blue, 0xFF);
+    }
+
+    private static int rgb(int red, int green, int blue, int alpha) {
+        return ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF);
+    }
+
+    public static final int[] COLORS_2 = {
+            rgb(0xFF, 0xFF, 0xFF),
+            rgb(0x0, 0x0, 0x0)
+    };
+
+    public static final Color[] COLORS_16 = {
             new Color(0, 0, 0),
             new Color(128, 0, 0),
             new Color(0, 128, 0),
@@ -309,6 +350,265 @@ public final class Bitmap {
             new Color(0, 255, 255),
             new Color(192, 192, 192),
             new Color(255, 255, 255)
+    };
+
+    private static final int COLORS_256[] = {
+            rgb(0xFF, 0xFF, 0xFF),
+            rgb(0xFF, 0xFF, 0xCC),
+            rgb(0xFF, 0xFF, 0x99),
+            rgb(0xFF, 0xFF, 0x66),
+            rgb(0xFF, 0xFF, 0x33),
+            rgb(0xFF, 0xFF, 0x00),
+            rgb(0xFF, 0xCC, 0xFF),
+            rgb(0xFF, 0xCC, 0xCC),
+            rgb(0xFF, 0xCC, 0x99),
+            rgb(0xFF, 0xCC, 0x66),
+            rgb(0xFF, 0xCC, 0x33),
+            rgb(0xFF, 0xCC, 0x00),
+            rgb(0xFF, 0x99, 0xFF),
+            rgb(0xFF, 0x99, 0xCC),
+            rgb(0xFF, 0x99, 0x99),
+            rgb(0xFF, 0x99, 0x66),
+            rgb(0xFF, 0x99, 0x33),
+            rgb(0xFF, 0x99, 0x00),
+            rgb(0xFF, 0x66, 0xFF),
+            rgb(0xFF, 0x66, 0xCC),
+            rgb(0xFF, 0x66, 0x99),
+            rgb(0xFF, 0x66, 0x66),
+            rgb(0xFF, 0x66, 0x33),
+            rgb(0xFF, 0x66, 0x00),
+            rgb(0xFF, 0x33, 0xFF),
+            rgb(0xFF, 0x33, 0xCC),
+            rgb(0xFF, 0x33, 0x99),
+            rgb(0xFF, 0x33, 0x66),
+            rgb(0xFF, 0x33, 0x33),
+            rgb(0xFF, 0x33, 0x00),
+            rgb(0xFF, 0x00, 0xFF),
+            rgb(0xFF, 0x00, 0xCC),
+            rgb(0xFF, 0x00, 0x99),
+            rgb(0xFF, 0x00, 0x66),
+            rgb(0xFF, 0x00, 0x33),
+            rgb(0xFF, 0x00, 0x00),
+            rgb(0xCC, 0xFF, 0xFF),
+            rgb(0xCC, 0xFF, 0xCC),
+            rgb(0xCC, 0xFF, 0x99),
+            rgb(0xCC, 0xFF, 0x66),
+            rgb(0xCC, 0xFF, 0x33),
+            rgb(0xCC, 0xFF, 0x00),
+            rgb(0xCC, 0xCC, 0xFF),
+            rgb(0xCC, 0xCC, 0xCC),
+            rgb(0xCC, 0xCC, 0x99),
+            rgb(0xCC, 0xCC, 0x66),
+            rgb(0xCC, 0xCC, 0x33),
+            rgb(0xCC, 0xCC, 0x00),
+            rgb(0xCC, 0x99, 0xFF),
+            rgb(0xCC, 0x99, 0xCC),
+            rgb(0xCC, 0x99, 0x99),
+            rgb(0xCC, 0x99, 0x66),
+            rgb(0xCC, 0x99, 0x33),
+            rgb(0xCC, 0x99, 0x00),
+            rgb(0xCC, 0x66, 0xFF),
+            rgb(0xCC, 0x66, 0xCC),
+            rgb(0xCC, 0x66, 0x99),
+            rgb(0xCC, 0x66, 0x66),
+            rgb(0xCC, 0x66, 0x33),
+            rgb(0xCC, 0x66, 0x00),
+            rgb(0xCC, 0x33, 0xFF),
+            rgb(0xCC, 0x33, 0xCC),
+            rgb(0xCC, 0x33, 0x99),
+            rgb(0xCC, 0x33, 0x66),
+            rgb(0xCC, 0x33, 0x33),
+            rgb(0xCC, 0x33, 0x00),
+            rgb(0xCC, 0x00, 0xFF),
+            rgb(0xCC, 0x00, 0xCC),
+            rgb(0xCC, 0x00, 0x99),
+            rgb(0xCC, 0x00, 0x66),
+            rgb(0xCC, 0x00, 0x33),
+            rgb(0xCC, 0x00, 0x00),
+            rgb(0x99, 0xFF, 0xFF),
+            rgb(0x99, 0xFF, 0xCC),
+            rgb(0x99, 0xFF, 0x99),
+            rgb(0x99, 0xFF, 0x66),
+            rgb(0x99, 0xFF, 0x33),
+            rgb(0x99, 0xFF, 0x00),
+            rgb(0x99, 0xCC, 0xFF),
+            rgb(0x99, 0xCC, 0xCC),
+            rgb(0x99, 0xCC, 0x99),
+            rgb(0x99, 0xCC, 0x66),
+            rgb(0x99, 0xCC, 0x33),
+            rgb(0x99, 0xCC, 0x00),
+            rgb(0x99, 0x99, 0xFF),
+            rgb(0x99, 0x99, 0xCC),
+            rgb(0x99, 0x99, 0x99),
+            rgb(0x99, 0x99, 0x66),
+            rgb(0x99, 0x99, 0x33),
+            rgb(0x99, 0x99, 0x00),
+            rgb(0x99, 0x66, 0xFF),
+            rgb(0x99, 0x66, 0xCC),
+            rgb(0x99, 0x66, 0x99),
+            rgb(0x99, 0x66, 0x66),
+            rgb(0x99, 0x66, 0x33),
+            rgb(0x99, 0x66, 0x00),
+            rgb(0x99, 0x33, 0xFF),
+            rgb(0x99, 0x33, 0xCC),
+            rgb(0x99, 0x33, 0x99),
+            rgb(0x99, 0x33, 0x66),
+            rgb(0x99, 0x33, 0x33),
+            rgb(0x99, 0x33, 0x00),
+            rgb(0x99, 0x00, 0xFF),
+            rgb(0x99, 0x00, 0xCC),
+            rgb(0x99, 0x00, 0x99),
+            rgb(0x99, 0x00, 0x66),
+            rgb(0x99, 0x00, 0x33),
+            rgb(0x99, 0x00, 0x00),
+            rgb(0x66, 0xFF, 0xFF),
+            rgb(0x66, 0xFF, 0xCC),
+            rgb(0x66, 0xFF, 0x99),
+            rgb(0x66, 0xFF, 0x66),
+            rgb(0x66, 0xFF, 0x33),
+            rgb(0x66, 0xFF, 0x00),
+            rgb(0x66, 0xCC, 0xFF),
+            rgb(0x66, 0xCC, 0xCC),
+            rgb(0x66, 0xCC, 0x99),
+            rgb(0x66, 0xCC, 0x66),
+            rgb(0x66, 0xCC, 0x33),
+            rgb(0x66, 0xCC, 0x00),
+            rgb(0x66, 0x99, 0xFF),
+            rgb(0x66, 0x99, 0xCC),
+            rgb(0x66, 0x99, 0x99),
+            rgb(0x66, 0x99, 0x66),
+            rgb(0x66, 0x99, 0x33),
+            rgb(0x66, 0x99, 0x00),
+            rgb(0x66, 0x66, 0xFF),
+            rgb(0x66, 0x66, 0xCC),
+            rgb(0x66, 0x66, 0x99),
+            rgb(0x66, 0x66, 0x66),
+            rgb(0x66, 0x66, 0x33),
+            rgb(0x66, 0x66, 0x00),
+            rgb(0x66, 0x33, 0xFF),
+            rgb(0x66, 0x33, 0xCC),
+            rgb(0x66, 0x33, 0x99),
+            rgb(0x66, 0x33, 0x66),
+            rgb(0x66, 0x33, 0x33),
+            rgb(0x66, 0x33, 0x00),
+            rgb(0x66, 0x00, 0xFF),
+            rgb(0x66, 0x00, 0xCC),
+            rgb(0x66, 0x00, 0x99),
+            rgb(0x66, 0x00, 0x66),
+            rgb(0x66, 0x00, 0x33),
+            rgb(0x66, 0x00, 0x00),
+            rgb(0x33, 0xFF, 0xFF),
+            rgb(0x33, 0xFF, 0xCC),
+            rgb(0x33, 0xFF, 0x99),
+            rgb(0x33, 0xFF, 0x66),
+            rgb(0x33, 0xFF, 0x33),
+            rgb(0x33, 0xFF, 0x00),
+            rgb(0x33, 0xCC, 0xFF),
+            rgb(0x33, 0xCC, 0xCC),
+            rgb(0x33, 0xCC, 0x99),
+            rgb(0x33, 0xCC, 0x66),
+            rgb(0x33, 0xCC, 0x33),
+            rgb(0x33, 0xCC, 0x00),
+            rgb(0x33, 0x99, 0xFF),
+            rgb(0x33, 0x99, 0xCC),
+            rgb(0x33, 0x99, 0x99),
+            rgb(0x33, 0x99, 0x66),
+            rgb(0x33, 0x99, 0x33),
+            rgb(0x33, 0x99, 0x00),
+            rgb(0x33, 0x66, 0xFF),
+            rgb(0x33, 0x66, 0xCC),
+            rgb(0x33, 0x66, 0x99),
+            rgb(0x33, 0x66, 0x66),
+            rgb(0x33, 0x66, 0x33),
+            rgb(0x33, 0x66, 0x00),
+            rgb(0x33, 0x33, 0xFF),
+            rgb(0x33, 0x33, 0xCC),
+            rgb(0x33, 0x33, 0x99),
+            rgb(0x33, 0x33, 0x66),
+            rgb(0x33, 0x33, 0x33),
+            rgb(0x33, 0x33, 0x00),
+            rgb(0x33, 0x00, 0xFF),
+            rgb(0x33, 0x00, 0xCC),
+            rgb(0x33, 0x00, 0x99),
+            rgb(0x33, 0x00, 0x66),
+            rgb(0x33, 0x00, 0x33),
+            rgb(0x33, 0x00, 0x00),
+            rgb(0x00, 0xFF, 0xFF),
+            rgb(0x00, 0xFF, 0xCC),
+            rgb(0x00, 0xFF, 0x99),
+            rgb(0x00, 0xFF, 0x66),
+            rgb(0x00, 0xFF, 0x33),
+            rgb(0x00, 0xFF, 0x00),
+            rgb(0x00, 0xCC, 0xFF),
+            rgb(0x00, 0xCC, 0xCC),
+            rgb(0x00, 0xCC, 0x99),
+            rgb(0x00, 0xCC, 0x66),
+            rgb(0x00, 0xCC, 0x33),
+            rgb(0x00, 0xCC, 0x00),
+            rgb(0x00, 0x99, 0xFF),
+            rgb(0x00, 0x99, 0xCC),
+            rgb(0x00, 0x99, 0x99),
+            rgb(0x00, 0x99, 0x66),
+            rgb(0x00, 0x99, 0x33),
+            rgb(0x00, 0x99, 0x00),
+            rgb(0x00, 0x66, 0xFF),
+            rgb(0x00, 0x66, 0xCC),
+            rgb(0x00, 0x66, 0x99),
+            rgb(0x00, 0x66, 0x66),
+            rgb(0x00, 0x66, 0x33),
+            rgb(0x00, 0x66, 0x00),
+            rgb(0x00, 0x33, 0xFF),
+            rgb(0x00, 0x33, 0xCC),
+            rgb(0x00, 0x33, 0x99),
+            rgb(0x00, 0x33, 0x66),
+            rgb(0x00, 0x33, 0x33),
+            rgb(0x00, 0x33, 0x00),
+            rgb(0x00, 0x00, 0xFF),
+            rgb(0x00, 0x00, 0xCC),
+            rgb(0x00, 0x00, 0x99),
+            rgb(0x00, 0x00, 0x66),
+            rgb(0x00, 0x00, 0x33),
+            rgb(0xEE, 0x00, 0x00),
+            rgb(0xDD, 0x00, 0x00),
+            rgb(0xBB, 0x00, 0x00),
+            rgb(0xAA, 0x00, 0x00),
+            rgb(0x88, 0x00, 0x00),
+            rgb(0x77, 0x00, 0x00),
+            rgb(0x55, 0x00, 0x00),
+            rgb(0x44, 0x00, 0x00),
+            rgb(0x22, 0x00, 0x00),
+            rgb(0x11, 0x00, 0x00),
+            rgb(0x00, 0xEE, 0x00),
+            rgb(0x00, 0xDD, 0x00),
+            rgb(0x00, 0xBB, 0x00),
+            rgb(0x00, 0xAA, 0x00),
+            rgb(0x00, 0x88, 0x00),
+            rgb(0x00, 0x77, 0x00),
+            rgb(0x00, 0x55, 0x00),
+            rgb(0x00, 0x44, 0x00),
+            rgb(0x00, 0x22, 0x00),
+            rgb(0x00, 0x11, 0x00),
+            rgb(0x00, 0x00, 0xEE),
+            rgb(0x00, 0x00, 0xDD),
+            rgb(0x00, 0x00, 0xBB),
+            rgb(0x00, 0x00, 0xAA),
+            rgb(0x00, 0x00, 0x88),
+            rgb(0x00, 0x00, 0x77),
+            rgb(0x00, 0x00, 0x55),
+            rgb(0x00, 0x00, 0x44),
+            rgb(0x00, 0x00, 0x22),
+            rgb(0x00, 0x00, 0x11),
+            rgb(0xEE, 0xEE, 0xEE),
+            rgb(0xDD, 0xDD, 0xDD),
+            rgb(0xBB, 0xBB, 0xBB),
+            rgb(0xAA, 0xAA, 0xAA),
+            rgb(0x88, 0x88, 0x88),
+            rgb(0x77, 0x77, 0x77),
+            rgb(0x55, 0x55, 0x55),
+            rgb(0x44, 0x44, 0x44),
+            rgb(0x22, 0x22, 0x22),
+            rgb(0x11, 0x11, 0x11),
+            rgb(0x00, 0x00, 0x00)
     };
 
     private Bitmap() {
