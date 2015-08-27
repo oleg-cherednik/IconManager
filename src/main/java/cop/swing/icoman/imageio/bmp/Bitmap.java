@@ -12,19 +12,22 @@ import java.io.IOException;
  * @since 01.09.2013
  */
 public final class Bitmap {
+    private static final int KEY_COLOR_8BIT_BLACK = 0;
+    private static final int KEY_COLOR_8BIT_WHITE = 15;
+
     public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
         Color[] colorTable = readColorTable(header, in);
-        byte[] mask = readBitMasks(header, in);
-        byte[] data = readData(header, in);
-        byte[] alpha = createAlphaTable(header, data);
-
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
 
+        byte[] mask = readBitMasks(header, in);
+        byte[] data = readData(header, in);
+        byte[] alpha = createAlphaTable(header, data);
+
         if (bitCount == 1)
-            return createImage1(width, height, data, colorTable, alpha, mask);
+            return create1bitImage(width, height, data);
         if (bitCount == 4)
             return createImage4(width, height, colorTable, alpha, mask);
         if (bitCount == 8)
@@ -105,29 +108,55 @@ public final class Bitmap {
         return buf;
     }
 
-    private static BufferedImage createImage1(int width, int height, byte[] data, Color[] colors, byte[] alpha, byte... mask) {
-        int[] buf = new int[width * height];
-        int n4 = data.length / height;
+    public static BufferedImage create1bitImage(int width, int height, byte... data) {
+        byte[] buf = decode1bitArray(width, height, data);
+        byte[] alpha = createAlphaTable(width, height, data);
+        return createImageNew(width, height, Bitmap.COLORS8, alpha, buf);
+    }
 
-        for (int offsMask = 0, offs = 0, n5 = 0, n6 = 0; offsMask < mask.length; ++offsMask) {
-            n5++;
+    private static byte[] decode1bitArray(int width, int height, byte... data) {
+        byte[] buf = new byte[width * height];
 
-            for (int i = 7; i >= 0; i--) {
-                if (n6 >= width)
-                    continue;
+        for (int i = 0, offs = 0, x = 0; i < data.length; i++, x = i % 2 == 0 ? 0 : x)
+            for (int j = 7; j >= 0; j--, x++)
+                if (x < width && offs < buf.length)
+                    buf[offs++] = (byte)((1 << j & data[i]) != 0 ? KEY_COLOR_8BIT_BLACK : KEY_COLOR_8BIT_WHITE);
 
-                buf[offs++] = (1 << i & mask[offsMask]) != 0 ? 1 : 0;
-                ++n6;
+        return rotate180(width, height, buf);
+    }
+
+    private static byte[] rotate180(int width, int height, byte... data) {
+        for (int i = 0; i < height / 2; i++) {
+            for (int j = 0; j < width; j++) {
+                int a = i * width + j;
+                int b = data.length - i * width - width + j;
+                byte tmp = data[a];
+                data[a] = data[b];
+                data[b] = tmp;
             }
-
-            if (n5 != n4)
-                continue;
-
-            n5 = 0;
-            n6 = 0;
         }
 
-        return createImage(width, height, colors, alpha, buf);
+        return data;
+    }
+
+    private static byte[] createAlphaTable(int width, int height, byte... mask) {
+        byte[] buf = new byte[width * height];
+
+        for (int i = 0, offs = 0, x = 0; i < mask.length; i++, x = i % 2 == 0 ? 0 : x)
+            for (int j = 7; j >= 0; j--, x++)
+                if (x < width && offs < buf.length)
+                    buf[offs++] = (byte)((1 << j & mask[i]) != 0 ? 0xFF : 0x0);
+
+        return rotate180(width, height, buf);
+    }
+
+    public static void print(int width, int height, byte... buf) {
+        for (int i = 0, offs = 0; i < height; i++) {
+            for (int j = 0; j < width; j++, offs++)
+//                System.out.print(buf[offs] == 0 ? '.' : '#');
+                System.out.print(buf[offs] + " ");
+            System.out.println();
+        }
     }
 
     private static BufferedImage createImage4(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
@@ -169,7 +198,7 @@ public final class Bitmap {
         return createImage(width, height, colors, alpha, buf);
     }
 
-    private static BufferedImage createImage8(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
+    public static BufferedImage createImage8(int width, int height, Color[] colors, byte[] alpha, byte... mask) {
         int[] buf = new int[width * height];
 
         if (mask.length == buf.length)
@@ -231,7 +260,7 @@ public final class Bitmap {
         return image;
     }
 
-    private static BufferedImage createImage(int width, int height, Color[] colors, byte[] alpha, int... buf) {
+    public static BufferedImage createImage(int width, int height, Color[] colors, byte[] alpha, int... buf) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
         for (int y = height - 1, offs = 0; y >= 0; y--) {
@@ -246,6 +275,41 @@ public final class Bitmap {
 
         return image;
     }
+
+    public static BufferedImage createImageNew(int width, int height, Color[] colors, byte[] alpha, byte... buf) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+
+        for (int y = height - 1, offs = 0; y >= 0; y--) {
+            for (int x = 0; x < width; x++, offs++) {
+                int red = colors[buf[offs]].getRed();
+                int green = colors[buf[offs]].getGreen();
+                int blue = colors[buf[offs]].getBlue();
+                int rgb = new Color(red, green, blue, alpha[offs] & 0xFF).getRGB();
+                image.setRGB(x, y, rgb);
+            }
+        }
+
+        return image;
+    }
+
+    public static final Color[] COLORS8 = {
+            new Color(0, 0, 0),
+            new Color(128, 0, 0),
+            new Color(0, 128, 0),
+            new Color(128, 128, 0),
+            new Color(0, 0, 128),
+            new Color(128, 0, 128),
+            new Color(0, 128, 128),
+            new Color(128, 128, 128),
+            new Color(255, 0, 0),
+            new Color(0, 255, 0),
+            new Color(255, 255, 0),
+            new Color(0, 0, 255),
+            new Color(255, 0, 255),
+            new Color(0, 255, 255),
+            new Color(192, 192, 192),
+            new Color(255, 255, 255)
+    };
 
     private Bitmap() {
     }

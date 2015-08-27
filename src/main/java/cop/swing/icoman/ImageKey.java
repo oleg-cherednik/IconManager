@@ -59,11 +59,11 @@ public final class ImageKey implements Comparable<ImageKey> {
             assert false : "key duplication";
     }
 
-    public int getWidth() {
+    public int width() {
         return width;
     }
 
-    public int getHeight() {
+    public int height() {
         return height;
     }
 

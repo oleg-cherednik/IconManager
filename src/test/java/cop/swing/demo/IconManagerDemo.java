@@ -238,7 +238,7 @@ public class IconManagerDemo extends JFrame {
             dialog.addChoosableFileFilter(FileFilterImpl.ICO);
             dialog.addChoosableFileFilter(FileFilterImpl.ICL);
             dialog.addChoosableFileFilter(FileFilterImpl.ICNS);
-            dialog.setFileFilter(FileFilterImpl.ICO);
+            dialog.setFileFilter(FileFilterImpl.ICNS);
 
             if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 for (File file : dialog.getSelectedFiles()) {

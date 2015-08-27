@@ -3,10 +3,8 @@ package cop.swing.icoman.icns;
 import cop.swing.icoman.IconImage;
 import cop.swing.icoman.ImageKey;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
@@ -18,7 +16,7 @@ public final class IcnsImage implements IconImage {
     private final Type type;
     private byte[] data;
     private byte[] mask;
-    private ImageIcon icon;
+    public ImageIcon icon;
 
     public IcnsImage(ImageKey key, Type type) {
         this.key = key;
@@ -35,15 +33,18 @@ public final class IcnsImage implements IconImage {
 
     public void createIcon() throws IOException {
         try {
-            if (data != null) {
-                BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
-                if (image != null)
-                    icon = new ImageIcon(image);
-            } else if (mask != null) {
-                BufferedImage image = ImageIO.read(new ByteArrayInputStream(mask));
-                if (image != null)
-                    icon = new ImageIcon(image);
-            }
+            BufferedImage image = type.createImage(key, data, mask);
+            if (image != null)
+                icon = new ImageIcon(type.createImage(key, data, mask));
+//            if (data != null) {
+//                BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
+//                if (image != null)
+//                    icon = new ImageIcon(image);
+//            } else if (mask != null) {
+//                BufferedImage image = ImageIO.read(new ByteArrayInputStream(mask));
+//                if (image != null)
+//                    icon = new ImageIcon(image);
+//            }
         } catch(Exception e) {
             e.printStackTrace();
         }
