@@ -58,7 +58,7 @@ public class IconManagerDemo extends JFrame {
         panel.setBackground(Color.gray);
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        pack();
+        setSize(600, 700);
     }
 
     // ========== static ==========

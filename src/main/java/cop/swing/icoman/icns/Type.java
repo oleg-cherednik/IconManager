@@ -82,7 +82,7 @@ public enum Type {
     ICNS_48x48_1BIT_DATA("ich#", ImageKey.createKey(48, 1), ImageKey.createKey(48, 1), true) {
         @Override
         public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask);
+            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask, true);
         }
 
         @Override
@@ -96,7 +96,7 @@ public enum Type {
     ICNS_32x32_1BIT_DATA("ICN#", ImageKey.createKey(32, 1), ImageKey.createKey(32, 1), true) {
         @Override
         public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask);
+            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask, true);
         }
 
         @Override
@@ -110,7 +110,7 @@ public enum Type {
     ICNS_16x16_1BIT_DATA("ics#", ImageKey.createKey(16, 1), ImageKey.createKey(16, 1), true) {
         @Override
         public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask);
+            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask, true);
         }
 
         @Override
@@ -125,7 +125,7 @@ public enum Type {
     ICNS_16x12_1BIT_DATA("icm#", ImageKey.createKey(16, 12, 1), ImageKey.createKey(16, 12, 1), true) {
         @Override
         public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask);
+            return Bitmap.create1bitImage(key.width(), key.height(), COLORS_2, data, mask, true);
         }
     },
 
@@ -229,7 +229,7 @@ public enum Type {
         byte[] data = IconIO.readBytes(size - 8, in);
 
         for (Type type : values()) {
-            if (!type.skip && type.val == val) {
+            if (/*!type.skip &&*/ type.val == val) {
                 type.readData(data, mapData, mapMask);
                 System.out.println(String.format("type: %s, size: %d", type.id, size));
             }

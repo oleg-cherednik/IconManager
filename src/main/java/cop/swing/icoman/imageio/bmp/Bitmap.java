@@ -14,25 +14,29 @@ import java.io.IOException;
 public final class Bitmap {
     public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
-        int[] colorTable = readColorTable(header, in);
+        int[] colors = readColorTable(header, in);
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
 
-        byte[] mask = readBitMasks(header, in);
-        byte[] data = readData(header, in);
-        int[] alpha = create1bitAlpha(header, data);
+        if (bitCount == 1) {
+            byte[] data = read32bitBlocks(width, height, bitCount, in);
+            byte[] mask = read32bitBlocks(width, height, bitCount, in);
+            return create1bitImage(width, height, colors, data, mask, false);
+        } else {
+            byte[] mask = readBitMasks(header, in);
+            byte[] data = readData(header, in);
+            int[] alpha = create1bitAlpha(header, data);
 
-        if (bitCount == 1)
-            return create1bitImage(width, height, colorTable, data, mask);
-        if (bitCount == 4)
-            return createImage4(width, height, colorTable, alpha, mask);
-        if (bitCount == 8)
-            return createImage8(width, height, colorTable, alpha, mask);
-        if (bitCount == 24)
-            return createImage24(width, height, alpha, mask);
-        if (bitCount == 32)
-            return create32bitImage(width, height, mask);
+            if (bitCount == 4)
+                return createImage4(width, height, colors, alpha, mask);
+            if (bitCount == 8)
+                return createImage8(width, height, colors, alpha, mask);
+            if (bitCount == 24)
+                return createImage24(width, height, alpha, mask);
+            if (bitCount == 32)
+                return create32bitImage(width, height, mask);
+        }
 
         throw new IconManagerException("Bitmap with " + bitCount + "bit is not supported");
     }
@@ -68,6 +72,43 @@ public final class Bitmap {
         return buf;
     }
 
+    private static byte[] readBitMask1(BitmapInfoHeader header, ImageInputStream in) throws IOException {
+        int width = header.getBiWidth();
+        int height = header.getBiHeight();
+        int bitCount = header.getBiBitCount();
+        int total = (width * bitCount + 31) / 32 * 4 * height;
+        byte[] buf = new byte[width * height * bitCount / 8];
+
+        for (int i = 0, offs = 0; i < total; i++) {
+            byte val = in.readByte();
+
+            if (i % 4 < width / 8)
+                buf[offs++] = val;
+        }
+
+        print(width, height, create1bitAlpha(width, height, buf, false));
+        System.out.println();
+
+        return buf;
+    }
+
+    private static byte[] read32bitBlocks(int width, int height, int bitCount, ImageInputStream in) throws IOException {
+        int total = (width * bitCount + 31) / 32 * 4 * height;
+        byte[] buf = new byte[width * height * bitCount / 8];
+
+        for (int i = 0, offs = 0; i < total; i++) {
+            byte val = in.readByte();
+
+            if (i % 4 < width / 8)
+                buf[offs++] = val;
+        }
+
+        print(width, height, create1bitAlpha(width, height, buf, false));
+        System.out.println();
+
+        return buf;
+    }
+
     private static byte[] readData(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int width = header.getBiWidth();
         int height = header.getBiHeight();
@@ -75,10 +116,14 @@ public final class Bitmap {
 
         in.read(buf);
 
+        int[] tmp = create1bitAlpha(width, height, buf, true);
+
+        print(width, height, tmp);
+
         return buf;
     }
 
-    private static int[] create1bitAlpha(BitmapInfoHeader header, byte... data) {
+    private static int[] create1bitAlpha(BitmapInfoHeader header, byte[] data) {
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         int[] buf = new int[width * height];
@@ -105,9 +150,15 @@ public final class Bitmap {
         return buf;
     }
 
-    public static BufferedImage create1bitImage(int width, int height, int[] colors, byte[] data, byte[] mask) {
+    public static BufferedImage create1bitImage(int width, int height, int[] colors, byte[] data, byte[] mask, boolean inv) {
         int[] buf = decode1bitArray(width, height, data);
-        int[] alpha = create1bitAlpha(width, height, mask);
+        int[] alpha = create1bitAlpha(width, height, mask, inv);
+
+        print(width, height, buf);
+        System.out.println();
+        print(width, height, alpha);
+        System.out.println();
+
         return createImage(width, height, colors, alpha, buf);
     }
 
@@ -117,13 +168,13 @@ public final class Bitmap {
 
     private static BufferedImage create8bitsImage(int width, int height, int[] colors, byte[] data, byte[] mask) {
         int[] buf = decode8bitArray(width, height, data);
-        int[] alpha = create1bitAlpha(width, height, mask);
+        int[] alpha = create1bitAlpha(width, height, mask, true);
         return createImage(width, height, colors, alpha, buf);
     }
 
     public static BufferedImage create4bitsImage(int width, int height, int[] colors, byte[] data, byte[] mask) {
         int[] buf = decode4bitArray(width, height, data);
-        int[] alpha = create1bitAlpha(width, height, mask);
+        int[] alpha = create1bitAlpha(width, height, mask, true);
         return createImage(width, height, colors, alpha, buf);
     }
 
@@ -173,13 +224,13 @@ public final class Bitmap {
         return data;
     }
 
-    public static int[] create1bitAlpha(int width, int height, byte... mask) {
+    private static int[] create1bitAlpha(int width, int height, byte[] mask, boolean inv) {
         int[] buf = new int[width * height];
 
         for (int i = 0, offs = 0, x = 0; i < mask.length; i++, x = i % 2 == 0 ? 0 : x)
             for (int j = 7; j >= 0; j--, x++)
                 if (x < width && offs < buf.length)
-                    buf[offs++] = (byte)((1 << j & mask[i]) != 0 ? 0xFF : 0x0);
+                    buf[offs++] = (1 << j & mask[i]) != 0 ? inv ? 0xFF : 0x0 : inv ? 0x0 : 0xFF;
 
         return rotate180(width, height, buf);
     }
@@ -198,12 +249,12 @@ public final class Bitmap {
     public static void print(int width, int height, int... buf) {
         for (int i = 0, offs = 0; i < height && offs < buf.length; i++) {
             for (int j = 0; j < width && offs < buf.length; j++, offs++)
-                System.out.print(buf[offs] == 0x0 ? '#' : '.');
+                System.out.print(buf[offs] == 0x0 ? '.' : '#');
             System.out.println();
         }
     }
 
-    private static BufferedImage createImage4(int width, int height, int[] colors, int[] alpha, byte... mask) {
+    private static BufferedImage createImage4(int width, int height, int[] colors, int[] alpha, byte[] mask) {
         int[] buf = new int[width * height];
 
         if (mask.length * 2 == buf.length) {
