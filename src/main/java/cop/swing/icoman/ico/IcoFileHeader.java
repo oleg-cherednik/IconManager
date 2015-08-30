@@ -33,9 +33,6 @@ public final class IcoFileHeader {
     }
 
     private IcoFileHeader(BitmapType type, int imageCount) {
-        assert type != null && type != BitmapType.NONE;
-        assert imageCount > 0;
-
         this.type = type;
         this.imageCount = imageCount;
     }
