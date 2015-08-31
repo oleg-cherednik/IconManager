@@ -68,10 +68,10 @@ public final class ImageKey implements Comparable<ImageKey> {
     }
 
     public int getColors() {
-        if (colors == HIGH_COLOR)
-            return 0x10000;
-        if (colors == TRUE_COLOR || colors == XP)
-            return 0x1000000;
+//        if (colors == HIGH_COLOR)
+//            return 0x10000;
+//        if (colors == TRUE_COLOR || colors == XP)
+//            return 0x1000000;
         return colors;
     }
 

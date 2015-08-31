@@ -13,63 +13,52 @@ import java.io.IOException;
 public abstract class Bitmap {
     public abstract BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException;
 
-    public abstract BufferedImage createImage(int width, int height, int[] colors, byte[] data, byte[] mask, boolean inv);
+    public abstract BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv);
 
     // ========== static ==========
 
     public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
-        int[] colors = readColorTable(header, in);
         int width = header.getBiWidth();
         int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
+        int[] colors = readColorTable(header, in);
+        return getInstanceForBits(bitCount).createImage(width, -height, colors, in, false);
+    }
 
-//        return getInstanceForBits(bitCount).createImage(width, -height, colors, in, false);
-
+    public static Bitmap getInstanceForBits(int bitCount) throws IconManagerException {
         if (bitCount == 1)
-            return getInstanceForBits(1).createImage(width, -height, colors, in, false);
+            return Bitmap1Bit.INSTANCE;
         if (bitCount == 4)
-            return getInstanceForBits(4).createImage(width, -height, colors, in, false);
+            return Bitmap4Bits.INSTANCE;
         if (bitCount == 8)
-            return getInstanceForBits(8).createImage(width, -height, colors, in, false);
-
-        byte[] data = BitmapUtils.readBitMasks(header, in);
-        byte[] mask = BitmapUtils.readData(header, in);
-        int[] alpha = BitmapUtils.create1bitAlpha(header, mask);
-
+            return Bitmap8Bits.INSTANCE;
         if (bitCount == 24)
-            return BitmapUtils.createImage24(width, height, alpha, data);
+            return Bitmap24Bits.INSTANCE;
         if (bitCount == 32)
-            return BitmapUtils.create32bitImage(width, height, data);
+            return Bitmap32Bits.INSTANCE;
 
         throw new IconManagerException("Bitmap with " + bitCount + "bit is not supported");
     }
 
-    public static Bitmap getInstanceForBits(int bitCount) {
-        if (bitCount == 1)
+    public static Bitmap getInstanceForColors(int colorCount) throws IconManagerException {
+        if (colorCount == 0x2)
             return Bitmap1Bit.INSTANCE;
-        if (bitCount == 4)
+        if (colorCount == 0x10)
             return Bitmap4Bits.INSTANCE;
-        if (bitCount == 8)
+        if (colorCount == 0x100)
             return Bitmap8Bits.INSTANCE;
+        if (colorCount == 0x10000)
+            return Bitmap24Bits.INSTANCE;
+        if (colorCount == 0x7FFFFFFF)
+            return Bitmap32Bits.INSTANCE;
 
-        throw new IllegalArgumentException("Unsupported bit count");
-    }
-
-    public static Bitmap getInstanceForColors(int colorCount) {
-        if (colorCount == 2)
-            return Bitmap1Bit.INSTANCE;
-        if (colorCount == 16)
-            return Bitmap4Bits.INSTANCE;
-        if (colorCount == 256)
-            return Bitmap8Bits.INSTANCE;
-
-        throw new IllegalArgumentException("Unsupported colorCount count");
+        throw new IconManagerException("Bitmap with " + colorCount + " colors is not supported");
     }
 
     private static int[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
         int bitCount = header.getBiBitCount();
-        int size = bitCount <= 8 ? (int)Math.pow(2.0, bitCount) : 0;
+        int size = bitCount <= 8 ? (int)Math.pow(2, bitCount) : 0;
 
         if (size == 0)
             return null;
@@ -81,18 +70,18 @@ public abstract class Bitmap {
             int green = in.readUnsignedByte();
             int red = in.readUnsignedByte();
             in.skipBytes(1);    // reserved
-            data[i] = BitmapUtils.rgb(red, green, blue);
+            data[i] = rgb(red, green, blue);
         }
 
         return data;
     }
 
-    protected static byte[] read32bitDataBlocks(int width, int height, int bitCount, ImageInputStream in) throws IOException {
-        byte[] buf = new byte[width * height * bitCount / 8];
+    protected static int[] read32bitDataBlocks(int width, int height, int bitCount, ImageInputStream in) throws IOException {
+        int[] buf = new int[width * height * bitCount / 8];
         int used = width * bitCount / 8;
 
         for (int i = 0, offs = 0, total = (width * bitCount + 31) / 32 * 4 * height; i < total; i++) {
-            byte val = in.readByte();
+            int val = in.readUnsignedByte();
 
             if (i % 4 < used)
                 buf[offs++] = val;
@@ -101,13 +90,13 @@ public abstract class Bitmap {
         return buf;
     }
 
-    protected static byte[] read32bitMaskBlocks(int width, int height, ImageInputStream in) throws IOException {
-        byte[] buf = new byte[(width + 31) / 32 * 4 * height];
+    protected static int[] read32bitMaskBlocks(int width, int height, ImageInputStream in) throws IOException {
+        int[] buf = new int[(width + 31) / 32 * 4 * height];
         int used = width / 8;
         int div = 4 * (used / 4 + (used % 4 > 0 ? 1 : 0));
 
         for (int i = 0, offs = 0; i < buf.length; i++) {
-            byte val = in.readByte();
+            int val = in.readUnsignedByte();
 
             if (i % div < used)
                 buf[offs++] = val;
@@ -135,9 +124,31 @@ public abstract class Bitmap {
 
         for (int y = Math.abs(height) - 1, offs = 0; y >= 0; y--)
             for (int x = 0; x < width; x++, offs++)
-                image.setRGB(x, y, BitmapUtils.rgb(colors[buf[offs]], alpha[offs]));
+                image.setRGB(x, y, rgb(colors[buf[offs]], alpha[offs]));
 
         return image;
+    }
+
+    static int rgb(int rgb, int alpha) {
+        return rgb(rgb >> 16, rgb >> 8, rgb, alpha);
+    }
+
+    static int rgb(int red, int green, int blue) {
+        return rgb(red, green, blue, 0xFF);
+    }
+
+    static int rgb(int red, int green, int blue, int alpha) {
+        return ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF);
+    }
+
+    protected static void print(int width, int height, int[] buf) {
+        height = Math.abs(height);
+
+        for (int i = 0, offs = 0; i < height && offs < buf.length; i++) {
+            for (int j = 0; j < width && offs < buf.length; j++, offs++)
+                System.out.print(buf[offs] == 0x0 ? '.' : '#');
+            System.out.println();
+        }
     }
 
     protected Bitmap() {

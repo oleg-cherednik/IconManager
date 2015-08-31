@@ -24,7 +24,16 @@ public final class IconIO {
 
     public static byte[] readBytes(int total, ImageInputStream in) throws IOException {
         byte[] buf = new byte[total];
-        in.readFully(buf);
+        in.read(buf);
+        return buf;
+    }
+
+    public static int[] readUnsignedBytes(int total, ImageInputStream in) throws IOException {
+        int[] buf = new int[total];
+
+        for (int i = 0; i < total; i++)
+            buf[i] = in.readUnsignedByte();
+
         return buf;
     }
 

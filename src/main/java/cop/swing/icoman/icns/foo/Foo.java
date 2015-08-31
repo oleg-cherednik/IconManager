@@ -553,7 +553,7 @@ public class Foo {
                     int decodedDataSize = imageOut.imageDataSize;
 
                     pixelCount = imageOut.imageWidth * imageOut.imageHeight;
-                    imageOut.imageData = rle24.icns_decode_rle24_data(rawDataSize, iconElement.elementData, pixelCount, decodedDataSize);
+//                    imageOut.imageData = rle24.icns_decode_rle24_data(iconElement.elementData.length, iconElement.elementData, pixelCount, decodedDataSize);
                     imageOut.imageDataSize = imageOut.imageData.length;
                 } else {
                     int a = 0;

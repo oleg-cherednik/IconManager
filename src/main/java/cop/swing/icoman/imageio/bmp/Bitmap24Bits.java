@@ -8,17 +8,17 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 31.08.2015
  */
-final class Bitmap8Bits extends Bitmap {
-    public static final Bitmap8Bits INSTANCE = new Bitmap8Bits();
+final class Bitmap24Bits extends Bitmap {
+    public static final Bitmap24Bits INSTANCE = new Bitmap24Bits();
 
-    private Bitmap8Bits() {
+    private Bitmap24Bits() {
     }
 
     // ========== Bitmap ==========
 
     @Override
     public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException {
-        int[] data = read32bitDataBlocks(width, Math.abs(height), 8, in);
+        int[] data = read32bitDataBlocks(width, Math.abs(height), 24, in);
         int[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
         return createImage(width, height, colors, data, mask, false);
     }
@@ -27,17 +27,19 @@ final class Bitmap8Bits extends Bitmap {
     public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv) {
         int[] buf = decode(width, height, data);
         int[] alpha = Bitmap1Bit.alpha(width, height, mask, inv);
-        return createImage(width, height, colors, alpha, buf);
+
+        BufferedImage image = new BufferedImage(width, Math.abs(height), BufferedImage.TYPE_4BYTE_ABGR);
+
+        for (int y = Math.abs(height) - 1, offs = 0, i = 0; y >= 0; y--)
+            for (int x = 0; x < width; x++, offs += 3)
+                image.setRGB(x, y, rgb(buf[offs + 2], buf[offs + 1], buf[offs], alpha[i++]));
+
+        return image;
     }
 
     // ========== static ==========
 
-    private static int[] decode(int width, int height, int[] data) {
-        int[] buf = new int[Math.abs(width * height)];
-
-        for (int i = 0; i < data.length; i++)
-            buf[i] = data[i] & 0xFF;
-
+    private static int[] decode(int width, int height, int[] buf) {
         return height > 0 ? flipVertical(width, height, buf) : buf;
     }
 }

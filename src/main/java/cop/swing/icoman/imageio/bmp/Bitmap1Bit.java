@@ -18,13 +18,13 @@ final class Bitmap1Bit extends Bitmap {
 
     @Override
     public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException {
-        byte[] data = read32bitDataBlocks(width, Math.abs(height), 1, in);
-        byte[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
+        int[] data = read32bitDataBlocks(width, Math.abs(height), 1, in);
+        int[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
         return createImage(width, height, colors, data, mask, false);
     }
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, byte[] data, byte[] mask, boolean inv) {
+    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv) {
         int[] buf = decode(width, height, data);
         int[] alpha = alpha(width, height, mask, inv);
         return createImage(width, height, colors, alpha, buf);
@@ -32,7 +32,7 @@ final class Bitmap1Bit extends Bitmap {
 
     // ========== static ==========
 
-    private static int[] decode(int width, int height, byte[] data) {
+    private static int[] decode(int width, int height, int[] data) {
         int[] buf = new int[Math.abs(width * height)];
 
         for (int i = 0, offs = 0, x = 0; i < data.length; i++, x = i % 2 == 0 ? 0 : x)
@@ -43,7 +43,7 @@ final class Bitmap1Bit extends Bitmap {
         return height > 0 ? flipVertical(width, height, buf) : buf;
     }
 
-    static int[] alpha(int width, int height, byte[] mask, boolean inv) {
+    static int[] alpha(int width, int height, int[] mask, boolean inv) {
         int[] buf = new int[Math.abs(width * height)];
 
         for (int i = 0, offs = 0, x = 0; i < mask.length; i++, x = i % 2 == 0 ? 0 : x)
