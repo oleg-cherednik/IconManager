@@ -27,64 +27,19 @@ public enum Type {
     ICNS_16x16_32BIT_DATA("is32", ImageKey.createXpKey(16), ImageKey.createKey(16, 8)),
 
     // 8-bit image types - 1-bit mask types
-    ICNS_48x48_8BIT_DATA("ich8", ImageKey.createKey(48, 8), ImageKey.createKey(48, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit8.createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        }
-    },
-    ICNS_32x32_8BIT_DATA("icl8", ImageKey.createKey(32, 8), ImageKey.createKey(32, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit8.createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        }
-    },
-    ICNS_16x16_8BIT_DATA("ics8", ImageKey.createKey(16, 8), ImageKey.createKey(16, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit8.createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        }
-    },
-    ICNS_16x12_8BIT_DATA("icm8", ImageKey.createKey(16, 12, 8), ImageKey.createKey(16, 12, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit8.createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        }
-    },
+    ICNS_48x48_8BIT_DATA("ich8", ImageKey.createKey(48, 8), ImageKey.createKey(48, 1)),
+    ICNS_32x32_8BIT_DATA("icl8", ImageKey.createKey(32, 8), ImageKey.createKey(32, 1)),
+    ICNS_16x16_8BIT_DATA("ics8", ImageKey.createKey(16, 8), ImageKey.createKey(16, 1)),
+    ICNS_16x12_8BIT_DATA("icm8", ImageKey.createKey(16, 12, 8), ImageKey.createKey(16, 12, 1)),
 
     // 4 bit image types - 1-bit mask types
-    ICNS_48x48_4BIT_DATA("ich4", ImageKey.createKey(48, 4), ImageKey.createKey(48, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit4.createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
-        }
-    },
-    ICNS_32x32_4BIT_DATA("icl4", ImageKey.createKey(32, 4), ImageKey.createKey(32, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit4.createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
-        }
-    },
-    ICNS_16x16_4BIT_DATA("ics4", ImageKey.createKey(16, 4), ImageKey.createKey(16, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit4.createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
-        }
-    },
-    ICNS_16x12_4BIT_DATA("icm4", ImageKey.createKey(16, 12, 4), ImageKey.createKey(16, 12, 1)) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit4.createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
-        }
-    },
+    ICNS_48x48_4BIT_DATA("ich4", ImageKey.createKey(48, 4), ImageKey.createKey(48, 1)),
+    ICNS_32x32_4BIT_DATA("icl4", ImageKey.createKey(32, 4), ImageKey.createKey(32, 1)),
+    ICNS_16x16_4BIT_DATA("ics4", ImageKey.createKey(16, 4), ImageKey.createKey(16, 1)),
+    ICNS_16x12_4BIT_DATA("icm4", ImageKey.createKey(16, 12, 4), ImageKey.createKey(16, 12, 1)),
 
     // 1 bit image types - 1-bit mask types
     ICNS_48x48_1BIT_DATA("ich#", ImageKey.createKey(48, 1), ImageKey.createKey(48, 1), true) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit1.createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
-        }
-
         @Override
         protected void readData(byte[] buf, Map<ImageKey, byte[]> mapData, Map<ImageKey, byte[]> mapMask) {
             if (buf.length == 48 * 48 / 8)
@@ -95,11 +50,6 @@ public enum Type {
     },
     ICNS_32x32_1BIT_DATA("ICN#", ImageKey.createKey(32, 1), ImageKey.createKey(32, 1), true) {
         @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit1.createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
-        }
-
-        @Override
         protected void readData(byte[] buf, Map<ImageKey, byte[]> mapData, Map<ImageKey, byte[]> mapMask) {
             if (buf.length == 32 * 32 / 8)
                 super.readData(buf, mapData, mapMask);
@@ -109,11 +59,6 @@ public enum Type {
     },
     ICNS_16x16_1BIT_DATA("ics#", ImageKey.createKey(16, 1), ImageKey.createKey(16, 1), true) {
         @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit1.createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
-        }
-
-        @Override
         protected void readData(byte[] buf, Map<ImageKey, byte[]> mapData, Map<ImageKey, byte[]> mapMask) {
             if (buf.length == 16 * 16 / 8)
                 super.readData(buf, mapData, mapMask);
@@ -122,12 +67,7 @@ public enum Type {
         }
     },
 
-    ICNS_16x12_1BIT_DATA("icm#", ImageKey.createKey(16, 12, 1), ImageKey.createKey(16, 12, 1), true) {
-        @Override
-        public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
-            return Bitmap.Bit1.createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
-        }
-    },
+    ICNS_16x12_1BIT_DATA("icm#", ImageKey.createKey(16, 12, 1), ImageKey.createKey(16, 12, 1), true),
 
     // masks
     ICNS_128x128_8BIT_MASK("t8mk", null, ImageKey.createKey(128, 8)),
@@ -191,6 +131,16 @@ public enum Type {
     }
 
     public BufferedImage createImage(ImageKey key, byte[] data, byte[] mask) {
+        if (key == null)
+            return null;
+
+        if (key.getColors() == 2)
+            return Bitmap.getInstanceForColors(2).createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
+        if (key.getColors() == 16)
+            return Bitmap.getInstanceForColors(16).createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
+        if (key.getColors() == 256)
+            return Bitmap.getInstanceForColors(256).createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
+
         return null;
     }
 
