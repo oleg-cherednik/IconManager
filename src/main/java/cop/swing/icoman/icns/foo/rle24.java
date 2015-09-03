@@ -99,14 +99,13 @@ public final class rle24 {
         return destIconData;
     }
 
-    public static int[] icns_decode_rle24_data(int rawDataSize, int[] rawDataPtr, int expectedPixelCount, int dataSizeOut) {
+    public static int[] icns_decode_rle24_data(int rawDataSize, int[] data, int expectedPixelCount, int dataSizeOut) {
         int runLength = 0;
-        int dataOffset = 0;
+        int offs = 0;
         int[] destIconData;    // Decompressed Raw Icon Data
 
         // Calculate required data storage (pixels * 4 channels)
         int destIconDataSize = expectedPixelCount * 4;
-        int[] dataPtrOut = new int[destIconDataSize];
 
         System.out.println(String.format("Compressed RLE data size is %d", rawDataSize));
         System.out.println(String.format("Decompressed will be %d bytes (%d pixels)", destIconDataSize, expectedPixelCount));
@@ -123,11 +122,11 @@ public final class rle24 {
         // What's this??? In the 128x128 icons, we need to start 4 bytes
         // ahead. There is often a NULL padding here for some reason. If
         // we don't, the red channel will be off by 2 pixels, or worse
-        if (rawDataPtr[0] == 0x0 && rawDataPtr[1] == 0x0 && rawDataPtr[2] == 0x0 && rawDataPtr[3] == 0x0) {
+        if (data[0] == 0x0 && data[1] == 0x0 && data[2] == 0x0 && data[3] == 0x0) {
             System.out.println("4 byte null padding found in rle data!");
-            dataOffset = 4;
+            offs = 4;
         } else {
-            dataOffset = 0;
+            offs = 0;
         }
 
         // Data is stored in red run, green run,blue run
@@ -138,19 +137,19 @@ public final class rle24 {
         // ALPHA: byte[3], byte[7], byte[11] do nothing with these bytes
         for (int colorOffset = 0; colorOffset < 3; colorOffset++) {
             int pixelOffset = 0;
-            while ((pixelOffset < expectedPixelCount) && (dataOffset < rawDataSize)) {
-                if ((rawDataPtr[dataOffset] & 0x80) == 0) {
+            while ((pixelOffset < expectedPixelCount) && (offs < rawDataSize)) {
+                if ((data[offs] & 0x80) == 0) {
                     // Top bit is clear - run of various values to follow
-                    runLength = (0xFF & rawDataPtr[dataOffset++]) + 1; // 1 <= len <= 128
-                    for (int i = 0; (i < runLength) && (pixelOffset < expectedPixelCount) && (dataOffset < rawDataSize); i++) {
-                        destIconData[(pixelOffset * 4) + colorOffset] = rawDataPtr[dataOffset++];
+                    runLength = (0xFF & data[offs++]) + 1; // 1 <= len <= 128
+                    for (int i = 0; (i < runLength) && (pixelOffset < expectedPixelCount) && (offs < rawDataSize); i++) {
+                        destIconData[(pixelOffset * 4) + colorOffset] = data[offs++];
                         pixelOffset++;
                     }
                 } else {
                     // Top bit is set - run of one value to follow
-                    runLength = (0xFF & rawDataPtr[dataOffset++]) - 125; // 3 <= len <= 130
+                    runLength = (0xFF & data[offs++]) - 125; // 3 <= len <= 130
                     // Set the value to the color shifted to the correct bit offset
-                    int colorValue = rawDataPtr[dataOffset++];
+                    int colorValue = data[offs++];
 
                     for (int i = 0; (i < runLength) && (pixelOffset < expectedPixelCount); i++) {
                         destIconData[(pixelOffset * 4) + colorOffset] = colorValue;
@@ -160,7 +159,7 @@ public final class rle24 {
             }
         }
 
-        return dataPtrOut;
+        return destIconData;
     }
 
     private rle24() {

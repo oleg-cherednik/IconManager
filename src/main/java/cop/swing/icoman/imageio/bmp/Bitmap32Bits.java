@@ -26,13 +26,14 @@ final class Bitmap32Bits extends Bitmap {
     @Override
     public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv) {
         int[] buf = decode(width, height, data);
-        int[] alpha = Bitmap1Bit.alpha(width, height, mask, inv);
+//        int[] alpha = Bitmap1Bit.alpha(width, height, mask, inv);
 
         BufferedImage image = new BufferedImage(width, Math.abs(height), BufferedImage.TYPE_4BYTE_ABGR);
 
         for (int y = Math.abs(height) - 1, offs = 0, i = 0; y >= 0; y--)
             for (int x = 0; x < width; x++, offs += 4, i++)
-                image.setRGB(x, y, rgb(buf[offs + 2], buf[offs + 1], buf[offs], alpha[i] != 0x0 ? buf[offs + 3] : 0x0));
+//                image.setRGB(x, y, rgb(buf[offs + 2], buf[offs + 1], buf[offs], buf[offs + 3]));
+                image.setRGB(x, y, rgb(buf[offs], buf[offs + 1], buf[offs + 2], 0xFF));
 
         return image;
     }
@@ -40,6 +41,6 @@ final class Bitmap32Bits extends Bitmap {
     // ========== static ==========
 
     private static int[] decode(int width, int height, int[] buf) {
-        return height > 0 ? flipVertical(width, height, buf) : buf;
+        return buf;//height > 0 ? flipVertical(width, height, buf) : buf;
     }
 }
