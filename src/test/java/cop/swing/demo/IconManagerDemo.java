@@ -247,8 +247,8 @@ public class IconManagerDemo extends JFrame {
                     String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
 
                     try {
-                        IconFile icoFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
-                        IconKey iconKey = new IconKey(id, icoFile.getImagesAmount());
+                        IconFile iconFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
+                        IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
                         iconKeyCombo.addItem(iconKey);
                         iconKeyCombo.setSelectedItem(iconKey);
                     } catch(FormatNotSupportedException ignored) {

@@ -80,7 +80,7 @@ public final class IcnsFile implements IconFile {
                 images.put(key, new ImageIcon(image));
         }
 
-        return Collections.unmodifiableMap(images);
+        return images.isEmpty() ? Collections.<ImageKey, ImageIcon>emptyMap() : Collections.unmodifiableMap(images);
     }
 
     // ========== Iterable ==========

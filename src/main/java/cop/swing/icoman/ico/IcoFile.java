@@ -34,14 +34,10 @@ public final class IcoFile implements IconFile {
 
     public static IcoFile read(ImageInputStream in) throws IOException, IconManagerException {
         IcoFileHeader header = IcoFileHeader.read(in);
-        Map<ImageKey, ImageIcon> images = readImages(header, in);
-        return new IcoFile(header, images);
+        return new IcoFile(header, readImages(header, in));
     }
 
     private IcoFile(IcoFileHeader header, Map<ImageKey, ImageIcon> images) {
-        assert header != null && header != IcoFileHeader.NULL;
-        assert images != null && !images.isEmpty();
-
         this.header = header;
         this.images = images;
     }
