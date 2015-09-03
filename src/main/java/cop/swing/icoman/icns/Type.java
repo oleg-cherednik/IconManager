@@ -3,7 +3,6 @@ package cop.swing.icoman.icns;
 import cop.swing.icoman.IconIO;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
-import cop.swing.icoman.icns.foo.rle24;
 import cop.swing.icoman.imageio.bmp.Bitmap;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -136,25 +135,25 @@ public enum Type {
         if (key == null)
             return null;
 
-        if (key.getColors() == 0x2)
-            return Bitmap.getInstanceForColors(0x2).createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
-        if (key.getColors() == 0x10)
-            return Bitmap.getInstanceForColors(0x10).createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
-        if (key.getColors() == 0x100)
-            return Bitmap.getInstanceForColors(0x100).createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        if (key.getColors() == 0x7FFFFFFF) {
-            int iconBitDepth = 32;
-            int iconDataRowSize = key.width() * iconBitDepth / 8;
-            int iconDataSize = key.height() * iconDataRowSize;
-
-
-            if (data.length < iconDataSize) {
-                int pixelCount = key.height() * key.height();
-                int[] buf = rle24.icns_decode_rle24_data1(data, key.width() * key.height(), 1000);
-                return Bitmap.getInstanceForColors(0x7FFFFFFF).createImage(key.width(), key.height(), null, buf, mask, true);
-            } else {
-                int a = 0;
-                a++;
+        if (key.getBitsPerPixel() == 1)
+            return Bitmap.getInstanceForBits(1).createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
+        if (key.getBitsPerPixel() == 4)
+            return Bitmap.getInstanceForBits(4).createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
+        if (key.getBitsPerPixel() == 8)
+            return Bitmap.getInstanceForBits(8).createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
+//        if (key.getBitsPerPixel() == ImageKey.XP) {
+//            int iconBitDepth = ImageKey.XP;
+//            int iconDataRowSize = key.width() * iconBitDepth / 8;
+//            int iconDataSize = key.height() * iconDataRowSize;
+//
+//
+//            if (data.length < iconDataSize) {
+//                int pixelCount = key.height() * key.height();
+//                int[] buf = rle24.icns_decode_rle24_data1(data, key.width() * key.height(), 1000);
+//                return Bitmap.getInstanceForBits(ImageKey.XP).createImage(key.width(), key.height(), null, buf, mask, true);
+//            } else {
+//                int a = 0;
+//                a++;
 //                    int pixelCount = 0;
 //                    icns_byte_t * swapPtr = NULL;
 //                    icns_argb_t * pixelPtr = NULL;
@@ -171,10 +170,10 @@ public enum Type {
 //                        pixelPtr = (icns_argb_t *) (swapPtr + (dataCount * 4));
 //                        *((icns_rgba_t *) pixelPtr)=ICNS_ARGB_TO_RGBA( * ((icns_argb_t *) pixelPtr));
 //                    }
-            }
+//            }
 
 //            return Bitmap.getInstanceForColors(0x7FFFFFFF).createImage(key.width(), key.height(), null, data, mask, true);
-        }
+//        }
 
         return null;
     }

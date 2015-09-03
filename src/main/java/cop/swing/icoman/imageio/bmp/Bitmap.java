@@ -1,5 +1,6 @@
 package cop.swing.icoman.imageio.bmp;
 
+import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
 
 import javax.imageio.stream.ImageInputStream;
@@ -33,27 +34,12 @@ public abstract class Bitmap {
             return Bitmap4Bits.INSTANCE;
         if (bitCount == 8)
             return Bitmap8Bits.INSTANCE;
-        if (bitCount == 24)
+        if (bitCount == ImageKey.TRUE_COLOR)
             return Bitmap24Bits.INSTANCE;
-        if (bitCount == 32)
+        if (bitCount == ImageKey.XP)
             return Bitmap32Bits.INSTANCE;
 
-        throw new IconManagerException("Bitmap with " + bitCount + "bit is not supported");
-    }
-
-    public static Bitmap getInstanceForColors(int colorCount) throws IconManagerException {
-        if (colorCount == 0x2)
-            return Bitmap1Bit.INSTANCE;
-        if (colorCount == 0x10)
-            return Bitmap4Bits.INSTANCE;
-        if (colorCount == 0x100)
-            return Bitmap8Bits.INSTANCE;
-        if (colorCount == 0x10000)
-            return Bitmap24Bits.INSTANCE;
-        if (colorCount == 0x7FFFFFFF)
-            return Bitmap32Bits.INSTANCE;
-
-        throw new IconManagerException("Bitmap with " + colorCount + " colors is not supported");
+        throw new IconManagerException("Bitmap with " + bitCount + "bitsPerPixel is not supported");
     }
 
     private static int[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {

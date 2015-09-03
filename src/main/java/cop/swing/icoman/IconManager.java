@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
-import javax.swing.Icon;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Collections;
@@ -78,11 +77,6 @@ public final class IconManager {
             throw new IconNotFoundException(id);
 
         return icon;
-    }
-
-    @NotNull
-    public Icon getIcon(String id, ImageKey key) throws IconManagerException, IOException {
-        return getIconFile(id).getImage(key).getIcon();
     }
 
     // ========== static ==========

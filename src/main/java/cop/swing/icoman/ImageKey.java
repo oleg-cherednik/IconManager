@@ -11,51 +11,43 @@ import java.util.Map;
  * @since 14.12.2012
  */
 public final class ImageKey implements Comparable<ImageKey> {
-    private static final int BITS_HIGH_COLOR = 16;
-    private static final int BITS_TRUE_COLOR = 24;
-    private static final int BITS_XP = 32;
-
-    private static final int HIGH_COLOR = Integer.MAX_VALUE - 2;
-    private static final int TRUE_COLOR = Integer.MAX_VALUE - 1;
-    private static final int XP = Integer.MAX_VALUE;
+    public static final int HIGH_COLOR = 16;
+    public static final int TRUE_COLOR = 24;
+    public static final int XP = 32;
 
     private static final Map<String, ImageKey> MAP = new HashMap<>();
 
-    private final int width; // size: 1, offs: 0x0 (0-255, 0=256 pixels)
-    private final int height; // size: 1, offs: 0x1 (0-255, 0=256 pixels)
-    private final int colors; // size: 1, offs: 0x2 (0=256 - high/true color)
+    private final int width;
+    private final int height;
+    private final int bitsPerPixel;
 
-    public static ImageKey createKey(int size, int bitsPerPixel) {
-        return createKey(size, size, bitsPerPixel);
+    public static ImageKey createKey(int size, int bits) {
+        return createKey(size, size, bits);
     }
 
     public static ImageKey createHighColorKey(int size) {
-        return createKey(size, size, BITS_HIGH_COLOR);
+        return createKey(size, size, HIGH_COLOR);
     }
 
     public static ImageKey createTrueColorKey(int size) {
-        return createKey(size, size, BITS_TRUE_COLOR);
+        return createKey(size, size, TRUE_COLOR);
     }
 
     public static ImageKey createXpKey(int size) {
-        return createKey(size, size, BITS_XP);
+        return createKey(size, size, XP);
     }
 
     public static ImageKey createKey(int width, int height, int bitsPerPixel) {
-        check(width, height, bitsPerPixel);
-
-        int colors = getColors(bitsPerPixel);
-
-        ImageKey key = MAP.get(getString(width, height, colors));
-        return key != null ? key : new ImageKey(width, height, colors);
+        ImageKey key = MAP.get(getString(width, height, bitsPerPixel));
+        return key != null ? key : new ImageKey(width, height, bitsPerPixel);
     }
 
-    private ImageKey(int width, int height, int colors) {
+    private ImageKey(int width, int height, int bitsPerPixel) {
         this.width = width;
         this.height = height;
-        this.colors = colors;
+        this.bitsPerPixel = bitsPerPixel;
 
-        if (MAP.put(getString(width, height, colors), this) != null)
+        if (MAP.put(getString(width, height, this.bitsPerPixel), this) != null)
             assert false : "key duplication";
     }
 
@@ -67,12 +59,8 @@ public final class ImageKey implements Comparable<ImageKey> {
         return height;
     }
 
-    public int getColors() {
-//        if (colors == HIGH_COLOR)
-//            return 0x10000;
-//        if (colors == TRUE_COLOR || colors == XP)
-//            return 0x1000000;
-        return colors;
+    public int getBitsPerPixel() {
+        return bitsPerPixel;
     }
 
     // ========== Comparable ==========
@@ -89,7 +77,7 @@ public final class ImageKey implements Comparable<ImageKey> {
         if ((res = Integer.compare(height, key.height)) != 0)
             return res;
 
-        return Integer.compare(colors, key.colors);
+        return Integer.compare(bitsPerPixel, key.bitsPerPixel);
     }
 
     // ========== Object ==========
@@ -98,7 +86,7 @@ public final class ImageKey implements Comparable<ImageKey> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + colors;
+        result = prime * result + bitsPerPixel;
         result = prime * result + height;
         result = prime * result + width;
         return result;
@@ -115,52 +103,30 @@ public final class ImageKey implements Comparable<ImageKey> {
 
         ImageKey other = (ImageKey)obj;
 
-        return colors == other.colors && height == other.height && width == other.width;
+        return bitsPerPixel == other.bitsPerPixel && height == other.height && width == other.width;
     }
 
     @Override
     public String toString() {
-        return getString(width, height, colors);
+        return getString(width, height, bitsPerPixel);
     }
 
     // ========== static ==========
 
-    private static String getString(int width, int height, int colors) {
+    private static String getString(int width, int height, int bitsPerPixel) {
         StringBuilder buf = new StringBuilder();
 
         buf.append(width).append('x').append(height);
 
-        if (colors == HIGH_COLOR)
+        if (bitsPerPixel == HIGH_COLOR)
             buf.append(" High Color");
-        else if (colors == TRUE_COLOR)
+        else if (bitsPerPixel == TRUE_COLOR)
             buf.append(" True Color");
-        else if (colors == XP)
+        else if (bitsPerPixel == XP)
             buf.append(" XP");
         else
-            buf.append(' ').append(colors).append(" colors");
+            buf.append(' ').append(bitsPerPixel).append(" colors");
 
         return buf.toString();
-    }
-
-    private static void check(int width, int height, int bitsPerPixel) {
-    }
-
-    private static int getColors(int bitsPerPixel) {
-        if (bitsPerPixel == 1)
-            return 2;
-        if (bitsPerPixel == 4)
-            return 16;
-        if (bitsPerPixel == 8)
-            return 256;
-        if (bitsPerPixel == BITS_HIGH_COLOR)
-            return HIGH_COLOR;
-        if (bitsPerPixel == BITS_TRUE_COLOR)
-            return TRUE_COLOR;
-        if (bitsPerPixel == BITS_XP)
-            return XP;
-
-        assert false : "invalid value: bitPerPixel = " + bitsPerPixel;
-
-        return (int)Math.pow(2, bitsPerPixel);
     }
 }

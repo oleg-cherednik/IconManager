@@ -1,12 +1,13 @@
 package cop.swing.icoman.icns;
 
 import cop.swing.icoman.IconFile;
-import cop.swing.icoman.IconImage;
 import cop.swing.icoman.ImageKey;
+import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,15 +20,15 @@ import java.util.TreeSet;
  * @author Oleg Cherednik
  * @since 02.08.15
  */
-public final class IcnsFile extends IconFile implements Iterable<IcnsImage> {
-    private final Map<ImageKey, IcnsImage> images;
+public final class IcnsFile implements IconFile {
+    private final Map<ImageKey, ImageIcon> images;
 
     public static IcnsFile read(ImageInputStream in) throws Exception {
         IcnsFileHeader header = IcnsFileHeader.read(in);
         return new IcnsFile(readImages(in));
     }
 
-    private IcnsFile(Map<ImageKey, IcnsImage> images) {
+    private IcnsFile(Map<ImageKey, ImageIcon> images) {
         this.images = images;
     }
 
@@ -41,18 +42,13 @@ public final class IcnsFile extends IconFile implements Iterable<IcnsImage> {
     }
 
     @Override
-    public IconImage getImage(ImageKey key) throws ImageNotFoundException {
-        IcnsImage image = images.get(key);
+    public ImageIcon getImage(ImageKey key) throws ImageNotFoundException {
+        ImageIcon image = images.get(key);
 
         if (image == null)
             throw new ImageNotFoundException(key);
 
         return image;
-    }
-
-    @Override
-    public ImageIcon getIcon(ImageKey key) throws ImageNotFoundException {
-        return getImage(key).getIcon();
     }
 
     @Override
@@ -62,7 +58,7 @@ public final class IcnsFile extends IconFile implements Iterable<IcnsImage> {
 
     // ========== static ==========
 
-    private static Map<ImageKey, IcnsImage> readImages(ImageInputStream in) throws IOException {
+    private static Map<ImageKey, ImageIcon> readImages(ImageInputStream in) throws IOException, IconManagerException {
         Map<ImageKey, int[]> mapData = new HashMap<>();
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
@@ -70,18 +66,18 @@ public final class IcnsFile extends IconFile implements Iterable<IcnsImage> {
             Type.readData(in, mapData, mapMask);
         }
 
-        IcnsImage image;
-        Map<ImageKey, IcnsImage> images = new HashMap<>(mapData.size());
+        Map<ImageKey, ImageIcon> images = new HashMap<>(mapData.size());
 
         for (Map.Entry<ImageKey, int[]> entry : mapData.entrySet()) {
             ImageKey key = entry.getKey();
             Type type = Type.parseImageKey(key);
             int[] data = entry.getValue();
             int[] mask = mapMask.get(type.mask);
-            images.put(key, image = new IcnsImage(key, type));
-            image.setData(data);
-            image.setMask(mask);
-            image.createIcon();
+            BufferedImage image = type.createImage(key, data, mask);
+
+            // TODO set default image
+            if (image != null)
+                images.put(key, new ImageIcon(image));
         }
 
         return Collections.unmodifiableMap(images);
@@ -90,7 +86,7 @@ public final class IcnsFile extends IconFile implements Iterable<IcnsImage> {
     // ========== Iterable ==========
 
     @Override
-    public Iterator<IcnsImage> iterator() {
+    public Iterator<ImageIcon> iterator() {
         return images.values().iterator();
     }
 }
