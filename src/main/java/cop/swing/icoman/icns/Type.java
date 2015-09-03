@@ -3,7 +3,7 @@ package cop.swing.icoman.icns;
 import cop.swing.icoman.IconIO;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
-import cop.swing.icoman.icns.foo.rle24;
+import cop.swing.icoman.imageio.bmp.rle24;
 import cop.swing.icoman.imageio.bmp.Bitmap;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -142,8 +142,8 @@ public enum Type {
             return Bitmap.getInstanceForBits(4).createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
         if (key.getBitsPerPixel() == 8)
             return Bitmap.getInstanceForBits(8).createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        if(key.getBitsPerPixel() == ImageKey.XP) {
-            int[] aa = rle24.icns_decode_rle24_data(data.length, data, key.width() * key.height(), 0);
+        if (key.getBitsPerPixel() == ImageKey.XP) {
+            int[] aa = rle24.decompress(key.width(), key.height(), data, mask);
             return Bitmap.getInstanceForBits(ImageKey.XP).createImage(key.width(), key.height(), null, aa, null, true);
         }
 //        if (key.getBitsPerPixel() == ImageKey.XP) {

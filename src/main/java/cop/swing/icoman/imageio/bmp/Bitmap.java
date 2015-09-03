@@ -127,7 +127,7 @@ public abstract class Bitmap {
         return ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF);
     }
 
-    protected static void print(int width, int height, int[] buf) {
+    public static void print(int width, int height, int[] buf) {
         height = Math.abs(height);
 
         for (int i = 0, offs = 0; i < height && offs < buf.length; i++) {
