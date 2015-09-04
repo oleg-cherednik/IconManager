@@ -1,5 +1,7 @@
 package cop.swing.icoman.imageio.bmp;
 
+import cop.swing.icoman.ImageKey;
+
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -17,16 +19,16 @@ final class Bitmap24Bits extends Bitmap {
     // ========== Bitmap ==========
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException {
-        int[] data = read32bitDataBlocks(width, Math.abs(height), 24, in);
+    public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException {
+        int[] data = read32bitDataBlocks(width, Math.abs(height), ImageKey.TRUE_COLOR, in);
         int[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
-        return createImage(width, height, colors, data, mask, false);
+        return createImage(width, height, colors, data, mask);
     }
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv) {
+    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask) {
         int[] buf = decode(width, height, data);
-        int[] alpha = Bitmap1Bit.alpha(width, height, mask, inv);
+        int[] alpha = Bitmap1Bit.alpha(width, height, mask);
 
         BufferedImage image = new BufferedImage(width, Math.abs(height), BufferedImage.TYPE_4BYTE_ABGR);
 

@@ -17,17 +17,17 @@ final class Bitmap4Bits extends Bitmap {
     // ========== Bitmap ==========
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException {
+    public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException {
         int[] data = read32bitDataBlocks(width, Math.abs(height), 4, in);
         int[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
-        return createImage(width, height, colors, data, mask, false);
+        return createImage(width, height, colors, data, mask);
     }
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv) {
+    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask) {
         int[] buf = decode(width, height, data);
-        int[] alpha = Bitmap1Bit.alpha(width, height, mask, inv);
-        return createImage(width, height, colors, alpha, buf);
+        int[] alpha = Bitmap1Bit.alpha(width, height, mask);
+        return createBufferedImage(width, height, colors, alpha, buf);
     }
 
     // ========== static ==========

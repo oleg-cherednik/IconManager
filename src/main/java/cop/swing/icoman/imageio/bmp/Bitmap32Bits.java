@@ -1,5 +1,7 @@
 package cop.swing.icoman.imageio.bmp;
 
+import cop.swing.icoman.ImageKey;
+
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,17 +16,33 @@ final class Bitmap32Bits extends Bitmap {
     private Bitmap32Bits() {
     }
 
+    @Override
+    public int[] invertMask(int[] mask) {
+//        if (mask != null) {
+//            int[] alpha = alpha(width, height, mask, false);
+//            print(width, height, alpha);
+//
+//            for (int i = 0; i < mask.length; i++)
+//                mask[i] = ~mask[i] & 0xFF;
+//
+//            alpha = alpha(width, height, mask, false);
+//            print(width, height, alpha);
+//        }
+
+        return mask;
+    }
+
     // ========== Bitmap ==========
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException {
-        int[] data = read32bitDataBlocks(width, Math.abs(height), 32, in);
+    public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException {
+        int[] data = read32bitDataBlocks(width, Math.abs(height), ImageKey.XP, in);
         int[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
-        return createImage(width, height, colors, data, mask, false);
+        return createImage(width, height, colors, data, mask);
     }
 
     @Override
-    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv) {
+    public BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask) {
         BufferedImage image = new BufferedImage(width, Math.abs(height), BufferedImage.TYPE_4BYTE_ABGR);
         boolean rev = height > 0;
 

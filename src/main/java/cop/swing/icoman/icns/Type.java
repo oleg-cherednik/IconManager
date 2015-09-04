@@ -15,7 +15,7 @@ import java.util.Map;
  * @author Oleg Cherednik
  * @since 17.08.2015
  */
-public enum Type {
+enum Type {
     // 32-bit image types > 256x256 - no mask (mask is already in image)
     ICNS_1024x1024_32BIT_ARGB_DATA("ic10", ImageKey.createXpKey(1024), null),
     ICNS_512x512_32BIT_ARGB_DATA("ic09", ImageKey.createXpKey(512), null),
@@ -138,11 +138,12 @@ public enum Type {
             return null;
 
         int[] colors = ColorTable.get(key.getBitsPerPixel());
+        mask = key.getBitsPerPixel() == 1 ? mask : bitmap.invertMask(mask);
 
         if (key.getBitsPerPixel() == ImageKey.XP)
             data = rle24.decompress(key.width(), key.height(), data, mask);
 
-        return bitmap.createImage(key.width(), key.height(), colors, data, mask, true);
+        return bitmap.createImage(key.width(), key.height(), colors, data, mask);
     }
 
     // ========== static ==========

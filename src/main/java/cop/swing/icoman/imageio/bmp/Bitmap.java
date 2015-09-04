@@ -12,9 +12,17 @@ import java.io.IOException;
  * @since 31.08.2015
  */
 public abstract class Bitmap {
-    public abstract BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in, boolean inv) throws IOException;
+    public abstract BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException;
 
-    public abstract BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask, boolean inv);
+    public abstract BufferedImage createImage(int width, int height, int[] colors, int[] data, int[] mask);
+
+    public int[] invertMask(int[] mask) {
+        if (mask != null)
+            for (int i = 0; i < mask.length; i++)
+                mask[i] = ~mask[i] & 0xFF;
+
+        return mask;
+    }
 
     // ========== static ==========
 
@@ -24,7 +32,7 @@ public abstract class Bitmap {
         int height = header.getBiHeight();
         int bitCount = header.getBiBitCount();
         int[] colors = readColorTable(header, in);
-        return getInstanceForBits(bitCount).createImage(width, -height, colors, in, false);
+        return getInstanceForBits(bitCount).createImage(width, -height, colors, in);
     }
 
     public static Bitmap getInstanceForBits(int bitCount) throws IconManagerException {
@@ -105,7 +113,7 @@ public abstract class Bitmap {
         return data;
     }
 
-    protected static BufferedImage createImage(int width, int height, int[] colors, int[] alpha, int[] buf) {
+    protected static BufferedImage createBufferedImage(int width, int height, int[] colors, int[] alpha, int[] buf) {
         BufferedImage image = new BufferedImage(width, Math.abs(height), BufferedImage.TYPE_4BYTE_ABGR);
 
         for (int y = Math.abs(height) - 1, offs = 0; y >= 0; y--)
@@ -128,6 +136,7 @@ public abstract class Bitmap {
     }
 
     public static void print(int width, int height, int[] buf) {
+        System.out.println();
         height = Math.abs(height);
 
         for (int i = 0, offs = 0; i < height && offs < buf.length; i++) {
