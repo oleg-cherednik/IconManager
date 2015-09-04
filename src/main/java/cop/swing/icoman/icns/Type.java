@@ -6,8 +6,10 @@ import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.imageio.bmp.Bitmap;
 import org.apache.commons.lang3.ArrayUtils;
 
+import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
@@ -139,6 +141,13 @@ enum Type {
 
         int[] colors = ColorTable.get(key.getBitsPerPixel());
         mask = key.getBitsPerPixel() == 1 ? mask : bitmap.invertMask(mask);
+
+        if(mask == null) {
+            byte[] buf = new byte[data.length];
+            for(int i = 0; i < buf.length; i++)
+                buf[i] = (byte)(data[i] & 0xFF);
+            return ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(buf)));
+        }
 
         if (key.getBitsPerPixel() == ImageKey.XP)
             data = rle24.decompress(key.width(), key.height(), data, mask);
