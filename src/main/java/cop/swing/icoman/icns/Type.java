@@ -3,7 +3,6 @@ package cop.swing.icoman.icns;
 import cop.swing.icoman.IconIO;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
-import cop.swing.icoman.imageio.bmp.rle24;
 import cop.swing.icoman.imageio.bmp.Bitmap;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -133,54 +132,17 @@ public enum Type {
     }
 
     public BufferedImage createImage(ImageKey key, int[] data, int[] mask) throws IconManagerException, IOException {
-        if (key == null)
+        Bitmap bitmap = key != null ? Bitmap.getInstanceForBits(key.getBitsPerPixel()) : null;
+
+        if (bitmap == null)
             return null;
 
-        if (key.getBitsPerPixel() == 1)
-            return Bitmap.getInstanceForBits(1).createImage(key.width(), key.height(), ColorTable.BIT_1_2, data, mask, true);
-        if (key.getBitsPerPixel() == 4)
-            return Bitmap.getInstanceForBits(4).createImage(key.width(), key.height(), ColorTable.BIT_4_16, data, mask, true);
-        if (key.getBitsPerPixel() == 8)
-            return Bitmap.getInstanceForBits(8).createImage(key.width(), key.height(), ColorTable.BIT_8_256, data, mask, true);
-        if (key.getBitsPerPixel() == ImageKey.XP) {
-            int[] aa = rle24.decompress(key.width(), key.height(), data, mask);
-            return Bitmap.getInstanceForBits(ImageKey.XP).createImage(key.width(), key.height(), null, aa, null, true);
-        }
-//        if (key.getBitsPerPixel() == ImageKey.XP) {
-//            int iconBitDepth = ImageKey.XP;
-//            int iconDataRowSize = key.width() * iconBitDepth / 8;
-//            int iconDataSize = key.height() * iconDataRowSize;
-//
-//
-//            if (data.length < iconDataSize) {
-//                int pixelCount = key.height() * key.height();
-//                int[] buf = rle24.icns_decode_rle24_data1(data, key.width() * key.height(), 1000);
-//                return Bitmap.getInstanceForBits(ImageKey.XP).createImage(key.width(), key.height(), null, buf, mask, true);
-//            } else {
-//                int a = 0;
-//                a++;
-//                    int pixelCount = 0;
-//                    icns_byte_t * swapPtr = NULL;
-//                    icns_argb_t * pixelPtr = NULL;
-//
-//                    for (int dataCount = 0; dataCount < imageOut.imageHeight; dataCount++)
-//                        memcpy( & (((char*)(imageOut -> imageData))[dataCount * iconDataRowSize]),&(((char*)(rawDataPtr))[
-//                    dataCount * iconDataRowSize]),iconDataRowSize);
-//
-//                    pixelCount = imageOut -> imageWidth * imageOut -> imageHeight;
-//
-//                    System.out.println(String.format("Converting %d pixels from argb to rgba", pixelCount));
-//                            swapPtr = imageOut -> imageData;
-//                    for (dataCount = 0; dataCount < pixelCount; dataCount++) {
-//                        pixelPtr = (icns_argb_t *) (swapPtr + (dataCount * 4));
-//                        *((icns_rgba_t *) pixelPtr)=ICNS_ARGB_TO_RGBA( * ((icns_argb_t *) pixelPtr));
-//                    }
-//            }
+        int[] colors = ColorTable.get(key.getBitsPerPixel());
 
-//            return Bitmap.getInstanceForColors(0x7FFFFFFF).createImage(key.width(), key.height(), null, data, mask, true);
-//        }
+        if (key.getBitsPerPixel() == ImageKey.XP)
+            data = rle24.decompress(key.width(), key.height(), data, mask);
 
-        return null;
+        return bitmap.createImage(key.width(), key.height(), colors, data, mask, true);
     }
 
     // ========== static ==========
@@ -198,13 +160,6 @@ public enum Type {
         return val;
     }
 
-    public static Type parse(int val) {
-        for (Type type : values())
-            if (type.val == val)
-                return type;
-        return null;
-    }
-
     public static Type parseImageKey(ImageKey key) {
         for (Type type : values())
             if (type.key == key)
@@ -217,12 +172,9 @@ public enum Type {
         int size = in.readInt();
         int[] data = IconIO.readUnsignedBytes(size - 8, in);
 
-        for (Type type : values()) {
-            if (/*!type.skip &&*/ type.val == val) {
+        for (Type type : values())
+            if (!type.skip && type.val == val)
                 type.readData(data, mapData, mapMask);
-                System.out.println(String.format("type: %s, size: %d", type.id, size));
-            }
-        }
     }
 
     private static void _readData(ImageKey key, int[] buf, Map<ImageKey, int[]> mapData) {

@@ -23,11 +23,11 @@ public class IcoReader extends IconReader {
     @Override
     public IcoFile read() throws IOException {
         try {
-            if (icon != null)
-                return icon;
-
-            in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            return icon = IcoFile.read(in);
+            if (icon == null) {
+                in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+                icon = IcoFile.read(in);
+            }
+            return icon;
         } catch(IconManagerException e) {
             throw new IOException(e);
         }

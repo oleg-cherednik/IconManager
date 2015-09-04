@@ -22,11 +22,11 @@ public class IcnsReader extends IconReader {
     @Override
     public IcnsFile read() throws IOException {
         try {
-            if (icon != null)
-                return icon;
-
-            in.setByteOrder(ByteOrder.BIG_ENDIAN);
-            return icon = IcnsFile.read(in);
+            if (icon == null) {
+                in.setByteOrder(ByteOrder.BIG_ENDIAN);
+                icon = IcnsFile.read(in);
+            }
+            return icon;
         } catch(Exception e) {
             throw new IOException(e);
         }

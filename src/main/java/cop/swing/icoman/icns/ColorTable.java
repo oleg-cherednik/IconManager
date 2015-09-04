@@ -5,23 +5,33 @@ package cop.swing.icoman.icns;
  * @since 31.08.2015
  */
 final class ColorTable {
-    public static final int[] BIT_1_2 = {
+    public static int[] get(int bitsPerPixel) {
+        if (bitsPerPixel == 1)
+            return BIT1;
+        if (bitsPerPixel == 4)
+            return BIT4;
+        if (bitsPerPixel == 8)
+            return BIT8;
+        return null;
+    }
+
+    private static final int[] BIT1 = {
             rgb(0xFF, 0xFF, 0xFF),
-            rgb(0x0, 0x0, 0x0)
+            rgb(0x00, 0x00, 0x00)
     };
 
-    public static final int[] BIT_4_16 = {
-            rgb(255, 255, 255),
-            rgb(252, 243, 5),
-            rgb(255, 100, 2),
-            rgb(221, 8, 6),
-            rgb(242, 8, 132),
-            rgb(70, 0, 165),
-            rgb(0, 0, 212),
-            rgb(2, 171, 234),
+    private static final int[] BIT4 = {
+            rgb(0xFF, 0xFF, 0xFF),
+            rgb(0xFF, 0xF3, 0x05),
+            rgb(0xFF, 100, 0x02),
+            rgb(221, 0x08, 0x06),
+            rgb(242, 0x08, 132),
+            rgb(70, 0x00, 165),
+            rgb(0x00, 0x00, 212),
+            rgb(0x02, 171, 234),
             rgb(31, 183, 20),
-            rgb(0, 100, 17),
-            rgb(86, 44, 5),
+            rgb(0x00, 100, 17),
+            rgb(0x56, 0x2C, 0x05),
             rgb(0x90, 0x71, 0x3A),
             rgb(0xC0, 0xC0, 0xC0),
             rgb(0x80, 0x80, 0x80),
@@ -29,7 +39,7 @@ final class ColorTable {
             rgb(0x00, 0x00, 0x00)
     };
 
-    public static final int[] BIT_8_256 = {
+    private static final int[] BIT8 = {
             rgb(0xFF, 0xFF, 0xFF),
             rgb(0xFF, 0xFF, 0xCC),
             rgb(0xFF, 0xFF, 0x99),

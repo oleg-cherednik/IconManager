@@ -1,10 +1,10 @@
-package cop.swing.icoman.imageio.bmp;
+package cop.swing.icoman.icns;
 
 /**
  * @author Oleg Cherednik
  * @since 25.08.2015
  */
-public final class rle24 {
+final class rle24 {
     public static int[] decompress(int width, int height, int[] data, int[] mask) {
         int runLength = 0;
         int offs = 0;

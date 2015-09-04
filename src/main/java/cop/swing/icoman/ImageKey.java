@@ -21,8 +21,8 @@ public final class ImageKey implements Comparable<ImageKey> {
     private final int height;
     private final int bitsPerPixel;
 
-    public static ImageKey createKey(int size, int bits) {
-        return createKey(size, size, bits);
+    public static ImageKey createKey(int size, int bitsPerPixel) {
+        return createKey(size, size, bitsPerPixel);
     }
 
     public static ImageKey createHighColorKey(int size) {
