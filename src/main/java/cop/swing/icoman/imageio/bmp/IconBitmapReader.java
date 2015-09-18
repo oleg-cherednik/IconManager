@@ -2,7 +2,6 @@ package cop.swing.icoman.imageio.bmp;
 
 import cop.swing.icoman.exceptions.IconManagerException;
 
-import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -78,55 +77,9 @@ public class IconBitmapReader extends ImageReader {
         }
     }
 
-    /**
-     * Returns an {@link IIOMetadata} object containing metadata associated with the given image, or
-     * <code>null</code> if
-     * the reader does not support  reading metadata, is set to ignore metadata, or if no metadata is  available.
-     * <p/>
-     * example:
-     * <pre>
-     * IIOMetadata meta = reader.getImageMetadata(imageNr);
-     * IIOMetadataNode n = (IIOMetadataNode)meta.getAsTree(meta.getNativeMetadataFormatName());
-     * if (n.hasChildNodes()) {
-     * org.w3c.dom.NodeList nl = n.getChildNodes();
-     * for (int childNr=0;childNr<nl.getLength();childNr++) {
-     * IIOMetadataNode child =(IIOMetadataNode) nl.item(childNr);
-     * String key = child.getAttribute("keyword");
-     * if (key != null && key.equals("bpp")) {
-     * bpp = child.getAttribute("value");
-     * break;
-     * }
-     * }
-     * }
-     * </pre>
-     * the available keywords are:<br />
-     * width, height, colorCount, bitCount, bpp, reserved, planes <br />
-     * note that bitCount & bpp are the same.<br />
-     * <br />
-     *
-     * @param index the index of the image whose metadata is to be
-     *              retrieved.
-     * @return an <code>IIOMetadata</code> object, or <code>null</code>.
-     * @throws IOException if an error occurs during reading.
-     * @todo Implement this javax.imageio.ImageReader method
-     */
     @Override
-    public IIOMetadata getImageMetadata(int index) throws IOException {
-        try {
-            getImage();
-
-            IconBitmapMetaData metaData = new IconBitmapMetaData();
-            metaData.put("width", Integer.toString(header.getBiWidth()));
-            metaData.put("height", Integer.toString(header.getBiHeight()));
-            metaData.put("colorCount", Integer.toString(header.getBiColorsUsed()));
-            metaData.put("bitCount", Integer.toString(header.getBiBitCount()));
-            metaData.put("bpp", Integer.toString(header.getBiBitCount()));
-            metaData.put("planes", Integer.toString(header.getBiPlanes()));
-
-            return metaData;
-        } catch(Exception e) {
-            throw new IIOException("Exception reading metadata", e);
-        }
+    public IIOMetadata getImageMetadata(int index) {
+        return null;
     }
 
     /**
