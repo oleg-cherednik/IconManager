@@ -1,4 +1,4 @@
-package cop.swing.icoman.imageio.bmp;
+package cop.swing.icoman.bmp;
 
 import cop.swing.icoman.ImageKey;
 

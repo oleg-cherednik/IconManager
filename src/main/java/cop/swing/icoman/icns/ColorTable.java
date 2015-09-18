@@ -1,6 +1,6 @@
 package cop.swing.icoman.icns;
 
-import static cop.swing.icoman.imageio.bmp.Bitmap.rgb;
+import static cop.swing.icoman.bmp.Bitmap.rgb;
 
 /**
  * @author Oleg Cherednik

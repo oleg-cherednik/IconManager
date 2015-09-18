@@ -1,7 +1,8 @@
-package cop.swing.icoman.imageio.bmp;
+package cop.swing.icoman.bmp;
 
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
+import cop.swing.icoman.imageio.bmp.BitmapInfoHeader;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;

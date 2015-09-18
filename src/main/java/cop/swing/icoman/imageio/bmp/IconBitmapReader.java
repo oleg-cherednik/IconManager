@@ -1,5 +1,6 @@
 package cop.swing.icoman.imageio.bmp;
 
+import cop.swing.icoman.bmp.Bitmap;
 import cop.swing.icoman.exceptions.IconManagerException;
 
 import javax.imageio.ImageIO;

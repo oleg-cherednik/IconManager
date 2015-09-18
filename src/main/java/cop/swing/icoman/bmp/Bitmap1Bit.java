@@ -1,4 +1,4 @@
-package cop.swing.icoman.imageio.bmp;
+package cop.swing.icoman.bmp;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
