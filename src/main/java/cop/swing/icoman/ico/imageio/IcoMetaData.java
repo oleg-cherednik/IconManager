@@ -32,11 +32,6 @@ public final class IcoMetaData extends IIOMetadata {
                 null);
     }
 
-    void put(String key, String value) {
-        keys.add(key);
-        values.add(value);
-    }
-
     // ========== IIOMetadata ==========
 
     @Override

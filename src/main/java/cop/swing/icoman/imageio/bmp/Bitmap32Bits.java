@@ -18,17 +18,6 @@ final class Bitmap32Bits extends Bitmap {
 
     @Override
     public int[] invertMask(int[] mask) {
-//        if (mask != null) {
-//            int[] alpha = alpha(width, height, mask, false);
-//            print(width, height, alpha);
-//
-//            for (int i = 0; i < mask.length; i++)
-//                mask[i] = ~mask[i] & 0xFF;
-//
-//            alpha = alpha(width, height, mask, false);
-//            print(width, height, alpha);
-//        }
-
         return mask;
     }
 

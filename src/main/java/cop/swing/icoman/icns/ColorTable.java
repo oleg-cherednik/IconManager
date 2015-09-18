@@ -1,5 +1,7 @@
 package cop.swing.icoman.icns;
 
+import static cop.swing.icoman.imageio.bmp.Bitmap.rgb;
+
 /**
  * @author Oleg Cherednik
  * @since 31.08.2015
@@ -23,14 +25,14 @@ final class ColorTable {
     private static final int[] BIT4 = {
             rgb(0xFF, 0xFF, 0xFF),
             rgb(0xFF, 0xF3, 0x05),
-            rgb(0xFF, 100, 0x02),
-            rgb(221, 0x08, 0x06),
-            rgb(242, 0x08, 132),
-            rgb(70, 0x00, 165),
-            rgb(0x00, 0x00, 212),
-            rgb(0x02, 171, 234),
-            rgb(31, 183, 20),
-            rgb(0x00, 100, 17),
+            rgb(0xFF, 0x64, 0x02),
+            rgb(0xDD, 0x08, 0x06),
+            rgb(0xF2, 0x08, 0x84),
+            rgb(0x46, 0x00, 0xA5),
+            rgb(0x00, 0x00, 0xD4),
+            rgb(0x02, 0xAB, 0xEA),
+            rgb(0x1F, 0xB7, 0x14),
+            rgb(0x00, 0x64, 0x11),
             rgb(0x56, 0x2C, 0x05),
             rgb(0x90, 0x71, 0x3A),
             rgb(0xC0, 0xC0, 0xC0),
@@ -297,10 +299,6 @@ final class ColorTable {
             rgb(0x11, 0x11, 0x11),
             rgb(0x00, 0x00, 0x00)
     };
-
-    private static int rgb(int red, int green, int blue) {
-        return (0xFF << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF);
-    }
 
     private ColorTable() {
     }
