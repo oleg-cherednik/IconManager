@@ -22,7 +22,7 @@ public final class IcoFileHeader {
 
     public static IcoFileHeader read(ImageInputStream in) throws IconManagerException, IOException {
         if (in.readUnsignedShort() != 0)
-            throw new FormatNotSupportedException("Expected ico format; 'header offs:0, size:2' is reserved, should be 0");
+            throw new FormatNotSupportedException("Expected ico format: 'header offs:0, size:2' is reserved, should be 0");
 
         BitmapType type = parseCode(in.readUnsignedShort());
         int imageCount = in.readUnsignedShort();
