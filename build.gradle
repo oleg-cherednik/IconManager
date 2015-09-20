@@ -17,7 +17,6 @@ dependencies {
     compile 'commons-collections:commons-collections:3.2.1'
     compile 'javax.validation:validation-api:1.1.0.Final'
 
-    testCompile 'cop.swing:layout-organizer:1.0'
     testCompile 'commons-io:commons-io:2.4'
 }
 
