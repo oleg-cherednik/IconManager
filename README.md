@@ -1,4 +1,4 @@
-# cop.swing.icon-manager
+# Icon Manager
 
 This is java utilite reads different icon formats to use it in the applicaitons (e.g. *Swing*), but it doesn't depend on any *Swing's* sources).
 
