@@ -8,7 +8,7 @@ Currently supports:
 * *.ico - Windows icons
 * *.icns - Macintosh icons
  
-h4 How we use images in *Swing* application
+#### How do we use images in *Swing* application
 
 ```java
 JLabel label = new JLabel(new ImageIcon("smile.png"));
