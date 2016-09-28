@@ -238,13 +238,12 @@ public class IconManagerDemo extends JFrame {
             dialog.addChoosableFileFilter(FileFilterImpl.ICO);
             dialog.addChoosableFileFilter(FileFilterImpl.ICL);
             dialog.addChoosableFileFilter(FileFilterImpl.ICNS);
-            dialog.setFileFilter(FileFilterImpl.ICNS);
+            dialog.setFileFilter(FileFilterImpl.ICO);
 
             if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 for (File file : dialog.getSelectedFiles()) {
                     file = file.getAbsoluteFile();
                     String id = file.getName();
-                    String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
 
                     try {
                         IconFile iconFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
@@ -252,6 +251,7 @@ public class IconManagerDemo extends JFrame {
                         iconKeyCombo.addItem(iconKey);
                         iconKeyCombo.setSelectedItem(iconKey);
                     } catch(FormatNotSupportedException ignored) {
+                        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
                         String message = String.format("File format '%s' is not supported", ext);
                         JOptionPane.showMessageDialog(null, message, "Could not open file", JOptionPane.ERROR_MESSAGE);
                     } catch(Exception e) {

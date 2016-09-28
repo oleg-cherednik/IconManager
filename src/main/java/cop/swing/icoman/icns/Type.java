@@ -3,7 +3,7 @@ package cop.swing.icoman.icns;
 import cop.swing.icoman.IconIO;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
-import cop.swing.icoman.imageio.bmp.Bitmap;
+import cop.swing.icoman.bmp.Bitmap;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.imageio.ImageIO;

@@ -10,18 +10,13 @@ targetCompatibility = 1.7
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {url 'http://repository.springsource.com/maven/bundles/external'}
-    maven {url 'http://dl.bintray.com/jai-imageio/maven/'}
 }
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'commons-collections:commons-collections:3.2.1'
     compile 'javax.validation:validation-api:1.1.0.Final'
-    compile 'com.github.jai-imageio:jai-imageio-core:1.3.0'
-    compile 'com.github.jai-imageio:jai-imageio-jpeg2000:1.3.0'
 
-    testCompile 'cop.swing:layout-organizer:1.0'
     testCompile 'commons-io:commons-io:2.4'
 }
 

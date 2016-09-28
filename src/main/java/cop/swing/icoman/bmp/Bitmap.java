@@ -1,7 +1,8 @@
-package cop.swing.icoman.imageio.bmp;
+package cop.swing.icoman.bmp;
 
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.IconManagerException;
+import cop.swing.icoman.imageio.bmp.BitmapInfoHeader;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
@@ -30,24 +31,24 @@ public abstract class Bitmap {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
         int width = header.getBiWidth();
         int height = header.getBiHeight();
-        int bitCount = header.getBiBitCount();
+        int bitsPerPixel = header.getBiBitCount();
         int[] colors = readColorTable(header, in);
-        return getInstanceForBits(bitCount).createImage(width, -height, colors, in);
+        return getInstanceForBits(bitsPerPixel).createImage(width, -height, colors, in);
     }
 
-    public static Bitmap getInstanceForBits(int bitCount) throws IconManagerException {
-        if (bitCount == 1)
+    public static Bitmap getInstanceForBits(int bitsPerPixel) throws IconManagerException {
+        if (bitsPerPixel == 1)
             return Bitmap1Bit.INSTANCE;
-        if (bitCount == 4)
+        if (bitsPerPixel == 4)
             return Bitmap4Bits.INSTANCE;
-        if (bitCount == 8)
+        if (bitsPerPixel == 8)
             return Bitmap8Bits.INSTANCE;
-        if (bitCount == ImageKey.TRUE_COLOR)
+        if (bitsPerPixel == ImageKey.TRUE_COLOR)
             return Bitmap24Bits.INSTANCE;
-        if (bitCount == ImageKey.XP)
+        if (bitsPerPixel == ImageKey.XP)
             return Bitmap32Bits.INSTANCE;
 
-        throw new IconManagerException("Bitmap with " + bitCount + "bitsPerPixel is not supported");
+        throw new IconManagerException("Bitmap with " + bitsPerPixel + "bitsPerPixel is not supported");
     }
 
     private static int[] readColorTable(BitmapInfoHeader header, ImageInputStream in) throws IOException {
@@ -127,23 +128,12 @@ public abstract class Bitmap {
         return rgb(rgb >> 16, rgb >> 8, rgb, alpha);
     }
 
-    static int rgb(int red, int green, int blue) {
+    public static int rgb(int red, int green, int blue) {
         return rgb(red, green, blue, 0xFF);
     }
 
     static int rgb(int red, int green, int blue, int alpha) {
         return ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF);
-    }
-
-    public static void print(int width, int height, int[] buf) {
-        System.out.println();
-        height = Math.abs(height);
-
-        for (int i = 0, offs = 0; i < height && offs < buf.length; i++) {
-            for (int j = 0; j < width && offs < buf.length; j++, offs++)
-                System.out.print(buf[offs] == 0x0 ? '.' : '#');
-            System.out.println();
-        }
     }
 
     protected Bitmap() {

@@ -1,4 +1,4 @@
-package cop.swing.icoman.imageio.bmp;
+package cop.swing.icoman.bmp;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
@@ -8,17 +8,17 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 31.08.2015
  */
-final class Bitmap4Bits extends Bitmap {
-    public static final Bitmap4Bits INSTANCE = new Bitmap4Bits();
+final class Bitmap8Bits extends Bitmap {
+    public static final Bitmap8Bits INSTANCE = new Bitmap8Bits();
 
-    private Bitmap4Bits() {
+    private Bitmap8Bits() {
     }
 
     // ========== Bitmap ==========
 
     @Override
     public BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException {
-        int[] data = read32bitDataBlocks(width, Math.abs(height), 4, in);
+        int[] data = read32bitDataBlocks(width, Math.abs(height), 8, in);
         int[] mask = read32bitMaskBlocks(width, Math.abs(height), in);
         return createImage(width, height, colors, data, mask);
     }
@@ -35,10 +35,8 @@ final class Bitmap4Bits extends Bitmap {
     private static int[] decode(int width, int height, int[] data) {
         int[] buf = new int[Math.abs(width * height)];
 
-        for (int i = 0, offs = 0; i < data.length; i++) {
-            buf[offs++] = (data[i] >> 4) & 0xF;
-            buf[offs++] = data[i] & 0xF;
-        }
+        for (int i = 0; i < data.length; i++)
+            buf[i] = data[i] & 0xFF;
 
         return height > 0 ? flipVertical(width, height, buf) : buf;
     }

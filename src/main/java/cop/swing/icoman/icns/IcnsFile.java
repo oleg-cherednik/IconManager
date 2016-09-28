@@ -2,8 +2,10 @@ package cop.swing.icoman.icns;
 
 import cop.swing.icoman.IconFile;
 import cop.swing.icoman.ImageKey;
+import cop.swing.icoman.exceptions.FormatNotSupportedException;
 import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
+import cop.swing.icoman.icns.imageio.IcnsReaderSpi;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.ImageIcon;
@@ -24,7 +26,7 @@ public final class IcnsFile implements IconFile {
     private final Map<ImageKey, ImageIcon> images;
 
     public static IcnsFile read(ImageInputStream in) throws Exception {
-        IcnsFileHeader header = IcnsFileHeader.read(in);
+        checkHeader(in);
         return new IcnsFile(readImages(in));
     }
 
@@ -88,5 +90,17 @@ public final class IcnsFile implements IconFile {
     @Override
     public Iterator<ImageIcon> iterator() {
         return images.values().iterator();
+    }
+
+    // ========== static ==========
+
+    private static void checkHeader(ImageInputStream in) throws IOException, FormatNotSupportedException {
+        if (!IcnsReaderSpi.isHeaderValid(in.readInt()))
+            throw new FormatNotSupportedException("Expected icns format: 'header offs:0, size:4' should be 'icns'");
+
+        long size = in.readUnsignedInt();   // file size, = in.length() (offs: 0x4, size: 4)
+
+        if (size != in.length())
+            throw new FormatNotSupportedException(String.format("File size expected: %d, actual: %d", size, in.length()));
     }
 }
