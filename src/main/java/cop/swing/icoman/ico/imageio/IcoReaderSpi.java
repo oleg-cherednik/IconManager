@@ -15,6 +15,8 @@ import java.io.IOException;
  * @since 15.08.2015
  */
 public final class IcoReaderSpi extends IconReaderSpi {
+    private static final IcoReaderSpi INSTANCE = new IcoReaderSpi();
+
     // ========== IconFileReaderSpi ==========
 
     @Override
@@ -31,7 +33,7 @@ public final class IcoReaderSpi extends IconReaderSpi {
 
     public static synchronized void register() {
         IconBitmapReaderSpi.register();
-        IIORegistry.getDefaultInstance().registerServiceProvider(new IcoReaderSpi());
+        IIORegistry.getDefaultInstance().registerServiceProvider(INSTANCE);
     }
 
     public static boolean isHeaderValid(int marker) {

@@ -12,6 +12,8 @@ import java.io.IOException;
  * @since 14.08.2015
  */
 public final class IcnsReaderSpi extends IconReaderSpi {
+    private static final IcnsReaderSpi INSTANCE = new IcnsReaderSpi();
+
     static {
         register();
     }
@@ -34,7 +36,7 @@ public final class IcnsReaderSpi extends IconReaderSpi {
     // ========== static ==========
 
     public static synchronized void register() {
-        IIORegistry.getDefaultInstance().registerServiceProvider(new IcnsReaderSpi());
+        IIORegistry.getDefaultInstance().registerServiceProvider(INSTANCE);
     }
 
     public static boolean isHeaderValid(int marker) {

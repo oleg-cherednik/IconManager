@@ -157,7 +157,7 @@ public class IconManagerDemo extends JFrame {
     }
 
     static class SettingsPanel extends JPanel implements ActionListener {
-        private static final String DEF_ICON_FILE = "testico.ico";
+        private static final String DEF_ICON_FILE = "007.icns";
 
         private final IconManagerPanel panel;
         private final JButton changeBackgroundButton = new JButton("Change background");

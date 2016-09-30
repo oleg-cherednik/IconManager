@@ -64,8 +64,11 @@ public final class IcnsFile implements IconFile {
         Map<ImageKey, int[]> mapData = new HashMap<>();
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
-        while (in.getStreamPosition() < in.length()) {
-            Type.readData(in, mapData, mapMask);
+        try {
+            while (true) {
+                Type.readData(in, mapData, mapMask);
+            }
+        } catch(Exception ignored) {
         }
 
         Map<ImageKey, ImageIcon> images = new HashMap<>(mapData.size());
@@ -83,6 +86,7 @@ public final class IcnsFile implements IconFile {
         }
 
         return images.isEmpty() ? Collections.<ImageKey, ImageIcon>emptyMap() : Collections.unmodifiableMap(images);
+
     }
 
     // ========== Iterable ==========
@@ -98,9 +102,6 @@ public final class IcnsFile implements IconFile {
         if (!IcnsReaderSpi.isHeaderValid(in.readInt()))
             throw new FormatNotSupportedException("Expected icns format: 'header offs:0, size:4' should be 'icns'");
 
-        long size = in.readUnsignedInt();   // file size, = in.length() (offs: 0x4, size: 4)
-
-        if (size != in.length())
-            throw new FormatNotSupportedException(String.format("File size expected: %d, actual: %d", size, in.length()));
+        in.readUnsignedInt();   // file size (offs: 0x4, size: 4)
     }
 }
