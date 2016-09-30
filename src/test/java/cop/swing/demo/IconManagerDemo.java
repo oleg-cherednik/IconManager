@@ -8,6 +8,7 @@ import cop.swing.icoman.exceptions.ImageNotFoundException;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -64,12 +65,7 @@ public class IconManagerDemo extends JFrame {
     // ========== static ==========
 
     public static void main(String... args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new IconManagerDemo().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new IconManagerDemo().setVisible(true));
     }
 
     // ========== classes ==========
@@ -204,7 +200,8 @@ public class IconManagerDemo extends JFrame {
 
         private void addDefaultIcon() {
             try {
-                IconFile icoFile = iconManager.addIcon(DEF_ICON_FILE, DEF_ICON_FILE);
+                ImageInputStream in = ImageIO.createImageInputStream(IconManagerDemo.class.getResourceAsStream('/' + DEF_ICON_FILE));
+                IconFile icoFile = iconManager.addIcon(DEF_ICON_FILE, in);
                 iconKeyCombo.addItem(new IconKey(DEF_ICON_FILE, icoFile.getImagesAmount()));
             } catch(Exception e) {
                 e.printStackTrace();

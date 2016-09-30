@@ -7,7 +7,6 @@ import cop.swing.icoman.icns.imageio.IcnsReaderSpi;
 import cop.swing.icoman.ico.imageio.IcoReaderSpi;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -37,21 +36,14 @@ public final class IconManager {
     }
 
     public Set<String> getIds() {
-        return icons.isEmpty() ? Collections.<String>emptySet() : Collections.unmodifiableSet(icons.keySet());
-    }
-
-    @NotNull
-    public IconFile addIcon(String id, String filename) throws IconManagerException, IOException {
-        IconFile icon = read(filename);
-        addIcon(id, icon);
-        return icon;
+        return icons.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(icons.keySet());
     }
 
     @NotNull
     public IconFile addIcon(String id, ImageInputStream in) throws IconManagerException, IOException {
         if (in == null)
             throw new IOException(String.format("Resource '%s' doesn't exists", id));
-        return addIcon(id, read(in));
+        return addIcon(id, IconIO.read(in));
     }
 
     public IconFile addIcon(String id, IconFile icon) throws IconManagerException {
@@ -84,13 +76,5 @@ public final class IconManager {
     private static void register() {
         IcoReaderSpi.register();
         IcnsReaderSpi.register();
-    }
-
-    private static IconFile read(String filename) throws IOException {
-        return read(ImageIO.createImageInputStream(IconManager.class.getClassLoader().getResourceAsStream(filename)));
-    }
-
-    private static IconFile read(ImageInputStream in) throws IOException {
-        return IconIO.read(in);
     }
 }
