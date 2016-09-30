@@ -12,6 +12,7 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 31.08.2015
  */
+@SuppressWarnings("MethodCanBeVariableArityMethod")
 public abstract class Bitmap {
     public abstract BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException;
 
@@ -71,6 +72,7 @@ public abstract class Bitmap {
         return data;
     }
 
+    @SuppressWarnings("StaticMethodNamingConvention")
     protected static int[] read32bitDataBlocks(int width, int height, int bitCount, ImageInputStream in) throws IOException {
         int[] buf = new int[width * height * bitCount / 8];
         int used = width * bitCount / 8;
@@ -85,6 +87,7 @@ public abstract class Bitmap {
         return buf;
     }
 
+    @SuppressWarnings("StaticMethodNamingConvention")
     protected static int[] read32bitMaskBlocks(int width, int height, ImageInputStream in) throws IOException {
         int[] buf = new int[(width + 31) / 32 * 4 * height];
         int used = width / 8;

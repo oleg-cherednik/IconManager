@@ -10,6 +10,7 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 31.08.2015
  */
+@SuppressWarnings("MethodCanBeVariableArityMethod")
 final class Bitmap24Bits extends Bitmap {
     public static final Bitmap24Bits INSTANCE = new Bitmap24Bits();
 
