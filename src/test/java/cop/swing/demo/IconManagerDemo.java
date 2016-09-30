@@ -4,6 +4,7 @@ import cop.swing.icoman.IconFile;
 import cop.swing.icoman.IconManager;
 import cop.swing.icoman.ImageKey;
 import cop.swing.icoman.exceptions.FormatNotSupportedException;
+import cop.swing.icoman.exceptions.IconManagerException;
 import cop.swing.icoman.exceptions.ImageNotFoundException;
 import org.apache.commons.io.FilenameUtils;
 
@@ -35,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -157,8 +159,6 @@ public class IconManagerDemo extends JFrame {
     }
 
     static class SettingsPanel extends JPanel implements ActionListener {
-        private static final String DEF_ICON_FILE = "007.icns";
-
         private final IconManagerPanel panel;
         private final JButton changeBackgroundButton = new JButton("Change background");
         private final JButton openButton = new JButton("Open icon");
@@ -199,13 +199,13 @@ public class IconManagerDemo extends JFrame {
         }
 
         private void addDefaultIcon() {
-            try {
-                ImageInputStream in = ImageIO.createImageInputStream(IconManagerDemo.class.getResourceAsStream('/' + DEF_ICON_FILE));
-                IconFile icoFile = iconManager.addIcon(DEF_ICON_FILE, in);
-                iconKeyCombo.addItem(new IconKey(DEF_ICON_FILE, icoFile.getImagesAmount()));
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
+            Arrays.asList("test.ico", "test.icns").forEach(file -> {
+                try {
+                    addIcon(file, ImageIO.createImageInputStream(IconManagerDemo.class.getResourceAsStream('/' + file)), false);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
         public void onSelectIcon(String id) {
@@ -238,14 +238,9 @@ public class IconManagerDemo extends JFrame {
 
             if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 for (File file : dialog.getSelectedFiles()) {
-                    file = file.getAbsoluteFile();
-                    String id = file.getName();
-
                     try {
-                        IconFile iconFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
-                        IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
-                        iconKeyCombo.addItem(iconKey);
-                        iconKeyCombo.setSelectedItem(iconKey);
+                        file = file.getAbsoluteFile();
+                        addIcon(file.getName(), ImageIO.createImageInputStream(file), true);
                     } catch(FormatNotSupportedException ignored) {
                         String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
                         String message = String.format("File format '%s' is not supported", ext);
@@ -256,6 +251,15 @@ public class IconManagerDemo extends JFrame {
                     }
                 }
             }
+        }
+
+        private void addIcon(String id, ImageInputStream in, boolean select) throws IOException, IconManagerException {
+            IconFile iconFile = iconManager.addIcon(id, in);
+            IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
+            iconKeyCombo.addItem(iconKey);
+
+            if (select)
+                iconKeyCombo.setSelectedItem(iconKey);
         }
 
         // ========== ActionListener ==========
