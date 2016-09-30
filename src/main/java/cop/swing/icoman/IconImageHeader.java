@@ -36,7 +36,7 @@ public final class IconImageHeader {
 		if(bitsPerPixel == 0)
             bitsPerPixel = (int)Math.sqrt(colors);
 
-		ImageKey key = ImageKey.createKey(width, height, bitsPerPixel);
+		ImageKey key = ImageKey.custom(width, height, bitsPerPixel);
 
 		return new IconImageHeader(id, key, planes, bitsPerPixel, size, offs);
 	}

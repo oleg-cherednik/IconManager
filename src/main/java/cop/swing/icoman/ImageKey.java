@@ -21,23 +21,23 @@ public final class ImageKey implements Comparable<ImageKey> {
     private final int height;
     private final int bitsPerPixel;
 
-    public static ImageKey createKey(int size, int bitsPerPixel) {
-        return createKey(size, size, bitsPerPixel);
+    public static ImageKey highColor(int size) {
+        return custom(size, size, HIGH_COLOR);
     }
 
-    public static ImageKey createHighColorKey(int size) {
-        return createKey(size, size, HIGH_COLOR);
+    public static ImageKey trueColor(int size) {
+        return custom(size, size, TRUE_COLOR);
     }
 
-    public static ImageKey createTrueColorKey(int size) {
-        return createKey(size, size, TRUE_COLOR);
+    public static ImageKey xp(int size) {
+        return custom(size, size, XP);
     }
 
-    public static ImageKey createXpKey(int size) {
-        return createKey(size, size, XP);
+    public static ImageKey custom(int size, int bitsPerPixel) {
+        return custom(size, size, bitsPerPixel);
     }
 
-    public static ImageKey createKey(int width, int height, int bitsPerPixel) {
+    public static ImageKey custom(int width, int height, int bitsPerPixel) {
         ImageKey key = MAP.get(getString(width, height, bitsPerPixel));
         return key != null ? key : new ImageKey(width, height, bitsPerPixel);
     }

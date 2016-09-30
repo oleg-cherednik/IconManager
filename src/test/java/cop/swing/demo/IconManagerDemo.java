@@ -161,7 +161,6 @@ public class IconManagerDemo extends JFrame {
     }
 
     static class SettingsPanel extends JPanel implements ActionListener {
-        private static final String DEF_ICON_ID = "testico";
         private static final String DEF_ICON_FILE = "testico.ico";
 
         private final IconManagerPanel panel;
@@ -205,8 +204,8 @@ public class IconManagerDemo extends JFrame {
 
         private void addDefaultIcon() {
             try {
-                IconFile icoFile = iconManager.addIcon(DEF_ICON_ID, DEF_ICON_FILE);
-                iconKeyCombo.addItem(new IconKey(DEF_ICON_ID, icoFile.getImagesAmount()));
+                IconFile icoFile = iconManager.addIcon(DEF_ICON_FILE, DEF_ICON_FILE);
+                iconKeyCombo.addItem(new IconKey(DEF_ICON_FILE, icoFile.getImagesAmount()));
             } catch(Exception e) {
                 e.printStackTrace();
             }

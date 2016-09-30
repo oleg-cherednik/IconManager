@@ -108,7 +108,7 @@ public final class IcoFile implements IconFile {
             int height = image.getHeight();
 
             if (key.width() != width || key.height() != height)
-                key = ImageKey.createKey(width, height, key.getBitsPerPixel());
+                key = ImageKey.custom(width, height, key.getBitsPerPixel());
 
             if (images.containsKey(key))
                 System.out.println("duplicate image key '" + key + '\'');
