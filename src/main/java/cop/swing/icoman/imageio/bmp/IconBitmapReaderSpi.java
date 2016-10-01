@@ -18,14 +18,12 @@ import java.util.Locale;
  * @since 01.09.2013
  */
 public final class IconBitmapReaderSpi extends ImageReaderSpi {
-    private static final String[] FORMAT_NAMES = { "bmp", "BMP" };
-    private static final String[] EXT = { "bmp" };
-    private static final String[] MIME_TYPE = { "image/bmp" };
     private static final IconBitmapReaderSpi INSTANCE = new IconBitmapReaderSpi();
 
     private IconBitmapReaderSpi() {
-        super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE, IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class },
-                null, false, null, null, null, null, false, IcoMetaDataFormat.NAME, IcoMetaData.class.getName(), null, null);
+        super("cop", VersionData.getVersion(), new String[] { "bmp", "BMP" }, new String[] { "bmp" }, new String[] { "image/bmp" },
+                IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null, null, false,
+                IcoMetaDataFormat.NAME, IcoMetaData.class.getName(), null, null);
     }
 
     // ========== ImageReaderSpi ==========
