@@ -4,7 +4,6 @@ package cop.swing.icoman;
 import cop.swing.icoman.imageio.IconReader;
 import cop.swing.icoman.imageio.IconReaderSpi;
 
-import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ServiceRegistry;
 import javax.imageio.stream.ImageInputStream;
@@ -32,11 +31,6 @@ public final class IconIO {
             buf[i] = in.readUnsignedByte();
 
         return buf;
-    }
-
-    /** @see ImageIO#scanForPlugins() */
-    public static void scanForPlugins() {
-        ImageIO.scanForPlugins();
     }
 
     public static IconFile read(ImageInputStream in) throws IOException {

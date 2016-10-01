@@ -19,7 +19,12 @@ public final class IcnsReaderSpi extends IconReaderSpi {
 
     @Override
     public boolean canDecodeInput(ImageInputStream in) throws IOException {
-        return isHeaderValid(in.readInt());
+        try {
+            in.mark();
+            return isHeaderValid(in.readInt());
+        } finally {
+            in.reset();
+        }
     }
 
     @Override
