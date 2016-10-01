@@ -22,15 +22,9 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
     private static final String[] EXT = { "bmp" };
     private static final String[] MIME_TYPE = { "image/bmp" };
 
-    static {
-        register();
-    }
-
     private IconBitmapReaderSpi() {
-        super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE,
-                IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null,
-                null, false, IcoMetaDataFormat.NAME, IcoMetaData.class.getName(), null, null
-        );
+        super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE, IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class },
+                null, false, null, null, null, null, false, IcoMetaDataFormat.NAME, IcoMetaData.class.getName(), null, null);
     }
 
     // ========== ImageReaderSpi ==========
@@ -77,10 +71,8 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
      * Returns a brief, human-readable description of this service provider and
      * its associated implementation.
      *
-     * @param locale a <code>Locale</code> for which the return value should be
-     *               localized.
-     * @return a <code>String</code> containing a description of this service
-     * provider.
+     * @param locale a <code>Locale</code> for which the return value should be localized.
+     * @return a <code>String</code> containing a description of this service provider.
      * @todo Implement this javax.imageio.spi.IIOServiceProvider method
      */
     @Override

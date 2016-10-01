@@ -29,7 +29,8 @@ public final class IconManager {
     }
 
     static {
-        register();
+        IcoReaderSpi.register();
+        IcnsReaderSpi.register();
     }
 
     private IconManager() {
@@ -69,12 +70,5 @@ public final class IconManager {
             throw new IconNotFoundException(id);
 
         return icon;
-    }
-
-    // ========== static ==========
-
-    private static void register() {
-        IcoReaderSpi.register();
-        IcnsReaderSpi.register();
     }
 }

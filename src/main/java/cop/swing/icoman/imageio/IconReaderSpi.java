@@ -13,9 +13,6 @@ import java.util.Map;
  * @since 15.08.2015
  */
 public abstract class IconReaderSpi {
-    static {
-        register();
-    }
 
     public IconReader createReaderInstance() throws IOException {
         return createReaderInstance(null);
@@ -27,15 +24,13 @@ public abstract class IconReaderSpi {
 
     // ========== static ==========
 
-    /**
-     * Add new category to the internal registry map
-     */
-    public static synchronized void register() {
+    static {
+        // Add new category to the internal registry map
         try {
             IIORegistry registry = IIORegistry.getDefaultInstance();
             Field field = registry.getClass().getSuperclass().getDeclaredField("categoryMap");
             field.setAccessible(true);
-            Map categoryMap = (Map)field.get(registry);
+            Map<Class<?>, Object> categoryMap = (Map<Class<?>, Object>)field.get(registry);
             Class<?> cls = ClassLoader.getSystemClassLoader().loadClass("javax.imageio.spi.SubRegistry");
             Constructor<?> constructor = cls.getConstructor(ServiceRegistry.class, Class.class);
             constructor.setAccessible(true);

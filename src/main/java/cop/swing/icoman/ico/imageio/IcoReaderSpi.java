@@ -15,7 +15,8 @@ import java.io.IOException;
  * @since 15.08.2015
  */
 public final class IcoReaderSpi extends IconReaderSpi {
-    private static final IcoReaderSpi INSTANCE = new IcoReaderSpi();
+    private IcoReaderSpi() {
+    }
 
     // ========== IconFileReaderSpi ==========
 
@@ -29,11 +30,12 @@ public final class IcoReaderSpi extends IconReaderSpi {
     public boolean canDecodeInput(ImageInputStream in) throws IOException {
         return isHeaderValid(in.readInt());
     }
+
     // ========== static ==========
 
     public static synchronized void register() {
         IconBitmapReaderSpi.register();
-        IIORegistry.getDefaultInstance().registerServiceProvider(INSTANCE);
+        IIORegistry.getDefaultInstance().registerServiceProvider(new IcoReaderSpi());
     }
 
     public static boolean isHeaderValid(int marker) {
