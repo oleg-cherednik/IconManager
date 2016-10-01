@@ -21,6 +21,7 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
     private static final String[] FORMAT_NAMES = { "bmp", "BMP" };
     private static final String[] EXT = { "bmp" };
     private static final String[] MIME_TYPE = { "image/bmp" };
+    private static final IconBitmapReaderSpi INSTANCE = new IconBitmapReaderSpi();
 
     private IconBitmapReaderSpi() {
         super("cop", VersionData.getVersion(), FORMAT_NAMES, EXT, MIME_TYPE, IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class },
@@ -83,6 +84,6 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
     // ========== static ==========
 
     public static synchronized void register() {
-        IIORegistry.getDefaultInstance().registerServiceProvider(new IconBitmapReaderSpi());
+        IIORegistry.getDefaultInstance().registerServiceProvider(INSTANCE);
     }
 }

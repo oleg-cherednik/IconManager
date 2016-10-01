@@ -6,14 +6,15 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.nio.ByteOrder;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * @author Oleg Cherednik
  * @since 15.08.2015
  */
 public abstract class IconReaderSpi {
-
     public IconReader createReaderInstance() throws IOException {
         return createReaderInstance(null);
     }
@@ -23,6 +24,21 @@ public abstract class IconReaderSpi {
     public abstract boolean canDecodeInput(ImageInputStream in) throws IOException;
 
     // ========== static ==========
+
+    protected static boolean canDecodeInput(ImageInputStream in, Callable<Boolean> task) throws IOException {
+        ByteOrder byteOrder = in.getByteOrder();
+
+        try {
+            in.mark();
+            return task.call();
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            in.reset();
+            in.setByteOrder(byteOrder);
+        }
+    }
 
     static {
         // Add new category to the internal registry map
