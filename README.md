@@ -23,9 +23,9 @@ File file = new File("smile.ico");
 String id = file.getName();
 IconFile iconFile = iconManager.addIcon(id, ImageIO.createImageInputStream(file));
 
-JLabel label_16x16_HighColor = new JLabel(iconFile.getImage(ImageKey.createHighColorKey(16)));
-JLabel label_24x24_HighColor = new JLabel(iconFile.getImage(ImageKey.createHighColorKey(24)));
-JLabel label_32x32_HighColor = new JLabel(iconFile.getImage(ImageKey.createHighColorKey(32)));
+JLabel label_16x16_HighColor = new JLabel(new ImageIcon(iconFile.getImage(ImageKey.highColor(16))));
+JLabel label_24x24_HighColor = new JLabel(new ImageIcon(iconFile.getImage(ImageKey.highColor(24))));
+JLabel label_32x32_HighColor = new JLabel(new ImageIcon(iconFile.getImage(ImageKey.highColor(32))));
 ```
 
  

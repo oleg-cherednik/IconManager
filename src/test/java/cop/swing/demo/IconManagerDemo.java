@@ -1,11 +1,11 @@
 package cop.swing.demo;
 
-import cop.swing.icoman.IconFile;
-import cop.swing.icoman.IconManager;
-import cop.swing.icoman.ImageKey;
-import cop.swing.icoman.exceptions.FormatNotSupportedException;
-import cop.swing.icoman.exceptions.IconManagerException;
-import cop.swing.icoman.exceptions.ImageNotFoundException;
+import cop.icoman.IconFile;
+import cop.icoman.IconManager;
+import cop.icoman.ImageKey;
+import cop.icoman.exceptions.FormatNotSupportedException;
+import cop.icoman.exceptions.IconManagerException;
+import cop.icoman.exceptions.ImageNotFoundException;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
