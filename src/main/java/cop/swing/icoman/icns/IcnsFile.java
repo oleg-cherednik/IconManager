@@ -8,7 +8,7 @@ import cop.swing.icoman.exceptions.ImageNotFoundException;
 import cop.swing.icoman.icns.imageio.IcnsReaderSpi;
 
 import javax.imageio.stream.ImageInputStream;
-import javax.swing.ImageIcon;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
@@ -23,14 +23,15 @@ import java.util.TreeSet;
  * @since 02.08.15
  */
 public final class IcnsFile implements IconFile {
-    private final Map<ImageKey, ImageIcon> images;
+
+    private final Map<ImageKey, Image> images;
 
     public static IcnsFile read(ImageInputStream in) throws Exception {
         checkHeader(in);
         return new IcnsFile(readImages(in));
     }
 
-    private IcnsFile(Map<ImageKey, ImageIcon> images) {
+    private IcnsFile(Map<ImageKey, Image> images) {
         this.images = images;
     }
 
@@ -38,14 +39,12 @@ public final class IcnsFile implements IconFile {
 
     @Override
     public Set<ImageKey> getKeys() {
-        if (images.isEmpty())
-            return Collections.emptySet();
-        return Collections.unmodifiableSet(new TreeSet<ImageKey>(images.keySet()));
+        return images.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(new TreeSet<>(images.keySet()));
     }
 
     @Override
-    public ImageIcon getImage(ImageKey key) throws ImageNotFoundException {
-        ImageIcon image = images.get(key);
+    public Image getImage(ImageKey key) throws ImageNotFoundException {
+        Image image = images.get(key);
 
         if (image == null)
             throw new ImageNotFoundException(key);
@@ -60,7 +59,7 @@ public final class IcnsFile implements IconFile {
 
     // ========== static ==========
 
-    private static Map<ImageKey, ImageIcon> readImages(ImageInputStream in) throws IOException, IconManagerException {
+    private static Map<ImageKey, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
         Map<ImageKey, int[]> mapData = new HashMap<>();
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
@@ -71,7 +70,7 @@ public final class IcnsFile implements IconFile {
         } catch(Exception ignored) {
         }
 
-        Map<ImageKey, ImageIcon> images = new HashMap<>(mapData.size());
+        Map<ImageKey, Image> images = new HashMap<>(mapData.size());
 
         for (Map.Entry<ImageKey, int[]> entry : mapData.entrySet()) {
             ImageKey key = entry.getKey();
@@ -82,17 +81,17 @@ public final class IcnsFile implements IconFile {
 
             // TODO set default image
             if (image != null)
-                images.put(key, new ImageIcon(image));
+                images.put(key, image);
         }
 
-        return images.isEmpty() ? Collections.<ImageKey, ImageIcon>emptyMap() : Collections.unmodifiableMap(images);
+        return images.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(images);
 
     }
 
     // ========== Iterable ==========
 
     @Override
-    public Iterator<ImageIcon> iterator() {
+    public Iterator<Image> iterator() {
         return images.values().iterator();
     }
 
