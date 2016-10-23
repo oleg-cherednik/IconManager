@@ -9,30 +9,30 @@ import java.io.IOException;
  */
 public final class BitmapInfoHeader {
 
-    /** The size of this header (size: 4, offs: 0x0) */
+    /** The size of this header (size: 4, rva: 0x0) */
     private final int biSize;
-    /** The bitmap width in pixels (size: 4, offs: 0x0) */
+    /** The bitmap width in pixels (size: 4, rva: 0x0) */
     private final int biWidth;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biHeight;
-    /** The number of color planes being used, <b>must be set to 1</b>. (size: 2, offs: 0x0) */
+    /** The number of color planes being used, <b>must be set to 1</b>. (size: 2, rva: 0x0) */
     private final int biPlanes;
     /**
      * The number of bits per pixel, which is the color depth of the image. Typical values are 1, 4, 8, 16, 24 and 32
-     * (size: 2, offs: 0x0)
+     * (size: 2, rva: 0x0)
      */
     private final int biBitCount;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biCompression;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biSizeImage;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biXPelsPerMeter;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biYPelsPerMeter;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biColorsUsed;
-    /** The bitmap height in pixels (size: 4, offs: 0x0) */
+    /** The bitmap height in pixels (size: 4, rva: 0x0) */
     private final int biColorsImportant;
 
 //	0Eh	4	the size of this header (40 bytes)

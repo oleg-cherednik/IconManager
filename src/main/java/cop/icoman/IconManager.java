@@ -3,6 +3,7 @@ package cop.icoman;
 import cop.icoman.exceptions.IconDuplicationException;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.exceptions.IconNotFoundException;
+import cop.icoman.icl.imageio.IclReaderSpi;
 import cop.icoman.icns.imageio.IcnsReaderSpi;
 import cop.icoman.ico.imageio.IcoReaderSpi;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ public final class IconManager {
 
     static {
         IcoReaderSpi.register();
+        IclReaderSpi.register();
         IcnsReaderSpi.register();
     }
 

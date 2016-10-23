@@ -129,4 +129,12 @@ public final class ImageKey implements Comparable<ImageKey> {
 
         return buf.toString();
     }
+
+    public static String parse(int width, int height, int bitsPerPixel) {
+        return String.format("%dx%d-%d", width, height, bitsPerPixel);
+    }
+
+    public static String parse(String id, int width, int height, int bitsPerPixel) {
+        return String.format("%s:%s", id.toLowerCase(), parse(width, height, bitsPerPixel));
+    }
 }

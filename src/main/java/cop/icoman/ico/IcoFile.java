@@ -1,9 +1,7 @@
 package cop.icoman.ico;
 
-import cop.icoman.BitmapType;
 import cop.icoman.IconFile;
 import cop.icoman.IconIO;
-import cop.icoman.IconImageHeader;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.exceptions.ImageNotFoundException;
@@ -32,12 +30,15 @@ public final class IcoFile implements IconFile {
     private final IcoFileHeader header;
     private final Map<ImageKey, Image> images;
 
-    public static IcoFile read(ImageInputStream in) throws IOException, IconManagerException {
-        IcoFileHeader header = IcoFileHeader.read(in);
-        return new IcoFile(header, readImages(header, in));
+    public IcoFile(ImageInputStream in) throws IOException, IconManagerException {
+        this(IcoFileHeader.read(in), in);
     }
 
-    private IcoFile(IcoFileHeader header, Map<ImageKey, Image> images) {
+    private IcoFile(IcoFileHeader header, ImageInputStream in) throws IOException, IconManagerException {
+        this(header, readImages(header, in));
+    }
+
+    public IcoFile(IcoFileHeader header, Map<ImageKey, Image> images) {
         this.header = header;
         this.images = images;
     }
@@ -66,6 +67,13 @@ public final class IcoFile implements IconFile {
         return images.size();
     }
 
+    // ========== Iterable ==========
+
+    @Override
+    public Iterator<Image> iterator() {
+        return images.values().iterator();
+    }
+
     // ========== Object ==========
 
     @Override
@@ -82,7 +90,7 @@ public final class IcoFile implements IconFile {
         List<IconImageHeader> headers = new ArrayList<>(total);
 
         for (int i = 0; i < total; i++)
-            headers.add(BitmapType.ICO.createImageHeader(i, in));
+            headers.add(IconImageHeader.readHeader(i, in));
 
         return Collections.unmodifiableList(headers);
     }
@@ -96,7 +104,7 @@ public final class IcoFile implements IconFile {
             checkOffs(offs, imageHeader);
 
             ImageKey key = imageHeader.getImageKey();
-            BufferedImage image = ImageIO.read(new ByteArrayInputStream(IconIO.readBytes(imageHeader.getSize(), in)));
+            BufferedImage image = readIconImage(in, imageHeader.getSize());
 
             // TODO set default image
             if (image == null)
@@ -121,14 +129,11 @@ public final class IcoFile implements IconFile {
 
     private static void checkOffs(int expected, IconImageHeader imageHeader) throws IconManagerException {
         if (expected != imageHeader.getOffs())
-            throw new IconManagerException("offs image no. " + imageHeader.getId() + " incorrect. actual=" +
+            throw new IconManagerException("rva image no. " + imageHeader.getId() + " incorrect. actual=" +
                     imageHeader.getOffs() + ", expected=" + expected);
     }
 
-    // ========== Iterable ==========
-
-    @Override
-    public Iterator<Image> iterator() {
-        return images.values().iterator();
+    public static BufferedImage readIconImage(ImageInputStream in, int size) throws IOException {
+        return ImageIO.read(new ByteArrayInputStream(IconIO.readBytes(size, in)));
     }
 }

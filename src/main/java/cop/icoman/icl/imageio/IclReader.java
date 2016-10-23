@@ -1,7 +1,6 @@
-package cop.icoman.ico.imageio;
+package cop.icoman.icl.imageio;
 
-import cop.icoman.exceptions.IconManagerException;
-import cop.icoman.ico.IcoFile;
+import cop.icoman.icl.IclFile;
 import cop.icoman.imageio.IconReader;
 
 import java.io.IOException;
@@ -9,26 +8,26 @@ import java.nio.ByteOrder;
 
 /**
  * @author Oleg Cherednik
- * @since 15.08.2015
+ * @since 02.10.2016
  */
-public class IcoReader extends IconReader {
-    private IcoFile icon;
+public class IclReader extends IconReader {
+    private IclFile icon;
 
-    protected IcoReader(IcoReaderSpi provider) {
+    protected IclReader(IclReaderSpi provider) {
         super(provider);
     }
 
     // ========== IconFileReader ==========
 
     @Override
-    public IcoFile read() throws IOException {
+    public IclFile read() throws IOException {
         try {
             if (icon == null) {
                 in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-                icon = new IcoFile(in);
+                icon = new IclFile(in);
             }
             return icon;
-        } catch(IconManagerException e) {
+        } catch(Exception e) {
             throw new IOException(e);
         }
     }
