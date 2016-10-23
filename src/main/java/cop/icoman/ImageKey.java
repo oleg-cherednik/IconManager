@@ -63,6 +63,10 @@ public final class ImageKey implements Comparable<ImageKey> {
         return bitsPerPixel;
     }
 
+    public String getId() {
+        return parse(width, height, bitsPerPixel);
+    }
+
     // ========== Comparable ==========
 
     @Override
@@ -131,7 +135,7 @@ public final class ImageKey implements Comparable<ImageKey> {
     }
 
     public static String parse(int width, int height, int bitsPerPixel) {
-        return String.format("%dx%d-%d", width, height, bitsPerPixel);
+        return String.format("%dx%d %dbit", width, height, bitsPerPixel);
     }
 
     public static String parse(String id, int width, int height, int bitsPerPixel) {

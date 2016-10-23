@@ -1,10 +1,9 @@
 package cop.icoman.icl;
 
-import cop.icoman.IconFile;
+import cop.icoman.AbstractIconFile;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
-import cop.icoman.exceptions.ImageNotFoundException;
 import cop.icoman.icl.imageio.IclReaderSpi;
 import cop.icoman.ico.IcoFile;
 
@@ -15,11 +14,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static cop.icoman.icl.SectionHeader.readString;
 
@@ -27,7 +26,7 @@ import static cop.icoman.icl.SectionHeader.readString;
  * @author Oleg Cherednik
  * @since 02.10.2016
  */
-public final class IclFile implements IconFile {
+public final class IclFile extends AbstractIconFile {
     private static final int SIZE_DOS_HEADER = 58;
     private static final int SIZE_COFF_HEADER = 20;
     private static final int SIZE_COFF_STANDARD_FIELDS = 28;
@@ -37,23 +36,21 @@ public final class IclFile implements IconFile {
     private static long base;
 
     private final Map<String, Set<String>> idByName;
-    private final Map<String, Image> imageById;
 
     public IclFile(ImageInputStream in) throws Exception {
         this(read(in));
     }
 
     private IclFile(Map<String, Map<String, Image>> images) {
+        super(createImageById(images));
         idByName = createIdByName(images);
-        imageById = createImageById(images);
     }
 
     private static Map<String, Set<String>> createIdByName(Map<String, Map<String, Image>> imagesByNameId) {
         Map<String, Set<String>> idByName = new LinkedHashMap<>();
 
-        for (Map.Entry<String, Map<String, Image>> entry : imagesByNameId.entrySet()) {
+        for (Map.Entry<String, Map<String, Image>> entry : imagesByNameId.entrySet())
             idByName.put(entry.getKey(), entry.getValue().keySet());
-        }
 
         return Collections.unmodifiableMap(idByName);
     }
@@ -65,18 +62,6 @@ public final class IclFile implements IconFile {
     }
 
     private static Map<String, Map<String, Image>> read(ImageInputStream in) throws Exception {
-//        if (false) {
-//            Pe64_r_bin_pe_obj_t bin = Pe64_r_bin_pe_new(in);
-//            Radar.bin_pe_init_hdr(bin);
-//            Radar.bin_pe_init_sections(bin);
-//            Radar.bin_pe_init_resource(bin);
-//            Radar.Pe64_r_bin_store_all_resource_version_info(bin);
-//
-//            int a = 0;
-//            a++;
-//        }
-
-
         in.mark();
         checkMarkZbikowskiSignature(in);
         in.skipBytes(SIZE_DOS_HEADER);
@@ -114,16 +99,15 @@ public final class IclFile implements IconFile {
             entries.put(entry.id, entry);
         }
 
-        Map<String, List<IconImageHeader>> headers = readHeaders(entries, readNames(entries, in), in);
+        Map<String, Set<ImageHeader>> headers = readHeaders(entries, readNames(entries, in), in);
         Map<Integer, Image> images = readImages(entries, in);
         Map<String, Map<String, Image>> imageByIdName = new LinkedHashMap<>();
 
-        for (Map.Entry<String, List<IconImageHeader>> entry : headers.entrySet()) {
+        for (Map.Entry<String, Set<ImageHeader>> entry : headers.entrySet()) {
             String name = entry.getKey();
-            // TODO sort by id from lower to higher
             Map<String, Image> imageById = new LinkedHashMap<>();
 
-            for (IconImageHeader header : entry.getValue()) {
+            for (ImageHeader header : entry.getValue()) {
                 String id = ImageKey.parse(name, header.width, header.height, header.bitsPerPixel);
                 Image image = images.get(header.num);
 
@@ -175,7 +159,7 @@ public final class IclFile implements IconFile {
         return names;
     }
 
-    private static Map<String, List<IconImageHeader>> readHeaders(Map<Integer, ResourceDirectoryEntry> entries, List<String> names,
+    private static Map<String, Set<ImageHeader>> readHeaders(Map<Integer, ResourceDirectoryEntry> entries, List<String> names,
             ImageInputStream in) throws IOException, IconManagerException {
         ResourceDirectoryEntry entryGroupIcon = entries.get(PE_RESOURCE_ENTRY_GROUP_ICON);
 
@@ -194,7 +178,7 @@ public final class IclFile implements IconFile {
             throw new IconManagerException();
 
         entries = readResourceDirectoryEntries(in, resourceDirectory.getNumberOfIdEntries());
-        Map<String, List<IconImageHeader>> map = new LinkedHashMap<>();
+        Map<String, Set<ImageHeader>> map = new LinkedHashMap<>();
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
             long offs = ent.getValue().leaf ? ent.getValue().offsData : getLeafOffs(ent.getValue().offsData, in);
@@ -203,11 +187,11 @@ public final class IclFile implements IconFile {
             ResourceDataEntry resourceDataEntry = new ResourceDataEntry(in);
             in.seek(resourceDataEntry.rva);
 
-            int total = resourceDataEntry.size / IconImageHeader.SIZE;
-            List<IconImageHeader> res = new ArrayList<>(total);
+            int total = resourceDataEntry.size / ImageHeader.SIZE;
+            Set<ImageHeader> res = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
 
             for (int i = 0; i < total; i++)
-                res.add(new IconImageHeader(in));
+                res.add(new ImageHeader(in));
 
             map.put(names.get(ent.getKey() - 1), res);
         }
@@ -319,25 +303,5 @@ public final class IclFile implements IconFile {
             return rva - sectionHeader.getVirtualAddress() + sectionHeader.getPointerToRawData();
         else
             return 0;
-    }
-
-    @Override
-    public Set<ImageKey> getKeys() {
-        return null;
-    }
-
-    @Override
-    public Image getImage(ImageKey key) throws ImageNotFoundException {
-        return null;
-    }
-
-    @Override
-    public int getImagesAmount() {
-        return 0;
-    }
-
-    @Override
-    public Iterator<Image> iterator() {
-        return null;
     }
 }

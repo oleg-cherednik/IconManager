@@ -1,34 +1,28 @@
 package cop.icoman.ico;
 
-import cop.icoman.IconFile;
+import cop.icoman.AbstractIconFile;
 import cop.icoman.IconIO;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.IconManagerException;
-import cop.icoman.exceptions.ImageNotFoundException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
-import javax.validation.constraints.NotNull;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * @author Oleg Cherednik
  * @since 03.07.2013
  */
-public final class IcoFile implements IconFile {
+public final class IcoFile extends AbstractIconFile {
     private final IcoFileHeader header;
-    private final Map<ImageKey, Image> images;
 
     public IcoFile(ImageInputStream in) throws IOException, IconManagerException {
         this(IcoFileHeader.read(in), in);
@@ -39,39 +33,14 @@ public final class IcoFile implements IconFile {
     }
 
     public IcoFile(IcoFileHeader header, Map<ImageKey, Image> images) {
+        super(createImageById(images));
         this.header = header;
-        this.images = images;
     }
 
-    // ========== IconFile ==========
-
-    @NotNull
-    @Override
-    public Set<ImageKey> getKeys() {
-        return images.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(new TreeSet<>(images.keySet()));
-    }
-
-    @NotNull
-    @Override
-    public Image getImage(ImageKey key) throws ImageNotFoundException {
-        Image image = images.get(key);
-
-        if (image == null)
-            throw new ImageNotFoundException(key);
-
-        return image;
-    }
-
-    @Override
-    public int getImagesAmount() {
-        return images.size();
-    }
-
-    // ========== Iterable ==========
-
-    @Override
-    public Iterator<Image> iterator() {
-        return images.values().iterator();
+    public static Map<String, Image> createImageById(Map<ImageKey, Image> images) {
+        Map<String, Image> imageById = new LinkedHashMap<>();
+        images.entrySet().forEach(entry -> imageById.put(entry.getKey().getId(), entry.getValue()));
+        return Collections.unmodifiableMap(imageById);
     }
 
     // ========== Object ==========

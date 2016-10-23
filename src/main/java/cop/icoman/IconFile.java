@@ -2,6 +2,7 @@ package cop.icoman;
 
 import cop.icoman.exceptions.ImageNotFoundException;
 
+import javax.validation.constraints.NotNull;
 import java.awt.Image;
 import java.util.Set;
 
@@ -10,10 +11,11 @@ import java.util.Set;
  * @since 15.08.2015
  */
 public interface IconFile extends Iterable<Image> {
+    @NotNull
+    Set<String> getIds();
 
-    Set<ImageKey> getKeys();
+    @NotNull
+    Image getImage(String id) throws ImageNotFoundException;
 
-    Image getImage(ImageKey key) throws ImageNotFoundException;
-
-    int getImagesAmount();
+    int getTotalImages();
 }

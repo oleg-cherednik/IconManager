@@ -1,11 +1,11 @@
 package cop.icoman.icns;
 
-import cop.icoman.IconFile;
+import cop.icoman.AbstractIconFile;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
-import cop.icoman.exceptions.ImageNotFoundException;
 import cop.icoman.icns.imageio.IcnsReaderSpi;
+import cop.icoman.ico.IcoFile;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Image;
@@ -13,48 +13,20 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * @author Oleg Cherednik
  * @since 02.08.15
  */
-public final class IcnsFile implements IconFile {
-
-    private final Map<ImageKey, Image> images;
-
+public final class IcnsFile extends AbstractIconFile {
     public static IcnsFile read(ImageInputStream in) throws Exception {
         checkHeader(in);
         return new IcnsFile(readImages(in));
     }
 
     private IcnsFile(Map<ImageKey, Image> images) {
-        this.images = images;
-    }
-
-    // ========== IconFile ==========
-
-    @Override
-    public Set<ImageKey> getKeys() {
-        return images.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(new TreeSet<>(images.keySet()));
-    }
-
-    @Override
-    public Image getImage(ImageKey key) throws ImageNotFoundException {
-        Image image = images.get(key);
-
-        if (image == null)
-            throw new ImageNotFoundException(key);
-
-        return image;
-    }
-
-    @Override
-    public int getImagesAmount() {
-        return images.size();
+        super(IcoFile.createImageById(images));
     }
 
     // ========== static ==========
@@ -86,13 +58,6 @@ public final class IcnsFile implements IconFile {
 
         return images.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(images);
 
-    }
-
-    // ========== Iterable ==========
-
-    @Override
-    public Iterator<Image> iterator() {
-        return images.values().iterator();
     }
 
     // ========== static ==========

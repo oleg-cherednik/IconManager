@@ -2,7 +2,6 @@ package cop.swing.demo;
 
 import cop.icoman.IconFile;
 import cop.icoman.IconManager;
-import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.exceptions.ImageNotFoundException;
@@ -37,7 +36,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -113,9 +113,9 @@ public class IconManagerDemo extends JFrame {
             removeAll();
             GridBagConstraints gbc = createConstraints();
 
-            for (ImageKey key : iconFile.getKeys()) {
-                JLabel icon = createLabelIcon(new ImageIcon(iconFile.getImage(key)), showBorder);
-                JLabel sizeLabel = showSize ? new JLabel(key.toString()) : null;
+            for (String id : iconFile.getIds()) {
+                JLabel icon = createLabelIcon(new ImageIcon(iconFile.getImage(id)), showBorder);
+                JLabel sizeLabel = showSize ? new JLabel(id) : null;
                 add(createPanel(icon, sizeLabel), gbc);
             }
 
@@ -200,7 +200,15 @@ public class IconManagerDemo extends JFrame {
         }
 
         private void addDefaultIcon() {
-            Arrays.asList(/*"clock.exe", "abc.icl",*/ "big.icl", "small.icl", "shell32.dll"/*,"test.ico", "test.icns"*/).forEach(file -> {
+            List<String> files = new ArrayList<>();
+//            files.add("clock.exe");
+//            files.add("abc.icl");
+            files.add("big.icl");
+//            files.add("small.icl");
+//            files.add("shell32.dll");
+            files.add("test.ico");
+            files.add("test.icns");
+            files.forEach(file -> {
                 try {
                     addIcon(file, ImageIO.createImageInputStream(IconManagerDemo.class.getResourceAsStream('/' + file)), false);
                 } catch(Exception e) {
@@ -256,7 +264,7 @@ public class IconManagerDemo extends JFrame {
 
         private void addIcon(String id, ImageInputStream in, boolean select) throws IOException, IconManagerException {
             IconFile iconFile = iconManager.addIcon(id, in);
-            IconKey iconKey = new IconKey(id, iconFile.getImagesAmount());
+            IconKey iconKey = new IconKey(id, iconFile.getTotalImages());
             iconKeyCombo.addItem(iconKey);
 
             if (select)

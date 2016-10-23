@@ -17,6 +17,7 @@ import java.util.Map;
  * @author Oleg Cherednik
  * @since 17.08.2015
  */
+@SuppressWarnings({ "EnumeratedConstantNamingConvention", "unused" })
 enum Type {
     // 32-bit image types > 256x256 - no mask (mask is already in image)
     ICNS_1024x1024_32BIT_ARGB_DATA("ic10", ImageKey.xp(1024), null),
@@ -24,7 +25,7 @@ enum Type {
     ICNS_256x256_32BIT_ARGB_DATA("ic08", ImageKey.xp(256), null),
 
     // 32-bit image types - 8-bit mask type
-    ICNS_128x128_32BIT_DATA("it32", ImageKey.xp(128), ImageKey.custom(128, 8)) {},
+    ICNS_128x128_32BIT_DATA("it32", ImageKey.xp(128), ImageKey.custom(128, 8)),
     ICNS_48x48_32BIT_DATA("ih32", ImageKey.xp(48), ImageKey.custom(48, 8)),
     ICNS_32x32_32BIT_DATA("il32", ImageKey.xp(32), ImageKey.custom(32, 8)),
     ICNS_16x16_32BIT_DATA("is32", ImageKey.xp(16), ImageKey.custom(16, 8)),
@@ -106,8 +107,6 @@ enum Type {
     },
     ICNS_16x12_1BIT_MASK("icm#", null, ImageKey.custom(16, 12, 1));
 
-
-    private final String id;
     private final long val;
     public final ImageKey key;
     public final ImageKey mask;
@@ -118,7 +117,6 @@ enum Type {
     }
 
     Type(String id, ImageKey key, ImageKey mask, boolean skip) {
-        this.id = id;
         this.key = key;
         this.mask = mask;
         val = toInt(id);
@@ -133,6 +131,7 @@ enum Type {
             throw new IllegalArgumentException("Duplication image mask: " + mask);
     }
 
+    @SuppressWarnings("MethodCanBeVariableArityMethod")
     public BufferedImage createImage(ImageKey key, int[] data, int[] mask) throws IconManagerException, IOException {
         Bitmap bitmap = key != null ? Bitmap.getInstanceForBits(key.getBitsPerPixel()) : null;
 
@@ -142,9 +141,9 @@ enum Type {
         int[] colors = ColorTable.get(key.getBitsPerPixel());
         mask = key.getBitsPerPixel() == 1 ? mask : bitmap.invertMask(mask);
 
-        if(mask == null) {
+        if (mask == null) {
             byte[] buf = new byte[data.length];
-            for(int i = 0; i < buf.length; i++)
+            for (int i = 0; i < buf.length; i++)
                 buf[i] = (byte)(data[i] & 0xFF);
             return ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(buf)));
         }
@@ -187,11 +186,13 @@ enum Type {
                 type.readData(data, mapData, mapMask);
     }
 
+    @SuppressWarnings("StaticMethodNamingConvention")
     private static void _readData(ImageKey key, int[] buf, Map<ImageKey, int[]> mapData) {
         if (mapData.put(key, ArrayUtils.subarray(buf, 0, buf.length / 2)) != null)
             throw new IllegalArgumentException("Duplication image key: " + key);
     }
 
+    @SuppressWarnings("StaticMethodNamingConvention")
     private static void _readMask(ImageKey mask, int[] buf, Map<ImageKey, int[]> mapMask) {
         if (mapMask.put(mask, ArrayUtils.subarray(buf, buf.length / 2, buf.length)) != null)
             throw new IllegalArgumentException("Duplication image mask: " + mask);

@@ -16,4 +16,8 @@ public class ImageNotFoundException extends IconManagerException {
 	public ImageNotFoundException(ImageKey key) {
 		super("image key = '" + key + "' not found");
 	}
+
+	public ImageNotFoundException(String id) {
+		super("image key = '" + id + "' not found");
+	}
 }
