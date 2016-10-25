@@ -129,16 +129,16 @@ public final class ImageKey implements Comparable<ImageKey> {
         else if (bitsPerPixel == XP)
             buf.append(" XP");
         else
-            buf.append(' ').append(bitsPerPixel).append(" colors");
+            buf.append(' ').append((int)Math.pow(2, 8));
 
         return buf.toString();
     }
 
     public static String parse(int width, int height, int bitsPerPixel) {
-        return String.format("%dx%d %dbit", width, height, bitsPerPixel);
+        return getString(width, height, bitsPerPixel);
     }
 
     public static String parse(String id, int width, int height, int bitsPerPixel) {
-        return String.format("%s:%s", id.toLowerCase(), parse(width, height, bitsPerPixel));
+        return String.format("%s[%s]", id.toLowerCase(), parse(width, height, bitsPerPixel));
     }
 }

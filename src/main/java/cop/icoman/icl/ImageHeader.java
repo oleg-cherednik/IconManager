@@ -1,5 +1,7 @@
 package cop.icoman.icl;
 
+import cop.icoman.ImageKey;
+
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.util.Comparator;
@@ -15,11 +17,11 @@ final class ImageHeader {
 
         int res;
 
+        if ((res = Integer.compare(header1.height, header2.height)) != 0)
+            return res;
         if ((res = Integer.compare(header1.bitsPerPixel, header2.bitsPerPixel)) != 0)
             return res;
-        if ((res = Integer.compare(header1.width, header2.width)) != 0)
-            return res;
-        return Integer.compare(header1.height, header2.height);
+        return Integer.compare(header1.width, header2.width);
     };
 
     public static final int SIZE = 14;
@@ -30,9 +32,10 @@ final class ImageHeader {
     public final int planes;
     public final int bitsPerPixel;
 
-    public ImageHeader(ImageInputStream in) throws IOException {
+    public ImageHeader(int num, ImageInputStream in) throws IOException {
         in.skipBytes(4);
-        num = in.readUnsignedByte();
+        in.readUnsignedByte();
+        this.num = num;
         in.skipBytes(1);
         width = zeroTo256(in.readUnsignedByte());
         height = zeroTo256(in.readUnsignedByte());
@@ -40,6 +43,13 @@ final class ImageHeader {
         in.skipBytes(1);
         planes = in.readShort();
         bitsPerPixel = bitsPerPixel(in.readShort(), colors);
+    }
+
+    // ========== Object ==========
+
+    @Override
+    public String toString() {
+        return ImageKey.parse(Integer.toString(num), width, height, bitsPerPixel);
     }
 
     // ========== static ==========
