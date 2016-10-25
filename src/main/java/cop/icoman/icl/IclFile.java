@@ -49,7 +49,7 @@ public final class IclFile extends AbstractIconFile {
     }
 
     @NotNull
-    public Map<String, Image> getIcoImages(String name) throws ImageNotFoundException {
+    public Map<String, Image> getImages(String name) throws ImageNotFoundException {
         if (!icoByName.containsKey(name))
             throw new ImageNotFoundException(name);
         return icoByName.get(name);
@@ -83,7 +83,7 @@ public final class IclFile extends AbstractIconFile {
 
         PeHeader peHeader = PeHeader.read(in);
         Map<String, SectionHeader> sectionHeaders = readSectionTable(in, peHeader.getFileHeader().getNumberOfSection());
-        long rva = peHeader.getOptionalHeader().getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getVirtualAddress();
+        long rva = peHeader.getOptionalHeader().getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getRva();
         long offs = rvaToOff(sectionHeaders.values(), rva, peHeader.getOptionalHeader().getSectionAlignment()) - peHeaderOffs;
         in.reset();
         in.skipBytes(offs);
@@ -308,10 +308,6 @@ public final class IclFile extends AbstractIconFile {
 
     private static long rvaToOff(Collection<SectionHeader> sectionHeaders, long rva, long sectionAlignment) {
         SectionHeader sectionHeader = defSection(sectionHeaders, rva, sectionAlignment);
-
-        if (sectionHeader != null)
-            return rva - sectionHeader.getVirtualAddress() + sectionHeader.getPointerToRawData();
-        else
-            return 0;
+        return sectionHeader != null ? rva - sectionHeader.getVirtualAddress() + sectionHeader.getPointerToRawData() : 0;
     }
 }

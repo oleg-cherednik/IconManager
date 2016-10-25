@@ -9,6 +9,7 @@ import java.util.Map;
  * @author Oleg Cherednik
  * @since 03.10.2016
  */
+@SuppressWarnings({ "FieldCanBeLocal", "unused" })
 final class OptionalHeader {
     private final int magic;
     private final int majorLinkerVersion;
@@ -76,7 +77,7 @@ final class OptionalHeader {
         readDataDirectories(in);
     }
 
-    private void readDataDirectories(ImageInputStream in) throws IOException {
+    private void readDataDirectories(final ImageInputStream in) throws IOException {
         DataDirectory dataDirectory;
 
         for (DirectoryEntry entry : DirectoryEntry.values())
@@ -84,124 +85,8 @@ final class OptionalHeader {
                 dataDirectories.put(entry, dataDirectory);
     }
 
-    public int getMagic() {
-        return magic;
-    }
-
-    public int getMajorLinkerVersion() {
-        return majorLinkerVersion;
-    }
-
-    public int getMinorLinkerVersion() {
-        return minorLinkerVersion;
-    }
-
-    public long getSizeOfCode() {
-        return sizeOfCode;
-    }
-
-    public long getSizeOfInitializedData() {
-        return sizeOfInitializedData;
-    }
-
-    public long getSizeOfUninitializedData() {
-        return sizeOfUninitializedData;
-    }
-
-    public long getAddressOfEntryPoint() {
-        return addressOfEntryPoint;
-    }
-
-    public long getBaseOfCode() {
-        return baseOfCode;
-    }
-
-    public long getBaseOfData() {
-        return baseOfData;
-    }
-
-    public long getImageBase() {
-        return imageBase;
-    }
-
     public long getSectionAlignment() {
         return sectionAlignment;
-    }
-
-    public long getFileAlignment() {
-        return fileAlignment;
-    }
-
-    public int getMajorOperatingSystemVersion() {
-        return majorOperatingSystemVersion;
-    }
-
-    public int getMinorOperatingSystemVersion() {
-        return minorOperatingSystemVersion;
-    }
-
-    public int getMajorImageVersion() {
-        return majorImageVersion;
-    }
-
-    public int getMinorImageVersion() {
-        return minorImageVersion;
-    }
-
-    public int getMajorSubsystemVersion() {
-        return majorSubsystemVersion;
-    }
-
-    public int getMinorSubsystemVersion() {
-        return minorSubsystemVersion;
-    }
-
-    public long getWin32VersionValue() {
-        return win32VersionValue;
-    }
-
-    public long getSizeOfImage() {
-        return sizeOfImage;
-    }
-
-    public long getSizeOfHeaders() {
-        return sizeOfHeaders;
-    }
-
-    public long getCheckSum() {
-        return checkSum;
-    }
-
-    public int getSubsystem() {
-        return subsystem;
-    }
-
-    public int getDllCharacteristics() {
-        return dllCharacteristics;
-    }
-
-    public long getSizeOfStackReserve() {
-        return sizeOfStackReserve;
-    }
-
-    public long getSizeOfStackCommit() {
-        return sizeOfStackCommit;
-    }
-
-    public long getSizeOfHeapReserve() {
-        return sizeOfHeapReserve;
-    }
-
-    public long getSizeOfHeapCommit() {
-        return sizeOfHeapCommit;
-    }
-
-    public long getLoaderFlags() {
-        return loaderFlags;
-    }
-
-    public long getNumberOfRvaAndSizes() {
-        return numberOfRvaAndSizes;
     }
 
     public DataDirectory getDataDirectory(DirectoryEntry directoryEntry) {
