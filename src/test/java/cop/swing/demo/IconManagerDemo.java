@@ -209,8 +209,8 @@ public class IconManagerDemo extends JFrame {
 //            files.add("shell32.dll");
             files.add("Hitman.icl");
             files.add("HitmanSmall.icl");
-//            files.add("test.ico");
-//            files.add("test.icns");
+            files.add("test.ico");
+            files.add("test.icns");
             files.forEach(file -> {
                 try (InputStream in = IconManagerDemo.class.getResourceAsStream('/' + file)) {
                     addIcon(file, ImageIO.createImageInputStream(in), false);

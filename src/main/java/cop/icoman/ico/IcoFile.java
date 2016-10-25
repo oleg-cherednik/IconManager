@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Oleg Cherednik
@@ -66,7 +67,7 @@ public final class IcoFile extends AbstractIconFile {
 
     private static Map<ImageKey, Image> readImages(IcoFileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
         List<IconImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
-        Map<ImageKey, Image> images = new LinkedHashMap<>(imageHeaders.size());
+        Map<ImageKey, Image> images = new TreeMap<>();
         int offs = IcoFileHeader.SIZE + imageHeaders.size() * IconImageHeader.SIZE;
 
         for (IconImageHeader imageHeader : imageHeaders) {
