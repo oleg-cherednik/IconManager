@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Oleg Cherednik
@@ -42,7 +43,7 @@ public final class IcnsFile extends AbstractIconFile {
         } catch(Exception ignored) {
         }
 
-        Map<ImageKey, Image> images = new HashMap<>(mapData.size());
+        Map<ImageKey, Image> images = new TreeMap<>();
 
         for (Map.Entry<ImageKey, int[]> entry : mapData.entrySet()) {
             ImageKey key = entry.getKey();

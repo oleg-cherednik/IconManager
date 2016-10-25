@@ -15,7 +15,7 @@ import java.util.Set;
  * @since 23.10.2016
  */
 public abstract class AbstractIconFile implements IconFile {
-    protected final Map<String, Image> imageById;
+    private final Map<String, Image> imageById;
 
     protected AbstractIconFile(Map<String, Image> imageById) {
         this.imageById = CollectionUtils.size(imageById) == 0 ? Collections.emptyMap() : Collections.unmodifiableMap(imageById);

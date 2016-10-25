@@ -4,10 +4,12 @@ import cop.icoman.AbstractIconFile;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
+import cop.icoman.exceptions.ImageNotFoundException;
 import cop.icoman.icl.imageio.IclReaderSpi;
 import cop.icoman.ico.IcoFile;
 
 import javax.imageio.stream.ImageInputStream;
+import javax.validation.constraints.NotNull;
 import java.awt.Image;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,14 +30,9 @@ import static cop.icoman.icl.SectionHeader.readString;
  */
 public final class IclFile extends AbstractIconFile {
     private static final int SIZE_DOS_HEADER = 58;
-    private static final int SIZE_COFF_HEADER = 20;
-    private static final int SIZE_COFF_STANDARD_FIELDS = 28;
-    private static final int SIZE_COFF_WINDOWS_SPECIFIC_FIELDS = 68;
-    private static final int SIZE_DIRECTORY_ENTRY = 8;
-
     private static long base;
 
-    private final Map<String, Set<String>> idByName;
+    private final Map<String, Map<String, Image>> icoByName;
 
     public IclFile(ImageInputStream in) throws Exception {
         this(read(in));
@@ -43,14 +40,28 @@ public final class IclFile extends AbstractIconFile {
 
     private IclFile(Map<String, Map<String, Image>> images) {
         super(createImageById(images));
-        idByName = createIdByName(images);
+        icoByName = createIcoByName(images);
     }
 
-    private static Map<String, Set<String>> createIdByName(Map<String, Map<String, Image>> imagesByNameId) {
-        Map<String, Set<String>> idByName = new LinkedHashMap<>();
+    @NotNull
+    public Set<String> getNames() {
+        return icoByName.isEmpty() ? Collections.emptySet() : icoByName.keySet();
+    }
+
+    @NotNull
+    public Map<String, Image> getIcoImages(String name) throws ImageNotFoundException {
+        if (!icoByName.containsKey(name))
+            throw new ImageNotFoundException(name);
+        return icoByName.get(name);
+    }
+
+    // ========== static ==========
+
+    private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imagesByNameId) {
+        Map<String, Map<String, Image>> idByName = new LinkedHashMap<>();
 
         for (Map.Entry<String, Map<String, Image>> entry : imagesByNameId.entrySet())
-            idByName.put(entry.getKey(), entry.getValue().keySet());
+            idByName.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
 
         return Collections.unmodifiableMap(idByName);
     }
@@ -73,8 +84,7 @@ public final class IclFile extends AbstractIconFile {
         PeHeader peHeader = PeHeader.read(in);
         Map<String, SectionHeader> sectionHeaders = readSectionTable(in, peHeader.getFileHeader().getNumberOfSection());
         long rva = peHeader.getOptionalHeader().getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getVirtualAddress();
-        long offs = rvaToOff(sectionHeaders.values(), rva, peHeader.getOptionalHeader().getSectionAlignment());
-        offs -= peHeaderOffs;
+        long offs = rvaToOff(sectionHeaders.values(), rva, peHeader.getOptionalHeader().getSectionAlignment()) - peHeaderOffs;
         in.reset();
         in.skipBytes(offs);
         in.mark();
@@ -225,8 +235,6 @@ public final class IclFile extends AbstractIconFile {
             ResourceDataEntry resourceDataEntry = new ResourceDataEntry(in);
             in.seek(resourceDataEntry.rva);
             map.put(ent.getKey(), IcoFile.readIconImage(in, resourceDataEntry.size));
-            int a = 0;
-            a++;
         }
 
         return map;
