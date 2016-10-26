@@ -95,19 +95,24 @@ public final class IclFile extends AbstractIconFile {
         in.skipBytes(total * ResourceDirectoryEntry.SIZE);
     }
 
+    private static Map<Integer, ResourceDirectoryEntry> readResourceDirectoryEntries(ImageInputStream in, int total, boolean idDec) throws IOException {
+        ResourceDirectoryEntry entry;
+        Map<Integer, ResourceDirectoryEntry> entries = new HashMap<>();
+
+        for (int i = 0; i < total; i++)
+            entries.put((entry = new ResourceDirectoryEntry(in, idDec)).getId(), entry);
+
+        return entries;
+    }
+
     private static Map<String, Map<String, Image>> readIconsResources(ImageInputStream in, long offs) throws IOException, IconManagerException {
         ResourceDirectory.read(in);
         skipNamedEntries(in, ResourceDirectory.getNumberOfNamedEntries());
-        Map<Integer, ResourceDirectoryEntry> entries = new HashMap<>();
-
-        for (int i = 0; i < ResourceDirectory.getNumberOfIdEntries(); i++) {
-            ResourceDirectoryEntry entry = new ResourceDirectoryEntry(in);
-            entries.put(entry.id, entry);
-        }
-
-        List<String> groupIconNames = readGroupIconName(entries.get(PE_RESOURCE_ENTRY_GROUP_ICON_NAME), in);
-        Map<String, Set<ImageHeader>> headers = readGroupIcon(entries.get(PE_RESOURCE_ENTRY_GROUP_ICON), groupIconNames, in);
-        Map<Integer, Image> images = readIcon(entries.get(PE_RESOURCE_ENTRY_ICON), in);
+        Map<Integer, ResourceDirectoryEntry> resourceDirectoryEntries =
+                readResourceDirectoryEntries(in, ResourceDirectory.getNumberOfIdEntries(), false);
+        List<String> groupIconNames = readGroupIconName(resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_GROUP_ICON_NAME), in);
+        Map<String, Set<ImageHeader>> headers = readGroupIcon(resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_GROUP_ICON), groupIconNames, in);
+        Map<Integer, Image> images = readIcon(resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_ICON), in);
         Map<String, Map<String, Image>> imageByIdName = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<ImageHeader>> entry : headers.entrySet()) {
@@ -137,7 +142,7 @@ public final class IclFile extends AbstractIconFile {
         if (ResourceDirectory.getNumberOfIdEntries() != 1)
             throw new IconManagerException();
 
-        ResourceDirectoryEntry entry = new ResourceDirectoryEntry(in);
+        ResourceDirectoryEntry entry = new ResourceDirectoryEntry(in, false);
         return entry.leaf ? entry.offsData : getLeafOffs(entry.offsData, in);
     }
 
@@ -179,7 +184,7 @@ public final class IclFile extends AbstractIconFile {
         if (ResourceDirectory.getNumberOfIdEntries() != groupIconNames.size())
             throw new IconManagerException();
 
-        Map<Integer, ResourceDirectoryEntry> entries = readResourceDirectoryEntries(in, ResourceDirectory.getNumberOfIdEntries());
+        Map<Integer, ResourceDirectoryEntry> entries = readResourceDirectoryEntries(in, ResourceDirectory.getNumberOfIdEntries(), true);
         Map<String, Set<ImageHeader>> map = new LinkedHashMap<>();
         int pos = 0;
 
@@ -214,7 +219,7 @@ public final class IclFile extends AbstractIconFile {
         if (ResourceDirectory.getNumberOfNamedEntries() != 0)
             throw new IconManagerException();
 
-        Map<Integer, ResourceDirectoryEntry> entries = readResourceDirectoryEntries(in, ResourceDirectory.getNumberOfIdEntries());
+        Map<Integer, ResourceDirectoryEntry> entries = readResourceDirectoryEntries(in, ResourceDirectory.getNumberOfIdEntries(), true);
         Map<Integer, Image> map = new LinkedHashMap<>();
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
@@ -227,17 +232,6 @@ public final class IclFile extends AbstractIconFile {
         }
 
         return map;
-    }
-
-    private static Map<Integer, ResourceDirectoryEntry> readResourceDirectoryEntries(ImageInputStream in, int total) throws IOException {
-        Map<Integer, ResourceDirectoryEntry> entries = new HashMap<>();
-
-        for (int i = 0; i < total; i++) {
-            ResourceDirectoryEntry entry = new ResourceDirectoryEntry(in);
-            entries.put(entry.id - 1, entry);
-        }
-
-        return entries;
     }
 
     private static void checkIclSignature(ImageInputStream in) throws IOException, IconManagerException {
