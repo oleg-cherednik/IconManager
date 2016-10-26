@@ -154,8 +154,9 @@ public final class IclFile extends AbstractIconFile {
         return entry.isLeaf() ? entry.getOffsData() : getLeafOffs(in, entry.getOffsData());
     }
 
-    private static long getLeafOffs(boolean leaf, long offsData, ImageInputStream in, long offsZero) throws IOException, IconManagerException {
-        return offsZero + (leaf ? offsData : getLeafOffs(in, offsData));
+    private static long getLeafOffs(ResourceDirectoryEntry entry, ImageInputStream in, long offsZero)
+            throws IOException, IconManagerException {
+        return offsZero + (entry.isLeaf() ? entry.getOffsData() : getLeafOffs(in, entry.getOffsData()));
     }
 
     private static List<String> readGroupIconName(ImageInputStream in, long offsZero, ResourceDirectoryEntry entryGroupIconName)
@@ -163,7 +164,7 @@ public final class IclFile extends AbstractIconFile {
         if (entryGroupIconName == null)
             return Collections.emptyList();
 
-        in.seek(getLeafOffs(entryGroupIconName.isLeaf(), entryGroupIconName.getOffsData(), in, offsZero));
+        in.seek(getLeafOffs(entryGroupIconName, in, offsZero));
         in.seek(ResourceDataEntry.read(in).getRva());
 
         checkIclSignature(in);
@@ -198,7 +199,7 @@ public final class IclFile extends AbstractIconFile {
         int pos = 0;
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
-            in.seek(getLeafOffs(ent.getValue().isLeaf(), ent.getValue().getOffsData(), in, offsZero));
+            in.seek(getLeafOffs(ent.getValue(), in, offsZero));
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
 
@@ -231,7 +232,7 @@ public final class IclFile extends AbstractIconFile {
         Map<Integer, Image> map = new LinkedHashMap<>();
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
-            in.seek(getLeafOffs(ent.getValue().isLeaf(), ent.getValue().getOffsData(), in, offsZero));
+            in.seek(getLeafOffs(ent.getValue(), in, offsZero));
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
             map.put(ent.getKey(), IcoFile.readIconImage(in, resourceDataEntry.getSize()));
