@@ -37,8 +37,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -201,17 +200,7 @@ public class IconManagerDemo extends JFrame {
         }
 
         private void addDefaultIcon() {
-            List<String> files = new ArrayList<>();
-//            files.add("clock.exe");
-//            files.add("abc.icl");
-            files.add("big.icl");
-//            files.add("small.icl");
-//            files.add("shell32.dll");
-//            files.add("Hitman.icl");
-//            files.add("HitmanSmall.icl");
-//            files.add("test.ico");
-//            files.add("test.icns");
-            files.forEach(file -> {
+            Arrays.asList("test.icl", "test.ico", "test.icns").forEach(file -> {
                 try (InputStream in = IconManagerDemo.class.getResourceAsStream('/' + file)) {
                     addIcon(file, ImageIO.createImageInputStream(in), false);
                 } catch(Exception e) {
