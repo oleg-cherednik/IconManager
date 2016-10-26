@@ -28,8 +28,6 @@ import java.util.TreeSet;
  * @since 02.10.2016
  */
 public final class IclFile extends AbstractIconFile {
-    private static final int SIZE_DOS_HEADER = 58;
-
     private final Map<String, Map<String, Image>> icoByName;
 
     public IclFile(ImageInputStream in) throws Exception {
@@ -57,7 +55,7 @@ public final class IclFile extends AbstractIconFile {
 
     private static Map<String, Map<String, Image>> read(ImageInputStream in) throws Exception {
         checkMarkZbikowskiSignature(in);
-        in.skipBytes(SIZE_DOS_HEADER);
+        skipDosHeader(in);
         int ntHeaderOffs = in.readUnsignedShort();
         in.seek(ntHeaderOffs);
         NtHeader ntHeader = new NtHeader(in);
@@ -85,6 +83,10 @@ public final class IclFile extends AbstractIconFile {
 
     private static void skipNamedEntries(ImageInputStream in, int total) throws IOException {
         in.skipBytes(total * ResourceDirectoryEntry.SIZE);
+    }
+
+    private static void skipDosHeader(ImageInputStream in) throws IOException {
+        in.skipBytes(58);
     }
 
     private static Map<Integer, ResourceDirectoryEntry> readResourceDirectoryEntries(ImageInputStream in, int total, boolean idDec)
