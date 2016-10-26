@@ -1,5 +1,7 @@
 package cop.icoman.imageio.bmp;
 
+import lombok.Data;
+
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
@@ -8,9 +10,9 @@ import java.io.IOException;
  * @see <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd183376(v=vs.85).aspx">BITMAPINFOHEADER structure</a>
  * @since 01.09.2013
  */
+@Data
 @SuppressWarnings({ "InstanceVariableNamingConvention", "SpellCheckingInspection" })
 public final class BitmapInfoHeader {
-
     private final int biSize;
     private final int biWidth;
     private final int biHeight;
@@ -35,49 +37,5 @@ public final class BitmapInfoHeader {
         biYPelsPerMeter = in.readInt();
         biColorsUsed = (int)in.readUnsignedInt();
         biColorsImportant = (int)in.readUnsignedInt();
-    }
-
-    public int getBiSize() {
-        return biSize;
-    }
-
-    public int getBiWidth() {
-        return biWidth;
-    }
-
-    public int getBiHeight() {
-        return biHeight;
-    }
-
-    public int getBiPlanes() {
-        return biPlanes;
-    }
-
-    public int getBiBitCount() {
-        return biBitCount;
-    }
-
-    public int getBiCompression() {
-        return biCompression;
-    }
-
-    public int getBiSizeImage() {
-        return biSizeImage;
-    }
-
-    public int getBiXPelsPerMeter() {
-        return biXPelsPerMeter;
-    }
-
-    public int getBiYPelsPerMeter() {
-        return biYPelsPerMeter;
-    }
-
-    public int getBiColorsUsed() {
-        return biColorsUsed;
-    }
-
-    public int getBiColorsImportant() {
-        return biColorsImportant;
     }
 }
