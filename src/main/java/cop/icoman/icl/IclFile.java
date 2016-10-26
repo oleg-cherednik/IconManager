@@ -62,15 +62,15 @@ public final class IclFile extends AbstractIconFile {
         in.seek(ntHeaderOffs);
         NtHeader ntHeader = new NtHeader(in);
         Map<String, SectionHeader> sectionHeaders = readSectionTable(in, ntHeader.getFileHeader().getNumberOfSection());
-        long offs = getResourceDirectoryOffs(ntHeader.getOptionalHeader(), sectionHeaders.values());
-        in.seek(offs);
+        long offsZero = getResourceDirectoryOffs(ntHeader.getOptionalHeader(), sectionHeaders.values());
+        in.seek(offsZero);
         in.mark();
-        return readIconsResources(in, offs);
+        return readIconsResources(in, offsZero);
     }
 
     private static long getResourceDirectoryOffs(OptionalHeader optionalHeader, Collection<SectionHeader> sectionHeaders) {
         long rva = optionalHeader.getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getRva();
-        return rvaToOff(sectionHeaders, rva, optionalHeader.getSectionAlignment());
+        return rvaToOffs(sectionHeaders, rva, optionalHeader.getSectionAlignment());
     }
 
     private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imagesByNameId) {
@@ -108,12 +108,12 @@ public final class IclFile extends AbstractIconFile {
         return entries;
     }
 
-    private static Map<String, Map<String, Image>> readIconsResources(ImageInputStream in, long offs) throws IOException, IconManagerException {
+    private static Map<String, Map<String, Image>> readIconsResources(ImageInputStream in, long offsZero) throws IOException, IconManagerException {
         ResourceDirectory resourceDirectory = ResourceDirectory.read(in);
         skipNamedEntries(in, resourceDirectory.getNumberOfNamedEntries());
         Map<Integer, ResourceDirectoryEntry> resourceDirectoryEntries =
                 readResourceDirectoryEntries(in, resourceDirectory.getNumberOfIdEntries(), false);
-        List<String> groupIconNames = readGroupIconName(resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_GROUP_ICON_NAME), in);
+        List<String> groupIconNames = readGroupIconName(in, offsZero, resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_GROUP_ICON_NAME));
         Map<String, Set<ImageHeader>> headers = readGroupIcon(resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_GROUP_ICON), groupIconNames, in);
         Map<Integer, Image> images = readIcon(resourceDirectoryEntries.get(PE_RESOURCE_ENTRY_ICON), in);
         Map<String, Map<String, Image>> imageByIdName = new LinkedHashMap<>();
@@ -149,16 +149,13 @@ public final class IclFile extends AbstractIconFile {
         return entry.leaf ? entry.offsData : getLeafOffs(entry.offsData, in);
     }
 
-    private static List<String> readGroupIconName(ResourceDirectoryEntry entryGroupIconName, ImageInputStream in)
+    private static List<String> readGroupIconName(ImageInputStream in, long offsZero, ResourceDirectoryEntry entryGroupIconName)
             throws IOException, IconManagerException {
         if (entryGroupIconName == null)
             return Collections.emptyList();
 
-        long offs = entryGroupIconName.leaf ? entryGroupIconName.offsData : getLeafOffs(entryGroupIconName.offsData, in);
-        reset(in);
-        in.skipBytes(offs);
-        ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
-        in.seek(resourceDataEntry.getRva());
+        in.seek(offsZero + (entryGroupIconName.leaf ? entryGroupIconName.offsData : getLeafOffs(entryGroupIconName.offsData, in)));
+        in.seek(ResourceDataEntry.read(in).getRva());
 
         checkIclSignature(in);
 
@@ -291,7 +288,7 @@ public final class IclFile extends AbstractIconFile {
         return null;
     }
 
-    private static long rvaToOff(Collection<SectionHeader> sectionHeaders, long rva, long sectionAlignment) {
+    private static long rvaToOffs(Collection<SectionHeader> sectionHeaders, long rva, long sectionAlignment) {
         SectionHeader sectionHeader = defSection(sectionHeaders, rva, sectionAlignment);
         return sectionHeader != null ? rva - sectionHeader.getVirtualAddress() + sectionHeader.getPointerToRawData() : 0;
     }

@@ -2,6 +2,7 @@ package cop.icoman.icl;
 
 import cop.icoman.IconIO;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.IOException;
  * @since 08.10.2016
  */
 @Data
+@ToString(includeFieldNames = false, of = "name")
 final class SectionHeader {
     private final String name;
     private final long misc;
@@ -35,12 +37,5 @@ final class SectionHeader {
         numberOfRelocations = in.readUnsignedShort();
         numberOfLinenumbers = in.readUnsignedShort();
         characteristics = in.readUnsignedInt();
-    }
-
-    // ========== Object ==========
-
-    @Override
-    public String toString() {
-        return name;
     }
 }
