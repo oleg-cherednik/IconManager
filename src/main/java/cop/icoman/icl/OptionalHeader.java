@@ -80,10 +80,6 @@ final class OptionalHeader {
         readDataDirectories(in, dataDirectories);
     }
 
-    public long getSectionAlignment() {
-        return sectionAlignment;
-    }
-
     public DataDirectory getDataDirectory(DirectoryEntry directoryEntry) {
         return dataDirectories.get(directoryEntry);
     }

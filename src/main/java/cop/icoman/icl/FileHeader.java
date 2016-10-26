@@ -13,10 +13,6 @@ import java.io.IOException;
 @Data
 final class FileHeader {
     private final int machine;
-    /**
-     * The number of sections. This indicates the size of the section table, which immediately follows the headers. Note that the Windows loader
-     * limits the number of sections to 96.
-     */
     private final int numberOfSection;
     private final long timestamp;
     private final long pointerToSymbolTable;

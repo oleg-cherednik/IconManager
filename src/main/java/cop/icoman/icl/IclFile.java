@@ -157,8 +157,8 @@ public final class IclFile extends AbstractIconFile {
         long offs = entryGroupIconName.leaf ? entryGroupIconName.offsData : getLeafOffs(entryGroupIconName.offsData, in);
         reset(in);
         in.skipBytes(offs);
-        ResourceDataEntry resourceDataEntry = new ResourceDataEntry(in);
-        in.seek(resourceDataEntry.rva);
+        ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
+        in.seek(resourceDataEntry.getRva());
 
         checkIclSignature(in);
 
@@ -195,10 +195,10 @@ public final class IclFile extends AbstractIconFile {
             long offs = ent.getValue().leaf ? ent.getValue().offsData : getLeafOffs(ent.getValue().offsData, in);
             reset(in);
             in.skipBytes(offs);
-            ResourceDataEntry resourceDataEntry = new ResourceDataEntry(in);
-            in.seek(resourceDataEntry.rva);
+            ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
+            in.seek(resourceDataEntry.getRva());
 
-            int total = resourceDataEntry.size / ImageHeader.SIZE;
+            int total = resourceDataEntry.getSize() / ImageHeader.SIZE;
             Set<ImageHeader> res = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
 
             for (int i = 0; i < total; i++, pos++)
@@ -229,9 +229,9 @@ public final class IclFile extends AbstractIconFile {
             long offs = ent.getValue().leaf ? ent.getValue().offsData : getLeafOffs(ent.getValue().offsData, in);
             reset(in);
             in.skipBytes(offs);
-            ResourceDataEntry resourceDataEntry = new ResourceDataEntry(in);
-            in.seek(resourceDataEntry.rva);
-            map.put(ent.getKey(), IcoFile.readIconImage(in, resourceDataEntry.size));
+            ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
+            in.seek(resourceDataEntry.getRva());
+            map.put(ent.getKey(), IcoFile.readIconImage(in, resourceDataEntry.getSize()));
         }
 
         return map;
