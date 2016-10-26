@@ -64,7 +64,6 @@ public final class IclFile extends AbstractIconFile {
         Map<String, SectionHeader> sectionHeaders = readSectionTable(in, ntHeader.getFileHeader().getNumberOfSection());
         long offsZero = getResourceDirectoryOffs(ntHeader.getOptionalHeader(), sectionHeaders.values());
         in.seek(offsZero);
-        in.mark();
         return readIconsResources(in, offsZero);
     }
 
@@ -150,8 +149,7 @@ public final class IclFile extends AbstractIconFile {
         if (resourceDirectory.getNumberOfIdEntries() != 1)
             throw new IconManagerException();
 
-        ResourceDirectoryEntry entry = new ResourceDirectoryEntry(in, false);
-        return entry.isLeaf() ? entry.getOffsData() : getLeafOffs(in, offsZero, entry.getOffsData());
+        return getLeafOffs(new ResourceDirectoryEntry(in, false), in, offsZero) - offsZero;
     }
 
     private static long getLeafOffs(ResourceDirectoryEntry entry, ImageInputStream in, long offsZero)
@@ -246,16 +244,6 @@ public final class IclFile extends AbstractIconFile {
             throw new IconManagerException();
     }
 
-    private static void reset(ImageInputStream in) throws IOException {
-        in.reset();
-        in.mark();
-    }
-
-    private static void moveToOffs(ImageInputStream in, long offs) throws IOException {
-        reset(in);
-        in.skipBytes(offs);
-    }
-
     private static Map<String, SectionHeader> readSectionTable(ImageInputStream in, int numberOfSection) throws IOException {
         if (numberOfSection <= 0)
             return Collections.emptyMap();
@@ -281,7 +269,6 @@ public final class IclFile extends AbstractIconFile {
     private static long allignUp(long x, long align) {
         return (x & (align - 1)) != 0 ? allignDown(x, align) + align : x;
     }
-
 
     private static SectionHeader defSection(Collection<SectionHeader> sectionHeaders, long rva, long sectionAlignment) {
         for (SectionHeader sectionHeader : sectionHeaders) {
