@@ -80,9 +80,8 @@ public final class IclFile extends AbstractIconFile {
         NtHeader ntHeader = new NtHeader(in);
         Map<String, SectionHeader> sectionHeaders = readSectionTable(in, ntHeader.getFileHeader().getNumberOfSection());
         long rva = ntHeader.getOptionalHeader().getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getRva();
-        long offs = rvaToOff(sectionHeaders.values(), rva, ntHeader.getOptionalHeader().getSectionAlignment()) - ntHeaderOffs;
-        in.reset();
-        in.skipBytes(offs);
+        long offs = rvaToOff(sectionHeaders.values(), rva, ntHeader.getOptionalHeader().getSectionAlignment());
+        in.seek(offs);
         in.mark();
 
         return readIconsResources(in);
