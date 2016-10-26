@@ -195,8 +195,7 @@ public final class IclFile extends AbstractIconFile {
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
             long offs = ent.getValue().isLeaf() ? ent.getValue().getOffsData() : getLeafOffs(ent.getValue().getOffsData(), in);
-            reset(in);
-            in.skipBytes(offs);
+            in.seek(offsZero + offs);
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
 
