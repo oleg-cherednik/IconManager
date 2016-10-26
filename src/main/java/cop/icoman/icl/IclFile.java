@@ -141,7 +141,7 @@ public final class IclFile extends AbstractIconFile {
         return imageByIdName;
     }
 
-    private static long getLeafOffs(long offs, ImageInputStream in) throws IOException, IconManagerException {
+    private static long getLeafOffs(ImageInputStream in, long offs) throws IOException, IconManagerException {
         moveToOffs(in, offs);
         ResourceDirectory resourceDirectory = ResourceDirectory.read(in);
 
@@ -151,7 +151,11 @@ public final class IclFile extends AbstractIconFile {
             throw new IconManagerException();
 
         ResourceDirectoryEntry entry = new ResourceDirectoryEntry(in, false);
-        return entry.isLeaf() ? entry.getOffsData() : getLeafOffs(entry.getOffsData(), in);
+        return entry.isLeaf() ? entry.getOffsData() : getLeafOffs(in, entry.getOffsData());
+    }
+
+    private static long getLeafOffs(boolean leaf, long offsData, ImageInputStream in, long offsZero) throws IOException, IconManagerException {
+        return offsZero + (leaf ? offsData : getLeafOffs(in, offsData));
     }
 
     private static List<String> readGroupIconName(ImageInputStream in, long offsZero, ResourceDirectoryEntry entryGroupIconName)
@@ -159,7 +163,7 @@ public final class IclFile extends AbstractIconFile {
         if (entryGroupIconName == null)
             return Collections.emptyList();
 
-        in.seek(offsZero + (entryGroupIconName.isLeaf() ? entryGroupIconName.getOffsData() : getLeafOffs(entryGroupIconName.getOffsData(), in)));
+        in.seek(getLeafOffs(entryGroupIconName.isLeaf(), entryGroupIconName.getOffsData(), in, offsZero));
         in.seek(ResourceDataEntry.read(in).getRva());
 
         checkIclSignature(in);
@@ -194,7 +198,7 @@ public final class IclFile extends AbstractIconFile {
         int pos = 0;
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
-            long offs = ent.getValue().isLeaf() ? ent.getValue().getOffsData() : getLeafOffs(ent.getValue().getOffsData(), in);
+            long offs = ent.getValue().isLeaf() ? ent.getValue().getOffsData() : getLeafOffs(in, ent.getValue().getOffsData());
             in.seek(offsZero + offs);
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
@@ -228,7 +232,7 @@ public final class IclFile extends AbstractIconFile {
         Map<Integer, Image> map = new LinkedHashMap<>();
 
         for (Map.Entry<Integer, ResourceDirectoryEntry> ent : entries.entrySet()) {
-            long offs = ent.getValue().isLeaf() ? ent.getValue().getOffsData() : getLeafOffs(ent.getValue().getOffsData(), in);
+            long offs = ent.getValue().isLeaf() ? ent.getValue().getOffsData() : getLeafOffs(in, ent.getValue().getOffsData());
             in.seek(offsZero + offs);
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
