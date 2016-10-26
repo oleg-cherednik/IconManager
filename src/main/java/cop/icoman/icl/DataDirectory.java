@@ -4,6 +4,9 @@ import lombok.Data;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * @author Oleg Cherednik
@@ -24,5 +27,41 @@ final class DataDirectory {
     private DataDirectory(long rva, long size) {
         this.rva = rva;
         this.size = size;
+    }
+
+    public enum Entry {
+        EXPORT,
+        IMPORT,
+        RESOURCE,
+        EXCEPTION,
+        SECURITY,
+        BASERELOC,
+        DEBUG,
+        COPYRIGHT,
+        ARCHITECTURE,
+        GLOBALPTR,
+        TLS,
+        LOAD_CONFIG,
+        BOUND_IMPORT,
+        IAT,
+        DELAY_IMPORT,
+        COM_DESCRIPTOR;
+
+        public long getRva(OptionalHeader optionalHeader) {
+            return optionalHeader.getDataDirectories().get(this).getRva();
+        }
+
+        // ========== static ==========
+
+        public static Map<DataDirectory.Entry, DataDirectory> read(ImageInputStream in) throws IOException {
+            DataDirectory dataDirectory;
+            Map<DataDirectory.Entry, DataDirectory> dataDirectories = new EnumMap<>(DataDirectory.Entry.class);
+
+            for (DataDirectory.Entry entry : values())
+                if ((dataDirectory = DataDirectory.read(in)) != null)
+                    dataDirectories.put(entry, dataDirectory);
+
+            return Collections.unmodifiableMap(dataDirectories);
+        }
     }
 }

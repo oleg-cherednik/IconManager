@@ -1,6 +1,7 @@
 package cop.icoman.icl;
 
 import cop.icoman.ImageKey;
+import lombok.Data;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.Comparator;
  * @author Oleg Cherednik
  * @since 21.10.2016
  */
+@Data
 final class ImageHeader {
     public static final Comparator<ImageHeader> SORT_BY_BITS_SIZE_ASC = (header1, header2) -> {
         if (header1 == header2)
@@ -26,11 +28,11 @@ final class ImageHeader {
 
     public static final int SIZE = 14;
 
-    public final int pos;
-    public final int width;
-    public final int height;
-    public final int planes;
-    public final int bitsPerPixel;
+    private final int pos;
+    private final int width;
+    private final int height;
+    private final int planes;
+    private final int bitsPerPixel;
 
     public ImageHeader(int pos, ImageInputStream in) throws IOException {
         in.skipBytes(4);

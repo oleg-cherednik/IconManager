@@ -61,15 +61,11 @@ public final class IclFile extends AbstractIconFile {
         int ntHeaderOffs = in.readUnsignedShort();
         in.seek(ntHeaderOffs);
         NtHeader ntHeader = new NtHeader(in);
+        OptionalHeader optionalHeader = ntHeader.getOptionalHeader();
         Map<String, SectionHeader> sectionHeaders = readSectionTable(in, ntHeader.getFileHeader().getNumberOfSection());
-        long offsZero = getResourceDirectoryOffs(ntHeader.getOptionalHeader(), sectionHeaders.values());
+        long offsZero = rvaToOffs(sectionHeaders.values(), DataDirectory.Entry.RESOURCE.getRva(optionalHeader), optionalHeader.getSectionAlignment());
         in.seek(offsZero);
         return readIconsResources(in, offsZero);
-    }
-
-    private static long getResourceDirectoryOffs(OptionalHeader optionalHeader, Collection<SectionHeader> sectionHeaders) {
-        long rva = optionalHeader.getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getRva();
-        return rvaToOffs(sectionHeaders, rva, optionalHeader.getSectionAlignment());
     }
 
     private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imagesByNameId) {
@@ -127,8 +123,8 @@ public final class IclFile extends AbstractIconFile {
             Map<String, Image> imageById = new LinkedHashMap<>();
 
             for (ImageHeader header : entry.getValue()) {
-                String id = ImageKey.parse(name, header.width, header.height, header.bitsPerPixel);
-                Image image = icons.get(header.pos);
+                String id = ImageKey.parse(name, header.getWidth(), header.getHeight(), header.getBitsPerPixel());
+                Image image = icons.get(header.getPos());
 
                 if (image != null)
                     imageById.put(id, image);

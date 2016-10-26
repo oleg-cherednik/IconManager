@@ -1,7 +1,7 @@
 package cop.icoman.icl;
 
 import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.imageio.stream.ImageInputStream;
@@ -11,6 +11,7 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 08.10.2016
  */
+@Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ResourceDirectory {
     private static final ResourceDirectory INSTANCE = new ResourceDirectory();
@@ -19,9 +20,7 @@ final class ResourceDirectory {
     private long timeDateStamp;
     private int majorVersion;
     private int minorVersion;
-    @Getter
     private int numberOfNamedEntries;
-    @Getter
     private int numberOfIdEntries;
 
     public static ResourceDirectory read(ImageInputStream in) throws IOException {

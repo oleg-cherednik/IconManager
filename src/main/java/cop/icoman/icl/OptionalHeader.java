@@ -4,7 +4,6 @@ import lombok.Data;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
-import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -44,7 +43,7 @@ final class OptionalHeader {
     private final long sizeOfHeapCommit;
     private final long loaderFlags;
     private final long numberOfRvaAndSizes;
-    private final Map<DirectoryEntry, DataDirectory> dataDirectories = new EnumMap<>(DirectoryEntry.class);
+    private final Map<DataDirectory.Entry, DataDirectory> dataDirectories;
 
     public OptionalHeader(ImageInputStream in) throws IOException {
         magic = in.readUnsignedShort();
@@ -77,41 +76,6 @@ final class OptionalHeader {
         sizeOfHeapCommit = in.readUnsignedInt();
         loaderFlags = in.readUnsignedInt();
         numberOfRvaAndSizes = in.readUnsignedInt();
-        readDataDirectories(in, dataDirectories);
-    }
-
-    public DataDirectory getDataDirectory(DirectoryEntry directoryEntry) {
-        return dataDirectories.get(directoryEntry);
-    }
-
-    // ========== enum ==========
-
-    public enum DirectoryEntry {
-        EXPORT,
-        IMPORT,
-        RESOURCE,
-        EXCEPTION,
-        SECURITY,
-        BASERELOC,
-        DEBUG,
-        COPYRIGHT,
-        ARCHITECTURE,
-        GLOBALPTR,
-        TLS,
-        LOAD_CONFIG,
-        BOUND_IMPORT,
-        IAT,
-        DELAY_IMPORT,
-        COM_DESCRIPTOR
-    }
-
-    // ========== static ==========
-
-    private static void readDataDirectories(ImageInputStream in, Map<DirectoryEntry, DataDirectory> dataDirectories) throws IOException {
-        DataDirectory dataDirectory;
-
-        for (DirectoryEntry entry : DirectoryEntry.values())
-            if ((dataDirectory = DataDirectory.read(in)) != null)
-                dataDirectories.put(entry, dataDirectory);
+        dataDirectories = DataDirectory.Entry.read(in);
     }
 }
