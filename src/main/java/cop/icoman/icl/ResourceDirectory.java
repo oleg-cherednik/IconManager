@@ -11,24 +11,26 @@ import java.io.IOException;
  * @author Oleg Cherednik
  * @since 08.10.2016
  */
-@Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ResourceDirectory {
-    private static long characteristics;
-    private static long timeDateStamp;
-    private static int majorVersion;
-    private static int minorVersion;
-    @Getter
-    private static int numberOfNamedEntries;
-    @Getter
-    private static int numberOfIdEntries;
+    private static final ResourceDirectory INSTANCE = new ResourceDirectory();
 
-    public static void read(ImageInputStream in) throws IOException {
-        characteristics = in.readUnsignedInt();
-        timeDateStamp = in.readUnsignedInt();
-        majorVersion = in.readUnsignedShort();
-        minorVersion = in.readUnsignedShort();
-        numberOfNamedEntries = in.readUnsignedShort();
-        numberOfIdEntries = in.readUnsignedShort();
+    private long characteristics;
+    private long timeDateStamp;
+    private int majorVersion;
+    private int minorVersion;
+    @Getter
+    private int numberOfNamedEntries;
+    @Getter
+    private int numberOfIdEntries;
+
+    public static ResourceDirectory read(ImageInputStream in) throws IOException {
+        INSTANCE.characteristics = in.readUnsignedInt();
+        INSTANCE.timeDateStamp = in.readUnsignedInt();
+        INSTANCE.majorVersion = in.readUnsignedShort();
+        INSTANCE.minorVersion = in.readUnsignedShort();
+        INSTANCE.numberOfNamedEntries = in.readUnsignedShort();
+        INSTANCE.numberOfIdEntries = in.readUnsignedShort();
+        return INSTANCE;
     }
 }
