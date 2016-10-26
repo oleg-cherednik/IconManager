@@ -13,10 +13,10 @@ import java.io.IOException;
 final class ResourceDirectoryEntry {
     public static final int SIZE = 8;
 
-    public final boolean leaf;
-    public final int id;
-    public final long offsName;
-    public final long offsData;
+    private final boolean leaf;
+    private final int id;
+    private final long offsName;
+    private final long offsData;
 
     public ResourceDirectoryEntry(ImageInputStream in, boolean idDec) throws IOException {
         int nameId = in.readInt();
