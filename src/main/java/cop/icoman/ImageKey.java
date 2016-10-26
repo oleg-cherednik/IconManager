@@ -129,7 +129,7 @@ public final class ImageKey implements Comparable<ImageKey> {
         else if (bitsPerPixel == XP)
             buf.append(" XP");
         else
-            buf.append(' ').append((int)Math.pow(2, 8));
+            buf.append(' ').append((int)Math.pow(2, bitsPerPixel));
 
         return buf.toString();
     }

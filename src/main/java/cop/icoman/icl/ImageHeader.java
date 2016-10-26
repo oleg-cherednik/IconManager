@@ -1,6 +1,7 @@
 package cop.icoman.icl;
 
 import cop.icoman.ImageKey;
+import cop.icoman.Utils;
 import lombok.Data;
 
 import javax.imageio.stream.ImageInputStream;
@@ -39,12 +40,12 @@ final class ImageHeader {
         in.readUnsignedByte();
         this.pos = pos;
         in.skipBytes(1);
-        width = zeroTo256(in.readUnsignedByte());
-        height = zeroTo256(in.readUnsignedByte());
+        width = Utils.zeroTo256(in.readUnsignedByte());
+        height = Utils.zeroTo256(in.readUnsignedByte());
         int colors = in.readUnsignedByte();
         in.skipBytes(1);
         planes = in.readShort();
-        bitsPerPixel = bitsPerPixel(in.readShort(), colors);
+        bitsPerPixel = Utils.bitsPerPixel(in.readShort(), colors);
     }
 
     // ========== Object ==========
@@ -52,16 +53,5 @@ final class ImageHeader {
     @Override
     public String toString() {
         return ImageKey.parse(Integer.toString(pos), width, height, bitsPerPixel);
-    }
-
-    // ========== static ==========
-
-    @SuppressWarnings("StaticMethodNamingConvention")
-    private static int zeroTo256(int size) {
-        return size != 0 ? size : 256;
-    }
-
-    private static int bitsPerPixel(int bitsPerPixel, int colors) {
-        return bitsPerPixel != 0 ? bitsPerPixel : (int)Math.sqrt(colors);
     }
 }

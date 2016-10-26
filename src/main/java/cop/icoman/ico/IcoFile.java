@@ -73,7 +73,7 @@ public final class IcoFile extends AbstractIconFile {
         for (IconImageHeader imageHeader : imageHeaders) {
             checkOffs(offs, imageHeader);
 
-            ImageKey key = imageHeader.getImageKey();
+            ImageKey key = imageHeader.getKey();
             BufferedImage image = readIconImage(in, imageHeader.getSize());
 
             // TODO set default image
