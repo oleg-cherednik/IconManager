@@ -1,5 +1,7 @@
 package cop.icoman.icl;
 
+import lombok.Data;
+
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.util.EnumMap;
@@ -7,9 +9,10 @@ import java.util.Map;
 
 /**
  * @author Oleg Cherednik
+ * @see <a href="https://msdn.microsoft.com/ru-ru/library/windows/desktop/ms680339(v=vs.85).aspx">IMAGE_OPTIONAL_HEADER structure</a>
  * @since 03.10.2016
  */
-@SuppressWarnings({ "FieldCanBeLocal", "unused" })
+@Data
 final class OptionalHeader {
     private final int magic;
     private final int majorLinkerVersion;
@@ -74,15 +77,7 @@ final class OptionalHeader {
         sizeOfHeapCommit = in.readUnsignedInt();
         loaderFlags = in.readUnsignedInt();
         numberOfRvaAndSizes = in.readUnsignedInt();
-        readDataDirectories(in);
-    }
-
-    private void readDataDirectories(final ImageInputStream in) throws IOException {
-        DataDirectory dataDirectory;
-
-        for (DirectoryEntry entry : DirectoryEntry.values())
-            if ((dataDirectory = DataDirectory.read(in)) != null)
-                dataDirectories.put(entry, dataDirectory);
+        readDataDirectories(in, dataDirectories);
     }
 
     public long getSectionAlignment() {
@@ -112,5 +107,15 @@ final class OptionalHeader {
         IAT,
         DELAY_IMPORT,
         COM_DESCRIPTOR
+    }
+
+    // ========== static ==========
+
+    private static void readDataDirectories(ImageInputStream in, Map<DirectoryEntry, DataDirectory> dataDirectories) throws IOException {
+        DataDirectory dataDirectory;
+
+        for (DirectoryEntry entry : DirectoryEntry.values())
+            if ((dataDirectory = DataDirectory.read(in)) != null)
+                dataDirectories.put(entry, dataDirectory);
     }
 }

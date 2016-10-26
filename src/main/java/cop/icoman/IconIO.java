@@ -61,6 +61,17 @@ public final class IconIO {
         }
     }
 
+    public static String readString(ImageInputStream in, int length) throws IOException {
+        byte ch;
+        StringBuilder buf = new StringBuilder();
+
+        for (int i = 0; i < length; i++)
+            if ((ch = in.readByte()) != '\0')
+                buf.append((char)ch);
+
+        return buf.toString();
+    }
+
     // ========= class ==========
 
     static class CanDecodeInputFilter implements ServiceRegistry.Filter {

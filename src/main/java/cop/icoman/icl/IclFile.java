@@ -1,6 +1,7 @@
 package cop.icoman.icl;
 
 import cop.icoman.AbstractIconFile;
+import cop.icoman.IconIO;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
@@ -22,15 +23,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static cop.icoman.icl.SectionHeader.readString;
-
 /**
  * @author Oleg Cherednik
  * @since 02.10.2016
  */
 public final class IclFile extends AbstractIconFile {
     private static final int SIZE_DOS_HEADER = 58;
-    private static long base;
 
     private final Map<String, Map<String, Image>> icoByName;
 
@@ -73,23 +71,19 @@ public final class IclFile extends AbstractIconFile {
     }
 
     private static Map<String, Map<String, Image>> read(ImageInputStream in) throws Exception {
-        in.mark();
         checkMarkZbikowskiSignature(in);
         in.skipBytes(SIZE_DOS_HEADER);
-        int peHeaderOffs = in.readUnsignedShort();
-        in.reset();
-        in.skipBytes(peHeaderOffs);
-        in.mark();  // 0x0
+        int ntHeaderOffs = in.readUnsignedShort();
+        in.seek(ntHeaderOffs);
+        in.mark();
 
-        PeHeader peHeader = PeHeader.read(in);
-        Map<String, SectionHeader> sectionHeaders = readSectionTable(in, peHeader.getFileHeader().getNumberOfSection());
-        long rva = peHeader.getOptionalHeader().getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getRva();
-        long offs = rvaToOff(sectionHeaders.values(), rva, peHeader.getOptionalHeader().getSectionAlignment()) - peHeaderOffs;
+        NtHeader ntHeader = new NtHeader(in);
+        Map<String, SectionHeader> sectionHeaders = readSectionTable(in, ntHeader.getFileHeader().getNumberOfSection());
+        long rva = ntHeader.getOptionalHeader().getDataDirectory(OptionalHeader.DirectoryEntry.RESOURCE).getRva();
+        long offs = rvaToOff(sectionHeaders.values(), rva, ntHeader.getOptionalHeader().getSectionAlignment()) - ntHeaderOffs;
         in.reset();
         in.skipBytes(offs);
         in.mark();
-
-        base = offs;
 
         return readIconsResources(in);
     }
@@ -163,7 +157,7 @@ public final class IclFile extends AbstractIconFile {
         List<String> names = new ArrayList<>();
 
         while ((length = in.readUnsignedByte()) != 0) {
-            names.add(readString(in, length));
+            names.add(IconIO.readString(in, length));
         }
 
         return names;
@@ -253,7 +247,7 @@ public final class IclFile extends AbstractIconFile {
     }
 
     private static void checkIclSignature(ImageInputStream in) throws IOException, IconManagerException {
-        if (!"ICL".equals(readString(in, in.readUnsignedByte())))
+        if (!"ICL".equals(IconIO.readString(in, in.readUnsignedByte())))
             throw new IconManagerException();
     }
 
@@ -278,7 +272,6 @@ public final class IclFile extends AbstractIconFile {
             sectionHeaders.put((header = new SectionHeader(in)).getName(), header);
 
         return sectionHeaders;
-
     }
 
     private static void checkMarkZbikowskiSignature(ImageInputStream in) throws IOException, FormatNotSupportedException {

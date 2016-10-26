@@ -1,12 +1,16 @@
 package cop.icoman.icl;
 
+import lombok.Data;
+
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 /**
  * @author Oleg Cherednik
+ * @see <a href="https://msdn.microsoft.com/ru-ru/library/windows/desktop/ms680305(v=vs.85).aspx">IMAGE_DATA_DIRECTORY structure</a>
  * @since 08.10.2016
  */
+@Data
 final class DataDirectory {
     private final long rva;
     private final long size;
@@ -20,13 +24,5 @@ final class DataDirectory {
     private DataDirectory(long rva, long size) {
         this.rva = rva;
         this.size = size;
-    }
-
-    public long getRva() {
-        return rva;
-    }
-
-    public long getSize() {
-        return size;
     }
 }
