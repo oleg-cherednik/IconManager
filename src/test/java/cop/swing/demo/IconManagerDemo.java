@@ -203,14 +203,14 @@ public class IconManagerDemo extends JFrame {
         private void addDefaultIcon() {
             List<String> files = new ArrayList<>();
 //            files.add("clock.exe");
-            files.add("abc.icl");
-//            files.add("big.icl");
+//            files.add("abc.icl");
+            files.add("big.icl");
 //            files.add("small.icl");
 //            files.add("shell32.dll");
-            files.add("Hitman.icl");
-            files.add("HitmanSmall.icl");
-            files.add("test.ico");
-            files.add("test.icns");
+//            files.add("Hitman.icl");
+//            files.add("HitmanSmall.icl");
+//            files.add("test.ico");
+//            files.add("test.icns");
             files.forEach(file -> {
                 try (InputStream in = IconManagerDemo.class.getResourceAsStream('/' + file)) {
                     addIcon(file, ImageIO.createImageInputStream(in), false);

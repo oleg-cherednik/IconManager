@@ -26,16 +26,16 @@ final class ImageHeader {
 
     public static final int SIZE = 14;
 
-    public final int num;
+    public final int pos;
     public final int width;
     public final int height;
     public final int planes;
     public final int bitsPerPixel;
 
-    public ImageHeader(int num, ImageInputStream in) throws IOException {
+    public ImageHeader(int pos, ImageInputStream in) throws IOException {
         in.skipBytes(4);
         in.readUnsignedByte();
-        this.num = num;
+        this.pos = pos;
         in.skipBytes(1);
         width = zeroTo256(in.readUnsignedByte());
         height = zeroTo256(in.readUnsignedByte());
@@ -49,7 +49,7 @@ final class ImageHeader {
 
     @Override
     public String toString() {
-        return ImageKey.parse(Integer.toString(num), width, height, bitsPerPixel);
+        return ImageKey.parse(Integer.toString(pos), width, height, bitsPerPixel);
     }
 
     // ========== static ==========

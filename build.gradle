@@ -17,6 +17,8 @@ dependencies {
     compile 'commons-collections:commons-collections:3.2.1'
     compile 'javax.validation:validation-api:1.1.0.Final'
 
+    compileOnly "org.projectlombok:lombok:1.16.10"
+
     testCompile 'commons-io:commons-io:2.4'
 }
 
