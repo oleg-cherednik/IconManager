@@ -45,29 +45,29 @@ enum Type {
     // 1 bit image types - 1-bit mask types
     ICNS_48x48_1BIT_DATA("ich#", ImageKey.custom(48, 1), ImageKey.custom(48, 1), true) {
         @Override
-        protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
             if (buf.length == 48 * 48 / 8)
                 super.readData(buf, mapData, mapMask);
             else
-                _readData(key, buf, mapData);
+                _readData(this, buf, mapData);
         }
     },
     ICNS_32x32_1BIT_DATA("ICN#", ImageKey.custom(32, 1), ImageKey.custom(32, 1), true) {
         @Override
-        protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
             if (buf.length == 32 * 32 / 8)
                 super.readData(buf, mapData, mapMask);
             else
-                _readData(key, buf, mapData);
+                _readData(this, buf, mapData);
         }
     },
     ICNS_16x16_1BIT_DATA("ics#", ImageKey.custom(16, 1), ImageKey.custom(16, 1), true) {
         @Override
-        protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
             if (buf.length == 16 * 16 / 8)
                 super.readData(buf, mapData, mapMask);
             else
-                _readData(key, buf, mapData);
+                _readData(this, buf, mapData);
         }
     },
 
@@ -78,7 +78,7 @@ enum Type {
     ICNS_48x48_8BIT_MASK("h8mk", null, ImageKey.custom(48, 8)),
     ICNS_48x48_1BIT_MASK("ich#", null, ImageKey.custom(48, 1)) {
         @Override
-        protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
             if (buf.length == 48 * 48 / 8)
                 super.readData(buf, mapData, mapMask);
             else
@@ -88,7 +88,7 @@ enum Type {
     ICNS_32x32_8BIT_MASK("l8mk", null, ImageKey.custom(32, 8)),
     ICNS_32x32_1BIT_MASK("ICN#", null, ImageKey.custom(32, 1)) {
         @Override
-        protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
             if (buf.length == 32 * 32 / 8)
                 super.readData(buf, mapData, mapMask);
             else
@@ -98,7 +98,7 @@ enum Type {
     ICNS_16x16_8BIT_MASK("s8mk", null, ImageKey.custom(16, 8)),
     ICNS_16x16_1BIT_MASK("ics#", null, ImageKey.custom(16, 1)) {
         @Override
-        protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
             if (buf.length == 16 * 16 / 8)
                 super.readData(buf, mapData, mapMask);
             else
@@ -110,6 +110,8 @@ enum Type {
     private final long val;
     public final ImageKey key;
     public final ImageKey mask;
+    public final String strKey;
+    public final String strMask;
     private final boolean skip;
 
     Type(String id, ImageKey key, ImageKey mask) {
@@ -119,20 +121,22 @@ enum Type {
     Type(String id, ImageKey key, ImageKey mask, boolean skip) {
         this.key = key;
         this.mask = mask;
+        strKey = key != null ? key.toString() : null;
+        strMask = mask != null ? mask.toString() : null;
         val = toInt(id);
         this.skip = skip;
     }
 
-    protected void readData(int[] buf, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+    protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
         if (key != null) {
-            if (mapData.put(key, buf) != null)
+            if (mapData.put(this, buf) != null)
                 throw new IllegalArgumentException("Duplication image key: " + key);
         } else if (mapMask.put(mask, buf) != null)
             throw new IllegalArgumentException("Duplication image mask: " + mask);
     }
 
     @SuppressWarnings("MethodCanBeVariableArityMethod")
-    public BufferedImage createImage(ImageKey key, int[] data, int[] mask) throws IconManagerException, IOException {
+    public BufferedImage createImage(int[] data, int[] mask) throws IconManagerException, IOException {
         Bitmap bitmap = key != null ? Bitmap.getInstanceForBits(key.getBitsPerPixel()) : null;
 
         if (bitmap == null)
@@ -176,7 +180,7 @@ enum Type {
         throw new IllegalArgumentException(key.toString());
     }
 
-    public static void readData(ImageInputStream in, Map<ImageKey, int[]> mapData, Map<ImageKey, int[]> mapMask) throws IOException {
+    public static void readData(ImageInputStream in, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) throws IOException {
         long val = in.readUnsignedInt();
         int size = in.readInt();
         int[] data = IconIO.readUnsignedBytes(size - 8, in);
@@ -187,9 +191,9 @@ enum Type {
     }
 
     @SuppressWarnings("StaticMethodNamingConvention")
-    private static void _readData(ImageKey key, int[] buf, Map<ImageKey, int[]> mapData) {
-        if (mapData.put(key, ArrayUtils.subarray(buf, 0, buf.length / 2)) != null)
-            throw new IllegalArgumentException("Duplication image key: " + key);
+    private static void _readData(Type type, int[] buf, Map<Type, int[]> mapData) {
+        if (mapData.put(type, ArrayUtils.subarray(buf, 0, buf.length / 2)) != null)
+            throw new IllegalArgumentException("Duplication image key: " + type.key);
     }
 
     @SuppressWarnings("StaticMethodNamingConvention")

@@ -5,14 +5,15 @@ import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.icns.imageio.IcnsReaderSpi;
-import cop.icoman.ico.IcoFile;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -26,14 +27,14 @@ public final class IcnsFile extends AbstractIconFile {
         return new IcnsFile(readImages(in));
     }
 
-    private IcnsFile(Map<ImageKey, Image> images) {
-        super(IcoFile.createImageById(images));
+    private IcnsFile(Map<String, Image> imageById) {
+        super(imageById);
     }
 
     // ========== static ==========
 
-    private static Map<ImageKey, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
-        Map<ImageKey, int[]> mapData = new HashMap<>();
+    private static Map<String, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
+        Map<Type, int[]> mapData = new EnumMap<>(Type.class);
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
         try {
@@ -45,20 +46,22 @@ public final class IcnsFile extends AbstractIconFile {
 
         Map<ImageKey, Image> images = new TreeMap<>();
 
-        for (Map.Entry<ImageKey, int[]> entry : mapData.entrySet()) {
-            ImageKey key = entry.getKey();
-            Type type = Type.parseImageKey(key);
-            int[] data = entry.getValue();
-            int[] mask = mapMask.get(type.mask);
-            BufferedImage image = type.createImage(key, data, mask);
+        for (Map.Entry<Type, int[]> entry : mapData.entrySet()) {
+            Type type = entry.getKey();
+            BufferedImage image = type.createImage(entry.getValue(), mapMask.get(type.mask));
 
             // TODO set default image
             if (image != null)
-                images.put(key, image);
+                images.put(type.key, image);
         }
 
-        return images.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(images);
+        // TODO do refactoring
+        if (images.isEmpty())
+            return Collections.emptyMap();
 
+        Map<String, Image> imageById = new LinkedHashMap<>();
+        images.entrySet().forEach(entry -> imageById.put(entry.getKey().getId(), entry.getValue()));
+        return Collections.unmodifiableMap(imageById);
     }
 
     // ========== static ==========
