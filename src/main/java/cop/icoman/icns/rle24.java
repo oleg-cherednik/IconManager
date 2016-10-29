@@ -1,10 +1,16 @@
 package cop.icoman.icns;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * @author Oleg Cherednik
  * @since 25.08.2015
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("ClassNamingConvention")
 final class rle24 {
+    @SuppressWarnings("MethodCanBeVariableArityMethod")
     public static int[] decompress(int width, int height, int[] data, int[] mask) {
         int[] buf = new int[width * height * 4];
         final int totalPix = width * height;
@@ -43,8 +49,5 @@ final class rle24 {
                 buf[offs1] = mask[i];
 
         return buf;
-    }
-
-    private rle24() {
     }
 }

@@ -200,7 +200,7 @@ public class IconManagerDemo extends JFrame {
         }
 
         private void addDefaultIcon() {
-            Arrays.asList(/*"test.icl", "test.ico",*/ "test.icns").forEach(file -> {
+            Arrays.asList(/*"test.icl",*/ "test.ico", "test.icns").forEach(file -> {
                 try (InputStream in = IconManagerDemo.class.getResourceAsStream('/' + file)) {
                     addIcon(file, ImageIO.createImageInputStream(in), false);
                 } catch(Exception e) {

@@ -34,9 +34,9 @@ public final class IclFile extends AbstractIconFile {
         this(read(in));
     }
 
-    private IclFile(Map<String, Map<String, Image>> images) {
-        super(createImageById(images));
-        icoByName = createIcoByName(images);
+    private IclFile(Map<String, Map<String, Image>> imageByIdName) {
+        super(createImageByIdName(imageByIdName));
+        icoByName = createIcoByName(imageByIdName);
     }
 
     @NotNull
@@ -66,18 +66,18 @@ public final class IclFile extends AbstractIconFile {
         return readIconsResources(in, offsZero);
     }
 
-    private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imagesByNameId) {
+    private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imageByIdName) {
         Map<String, Map<String, Image>> idByName = new LinkedHashMap<>();
 
-        for (Map.Entry<String, Map<String, Image>> entry : imagesByNameId.entrySet())
+        for (Map.Entry<String, Map<String, Image>> entry : imageByIdName.entrySet())
             idByName.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
 
         return Collections.unmodifiableMap(idByName);
     }
 
-    private static Map<String, Image> createImageById(Map<String, Map<String, Image>> imagesByNameId) {
+    private static Map<String, Image> createImageByIdName(Map<String, Map<String, Image>> imageByIdName) {
         Map<String, Image> imageById = new LinkedHashMap<>();
-        imagesByNameId.values().forEach(imageById::putAll);
+        imageByIdName.values().forEach(imageById::putAll);
         return Collections.unmodifiableMap(imageById);
     }
 
@@ -124,9 +124,9 @@ public final class IclFile extends AbstractIconFile {
             String name = entry.getKey();
             Map<String, Image> imageById = new LinkedHashMap<>();
 
-            for (ImageHeader header : entry.getValue()) {
-                String id = ImageKey.parse(name, header.getWidth(), header.getHeight(), header.getBitsPerPixel());
-                Image image = icons.get(header.getPos());
+            for (ImageHeader imageHeader : entry.getValue()) {
+                String id = ImageKey.parse(name, imageHeader.getWidth(), imageHeader.getHeight(), imageHeader.getBitsPerPixel());
+                Image image = icons.get(imageHeader.getPos());
 
                 if (image != null)
                     imageById.put(id, image);
@@ -199,13 +199,12 @@ public final class IclFile extends AbstractIconFile {
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
 
-            int total = resourceDataEntry.getSize() / ImageHeader.SIZE;
-            Set<ImageHeader> res = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
+            Set<ImageHeader> imageHeaders = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
 
-            for (int i = 0; i < total; i++, pos++)
-                res.add(new ImageHeader(pos, in));
+            for (int i = 0, total = resourceDataEntry.getSize() / ImageHeader.SIZE; i < total; i++, pos++)
+                imageHeaders.add(new ImageHeader(pos, in));
 
-            map.put(groupIconNames.get(entry.getKey()), res);
+            map.put(groupIconNames.get(entry.getKey()), imageHeaders);
         }
 
         return map;
