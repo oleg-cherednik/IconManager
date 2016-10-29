@@ -23,32 +23,14 @@ import java.util.TreeMap;
  * @since 03.07.2013
  */
 public final class IcoFile extends AbstractIconFile {
-    private final IcoFileHeader header;
-
     public IcoFile(ImageInputStream in) throws IOException, IconManagerException {
-        this(IcoFileHeader.read(in), in);
-    }
-
-    private IcoFile(IcoFileHeader header, ImageInputStream in) throws IOException, IconManagerException {
-        this(header, readImages(header, in));
-    }
-
-    public IcoFile(IcoFileHeader header, Map<ImageKey, Image> images) {
-        super(createImageById(images));
-        this.header = header;
+        super(createImageById(readImages(new IcoFileHeader(in), in)));
     }
 
     public static Map<String, Image> createImageById(Map<ImageKey, Image> images) {
         Map<String, Image> imageById = new LinkedHashMap<>();
         images.entrySet().forEach(entry -> imageById.put(entry.getKey().getId(), entry.getValue()));
         return Collections.unmodifiableMap(imageById);
-    }
-
-    // ========== Object ==========
-
-    @Override
-    public String toString() {
-        return header.toString();
     }
 
     // ========== static ==========
