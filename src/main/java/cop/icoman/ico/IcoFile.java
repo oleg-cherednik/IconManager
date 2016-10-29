@@ -5,18 +5,17 @@ import cop.icoman.IconIO;
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.IconManagerException;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * @author Oleg Cherednik
@@ -24,68 +23,52 @@ import java.util.TreeMap;
  */
 public final class IcoFile extends AbstractIconFile {
     public IcoFile(ImageInputStream in) throws IOException, IconManagerException {
-        super(createImageById(readImages(new IcoFileHeader(in), in)));
-    }
-
-    public static Map<String, Image> createImageById(Map<ImageKey, Image> images) {
-        Map<String, Image> imageById = new LinkedHashMap<>();
-        images.entrySet().forEach(entry -> imageById.put(entry.getKey().getId(), entry.getValue()));
-        return Collections.unmodifiableMap(imageById);
+        super(createImageById(new IcoFileHeader(in), in));
     }
 
     // ========== static ==========
 
-    private static List<IconImageHeader> readImageHeaders(int total, ImageInputStream in) throws IOException, IconManagerException {
+    private static List<ImageHeader> readImageHeaders(int total, ImageInputStream in) throws IOException {
         assert total > 0;
         assert in != null;
 
-        List<IconImageHeader> headers = new ArrayList<>(total);
+        Set<ImageHeader> imageHeaders = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
+        List<ImageHeader> headers = new ArrayList<>(total);
 
         for (int i = 0; i < total; i++)
-            headers.add(IconImageHeader.readHeader(i, in));
+            headers.add(new ImageHeader(i, in));
 
         return Collections.unmodifiableList(headers);
     }
 
-    private static Map<ImageKey, Image> readImages(IcoFileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
-        List<IconImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
-        Map<ImageKey, Image> images = new TreeMap<>();
-        int offs = IcoFileHeader.SIZE + imageHeaders.size() * IconImageHeader.SIZE;
+    private static Map<String, Image> createImageById(IcoFileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
+        List<ImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
+        Map<String, Image> imageById = new TreeMap<>();
+        int offs = IcoFileHeader.SIZE + imageHeaders.size() * ImageHeader.SIZE;
 
-        for (IconImageHeader imageHeader : imageHeaders) {
+        for (ImageHeader imageHeader : imageHeaders) {
             checkOffs(offs, imageHeader);
 
-            ImageKey key = imageHeader.getKey();
-            BufferedImage image = readIconImage(in, imageHeader.getSize());
+            String id = ImageKey.parse(imageHeader.getWidth(), imageHeader.getHeight(), imageHeader.getBitsPerPixel());
+            BufferedImage image = IconIO.readImage(imageHeader.getSize(), in);
 
             // TODO set default image
             if (image == null)
                 continue;
-
-            int width = image.getWidth();
-            int height = image.getHeight();
-
-            if (key.width() != width || key.height() != height)
-                key = ImageKey.custom(width, height, key.getBitsPerPixel());
-
-            if (images.containsKey(key))
-                System.out.println("duplicate image key '" + key + '\'');
+            if (imageById.containsKey(id))
+                System.out.println("duplicate image key '" + id + '\'');
             else
-                images.put(key, image);
+                imageById.put(id, image);
 
             offs += imageHeader.getSize();
         }
 
-        return images.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(images);
+        return imageById.isEmpty() ? Collections.emptyMap() : imageById;
     }
 
-    private static void checkOffs(int expected, IconImageHeader imageHeader) throws IconManagerException {
+    private static void checkOffs(int expected, ImageHeader imageHeader) throws IconManagerException {
         if (expected != imageHeader.getOffs())
-            throw new IconManagerException("rva image no. " + imageHeader.getId() + " incorrect. actual=" +
+            throw new IconManagerException("rva image no. " + imageHeader.getPos() + " incorrect. actual=" +
                     imageHeader.getOffs() + ", expected=" + expected);
-    }
-
-    public static BufferedImage readIconImage(ImageInputStream in, int size) throws IOException {
-        return ImageIO.read(new ByteArrayInputStream(IconIO.readBytes(size, in)));
     }
 }

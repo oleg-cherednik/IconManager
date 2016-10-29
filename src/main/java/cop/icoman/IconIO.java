@@ -4,9 +4,12 @@ package cop.icoman;
 import cop.icoman.imageio.IconReader;
 import cop.icoman.imageio.IconReaderSpi;
 
+import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ServiceRegistry;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,6 +20,10 @@ import java.util.Iterator;
  */
 public final class IconIO {
     private static final IIORegistry REGISTRY = IIORegistry.getDefaultInstance();
+
+    public static BufferedImage readImage(int size, ImageInputStream in) throws IOException {
+        return ImageIO.read(new ByteArrayInputStream(readBytes(size, in)));
+    }
 
     public static byte[] readBytes(int total, ImageInputStream in) throws IOException {
         byte[] buf = new byte[total];

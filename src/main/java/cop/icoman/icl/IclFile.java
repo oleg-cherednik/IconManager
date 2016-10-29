@@ -7,7 +7,6 @@ import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.exceptions.ImageNotFoundException;
 import cop.icoman.icl.imageio.IclReaderSpi;
-import cop.icoman.ico.IcoFile;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.validation.constraints.NotNull;
@@ -34,9 +33,9 @@ public final class IclFile extends AbstractIconFile {
         this(read(in));
     }
 
-    private IclFile(Map<String, Map<String, Image>> imageByIdName) {
-        super(createImageByIdName(imageByIdName));
-        icoByName = createIcoByName(imageByIdName);
+    private IclFile(Map<String, Map<String, Image>> images) {
+        super(createImageById(images));
+        icoByName = createIcoByName(images);
     }
 
     @NotNull
@@ -66,18 +65,18 @@ public final class IclFile extends AbstractIconFile {
         return readIconsResources(in, offsZero);
     }
 
-    private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imageByIdName) {
+    private static Map<String, Map<String, Image>> createIcoByName(Map<String, Map<String, Image>> imagesByNameId) {
         Map<String, Map<String, Image>> idByName = new LinkedHashMap<>();
 
-        for (Map.Entry<String, Map<String, Image>> entry : imageByIdName.entrySet())
+        for (Map.Entry<String, Map<String, Image>> entry : imagesByNameId.entrySet())
             idByName.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
 
         return Collections.unmodifiableMap(idByName);
     }
 
-    private static Map<String, Image> createImageByIdName(Map<String, Map<String, Image>> imageByIdName) {
+    private static Map<String, Image> createImageById(Map<String, Map<String, Image>> imagesByNameId) {
         Map<String, Image> imageById = new LinkedHashMap<>();
-        imageByIdName.values().forEach(imageById::putAll);
+        imagesByNameId.values().forEach(imageById::putAll);
         return Collections.unmodifiableMap(imageById);
     }
 
@@ -230,7 +229,7 @@ public final class IclFile extends AbstractIconFile {
             in.seek(getLeafOffs(entry.getValue(), in, offsZero));
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
-            map.put(entry.getKey(), IcoFile.readIconImage(in, resourceDataEntry.getSize()));
+            map.put(entry.getKey(), IconIO.readImage(resourceDataEntry.getSize(), in));
         }
 
         return map;
