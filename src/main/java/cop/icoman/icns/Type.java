@@ -44,7 +44,7 @@ enum Type implements IconImageHeader {
     // 1 bit image types - 1-bit mask types
     ICNS_48x48_1BIT_DATA("ich#", ImageKey.custom(48, 1), ImageKey.custom(48, 1), true) {
         @Override
-        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
             if (buf.length == 48 * 48 / 8)
                 super.readData(buf, mapData, mapMask);
             else
@@ -53,7 +53,7 @@ enum Type implements IconImageHeader {
     },
     ICNS_32x32_1BIT_DATA("ICN#", ImageKey.custom(32, 1), ImageKey.custom(32, 1), true) {
         @Override
-        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
             if (buf.length == 32 * 32 / 8)
                 super.readData(buf, mapData, mapMask);
             else
@@ -62,7 +62,7 @@ enum Type implements IconImageHeader {
     },
     ICNS_16x16_1BIT_DATA("ics#", ImageKey.custom(16, 1), ImageKey.custom(16, 1), true) {
         @Override
-        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
             if (buf.length == 16 * 16 / 8)
                 super.readData(buf, mapData, mapMask);
             else
@@ -77,31 +77,31 @@ enum Type implements IconImageHeader {
     ICNS_48x48_8BIT_MASK("h8mk", null, ImageKey.custom(48, 8)),
     ICNS_48x48_1BIT_MASK("ich#", null, ImageKey.custom(48, 1)) {
         @Override
-        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
             if (buf.length == 48 * 48 / 8)
                 super.readData(buf, mapData, mapMask);
             else
-                _readMask(mask, buf, mapMask);
+                _readMask(strMask, buf, mapMask);
         }
     },
     ICNS_32x32_8BIT_MASK("l8mk", null, ImageKey.custom(32, 8)),
     ICNS_32x32_1BIT_MASK("ICN#", null, ImageKey.custom(32, 1)) {
         @Override
-        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
             if (buf.length == 32 * 32 / 8)
                 super.readData(buf, mapData, mapMask);
             else
-                _readMask(mask, buf, mapMask);
+                _readMask(strMask, buf, mapMask);
         }
     },
     ICNS_16x16_8BIT_MASK("s8mk", null, ImageKey.custom(16, 8)),
     ICNS_16x16_1BIT_MASK("ics#", null, ImageKey.custom(16, 1)) {
         @Override
-        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+        protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
             if (buf.length == 16 * 16 / 8)
                 super.readData(buf, mapData, mapMask);
             else
-                _readMask(mask, buf, mapMask);
+                _readMask(strMask, buf, mapMask);
         }
     },
     ICNS_16x12_1BIT_MASK("icm#", null, ImageKey.custom(16, 12, 1));
@@ -126,11 +126,11 @@ enum Type implements IconImageHeader {
         this.skip = skip;
     }
 
-    protected void readData(int[] buf, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) {
+    protected void readData(int[] buf, Map<Type, int[]> mapData, Map<String, int[]> mapMask) {
         if (key != null) {
             if (mapData.put(this, buf) != null)
                 throw new IllegalArgumentException("Duplication image key: " + key);
-        } else if (mapMask.put(mask, buf) != null)
+        } else if (mapMask.put(strMask, buf) != null)
             throw new IllegalArgumentException("Duplication image mask: " + mask);
     }
 
@@ -196,7 +196,7 @@ enum Type implements IconImageHeader {
         throw new IllegalArgumentException(key.toString());
     }
 
-    public static void readData(ImageInputStream in, Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask) throws IOException {
+    public static void readData(ImageInputStream in, Map<Type, int[]> mapData, Map<String, int[]> mapMask) throws IOException {
         long val = in.readUnsignedInt();
         int size = in.readInt();
         int[] data = IconIO.readUnsignedBytes(size - 8, in);
@@ -213,8 +213,8 @@ enum Type implements IconImageHeader {
     }
 
     @SuppressWarnings("StaticMethodNamingConvention")
-    private static void _readMask(ImageKey mask, int[] buf, Map<ImageKey, int[]> mapMask) {
-        if (mapMask.put(mask, ArrayUtils.subarray(buf, buf.length / 2, buf.length)) != null)
-            throw new IllegalArgumentException("Duplication image mask: " + mask);
+    private static void _readMask(String strMask, int[] buf, Map<String, int[]> mapMask) {
+        if (mapMask.put(strMask, ArrayUtils.subarray(buf, buf.length / 2, buf.length)) != null)
+            throw new IllegalArgumentException("Duplication image mask: " + strMask);
     }
 }
