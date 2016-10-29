@@ -33,8 +33,8 @@ public final class IcoFile extends AbstractIconFile {
 
         List<ImageHeader> headers = new ArrayList<>(total);
 
-        for (int i = 0; i < total; i++)
-            headers.add(new ImageHeader(i, in));
+        for (int pos = 0; pos < total; pos++)
+            headers.add(new ImageHeader(pos, in));
 
         return Collections.unmodifiableList(headers);
     }

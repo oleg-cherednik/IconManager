@@ -22,7 +22,12 @@ public final class IconIO {
     private static final IIORegistry REGISTRY = IIORegistry.getDefaultInstance();
 
     public static BufferedImage readImage(int size, ImageInputStream in) throws IOException {
-        return ImageIO.read(new ByteArrayInputStream(readBytes(size, in)));
+        return readImage(readBytes(size, in));
+    }
+
+    @SuppressWarnings("MethodCanBeVariableArityMethod")
+    public static BufferedImage readImage(byte[] buf) throws IOException {
+        return ImageIO.read(new ByteArrayInputStream(buf));
     }
 
     public static byte[] readBytes(int total, ImageInputStream in) throws IOException {

@@ -37,12 +37,7 @@ public final class IcnsFile extends AbstractIconFile {
         Map<Type, int[]> mapData = new EnumMap<>(Type.class);
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
-        try {
-            while (true) {
-                Type.readData(in, mapData, mapMask);
-            }
-        } catch(Exception ignored) {
-        }
+        readData(mapData, mapMask, in);
 
         Map<ImageKey, Image> images = new TreeMap<>();
 
@@ -50,12 +45,10 @@ public final class IcnsFile extends AbstractIconFile {
             Type type = entry.getKey();
             BufferedImage image = type.createImage(entry.getValue(), mapMask.get(type.mask));
 
-            // TODO set default image
             if (image != null)
                 images.put(type.key, image);
         }
 
-        // TODO do refactoring
         if (images.isEmpty())
             return Collections.emptyMap();
 
@@ -65,6 +58,15 @@ public final class IcnsFile extends AbstractIconFile {
     }
 
     // ========== static ==========
+
+    private static void readData(Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask, ImageInputStream in) throws IOException {
+        try {
+            while (true) {
+                Type.readData(in, mapData, mapMask);
+            }
+        } catch(Exception ignored) {
+        }
+    }
 
     private static void checkHeader(ImageInputStream in) throws IOException, FormatNotSupportedException {
         if (!IcnsReaderSpi.isHeaderValid(in.readInt()))

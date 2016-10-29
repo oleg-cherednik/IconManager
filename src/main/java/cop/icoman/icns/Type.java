@@ -2,14 +2,12 @@ package cop.icoman.icns;
 
 import cop.icoman.IconIO;
 import cop.icoman.ImageKey;
-import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.bmp.Bitmap;
+import cop.icoman.exceptions.IconManagerException;
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
@@ -147,9 +145,11 @@ enum Type {
 
         if (mask == null) {
             byte[] buf = new byte[data.length];
+
             for (int i = 0; i < buf.length; i++)
                 buf[i] = (byte)(data[i] & 0xFF);
-            return ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(buf)));
+
+            return IconIO.readImage(buf);
         }
 
         if (key.getBitsPerPixel() == ImageKey.XP)
