@@ -34,14 +34,14 @@ public final class IcoFile extends AbstractIconFile {
         List<ImageHeader> headers = new ArrayList<>(total);
 
         for (int pos = 0; pos < total; pos++)
-            headers.add(new ImageHeader(pos, in));
+            headers.add(ImageHeader.read(pos, in));
 
         return Collections.unmodifiableList(headers);
     }
 
     private static Map<String, Image> createImageById(FileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
         List<ImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
-        Map<ImageHeader, Image> imageByHeader = new TreeMap<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
+        Map<ImageHeader, Image> imageByHeader = new TreeMap<>();
         int offs = FileHeader.SIZE + imageHeaders.size() * ImageHeader.SIZE;
 
         for (ImageHeader imageHeader : imageHeaders) {

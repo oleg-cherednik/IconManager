@@ -1,9 +1,9 @@
 package cop.icoman.icl;
 
-import cop.icoman.IconImageHeader;
 import cop.icoman.ImageKey;
 import cop.icoman.Utils;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -13,30 +13,27 @@ import java.io.IOException;
  * @since 21.10.2016
  */
 @Data
-final class ImageHeader implements IconImageHeader {
+@EqualsAndHashCode(callSuper = true)
+final class ImageHeader extends ImageKey {
     public static final int SIZE = 14;
 
     private final int pos;
-    private final int width;
-    private final int height;
     private final int planes;
-    private final int bitsPerPixel;
 
-    public ImageHeader(int pos, ImageInputStream in) throws IOException {
-        this.pos = pos;
+    public static ImageHeader read(int pos, ImageInputStream in) throws IOException {
         in.skipBytes(6);
-        width = Utils.zeroTo256(in.readUnsignedByte());
-        height = Utils.zeroTo256(in.readUnsignedByte());
+        int width = Utils.zeroTo256(in.readUnsignedByte());
+        int height = Utils.zeroTo256(in.readUnsignedByte());
         int colors = in.readUnsignedByte();
         in.skipBytes(1);
-        planes = in.readShort();
-        bitsPerPixel = Utils.bitsPerPixel(in.readShort(), colors);
+        int planes = in.readShort();
+        int bitsPerPixel = Utils.bitsPerPixel(in.readShort(), colors);
+        return new ImageHeader(pos, width, height, bitsPerPixel, planes);
     }
 
-    // ========== Object ==========
-
-    @Override
-    public String toString() {
-        return ImageKey.parse(Integer.toString(pos), width, height, bitsPerPixel);
+    public ImageHeader(int pos, int width, int height, int planes, int bitsPerPixel) {
+        super(width, height, bitsPerPixel);
+        this.pos = pos;
+        this.planes = planes;
     }
 }

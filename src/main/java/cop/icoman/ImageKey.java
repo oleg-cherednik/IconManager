@@ -1,5 +1,7 @@
 package cop.icoman;
 
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +12,8 @@ import java.util.Map;
  * @author Oleg Cherednik
  * @since 14.12.2012
  */
-public final class ImageKey implements Comparable<ImageKey> {
+@Data
+public class ImageKey implements Comparable<ImageKey> {
     public static final int HIGH_COLOR = 16;
     public static final int TRUE_COLOR = 24;
     public static final int XP = 32;
@@ -42,25 +45,13 @@ public final class ImageKey implements Comparable<ImageKey> {
         return key != null ? key : new ImageKey(width, height, bitsPerPixel);
     }
 
-    private ImageKey(int width, int height, int bitsPerPixel) {
+    protected ImageKey(int width, int height, int bitsPerPixel) {
         this.width = width;
         this.height = height;
         this.bitsPerPixel = bitsPerPixel;
 
         if (MAP.put(getString(width, height, this.bitsPerPixel), this) != null)
             assert false : "key duplication";
-    }
-
-    public int width() {
-        return width;
-    }
-
-    public int height() {
-        return height;
-    }
-
-    public int getBitsPerPixel() {
-        return bitsPerPixel;
     }
 
     public String getId() {
@@ -76,12 +67,11 @@ public final class ImageKey implements Comparable<ImageKey> {
 
         int res;
 
+        if ((res = Integer.compare(bitsPerPixel, key.bitsPerPixel)) != 0)
+            return res;
         if ((res = Integer.compare(width, key.width)) != 0)
             return res;
-        if ((res = Integer.compare(height, key.height)) != 0)
-            return res;
-
-        return Integer.compare(bitsPerPixel, key.bitsPerPixel);
+        return Integer.compare(height, key.height);
     }
 
     // ========== Object ==========

@@ -198,10 +198,10 @@ public final class IclFile extends AbstractIconFile {
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
 
-            Set<ImageHeader> imageHeaders = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
+            Set<ImageHeader> imageHeaders = new TreeSet<>();
 
             for (int i = 0, total = resourceDataEntry.getSize() / ImageHeader.SIZE; i < total; i++, pos++)
-                imageHeaders.add(new ImageHeader(pos, in));
+                imageHeaders.add(ImageHeader.read(pos, in));
 
             map.put(groupIconNames.get(entry.getKey()), imageHeaders);
         }

@@ -1,6 +1,7 @@
 package cop.icoman.icns;
 
 import cop.icoman.AbstractIconFile;
+import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.icns.imageio.IcnsReaderSpi;
@@ -33,7 +34,7 @@ public final class IcnsFile extends AbstractIconFile {
 
     private static Map<String, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
         Map<Type, int[]> mapData = new TreeMap<>(Type.SORT_BY_BITS_SIZE_ASC);
-        Map<String, int[]> mapMask = new HashMap<>();
+        Map<ImageKey, int[]> mapMask = new HashMap<>();
 
         readData(mapData, mapMask, in);
 
@@ -41,7 +42,7 @@ public final class IcnsFile extends AbstractIconFile {
 
         for (Map.Entry<Type, int[]> entry : mapData.entrySet()) {
             Type type = entry.getKey();
-            BufferedImage image = type.createImage(entry.getValue(), mapMask.get(type.strMask));
+            BufferedImage image = type.createImage(entry.getValue(), mapMask.get(type.mask));
 
             if (image != null)
                 imageById.put(type.strKey, image);
@@ -52,7 +53,7 @@ public final class IcnsFile extends AbstractIconFile {
 
     // ========== static ==========
 
-    private static void readData(Map<Type, int[]> mapData, Map<String, int[]> mapMask, ImageInputStream in) {
+    private static void readData(Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask, ImageInputStream in) {
         try {
             while (true) {
                 Type.readData(in, mapData, mapMask);
