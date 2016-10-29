@@ -1,6 +1,7 @@
 package cop.icoman.icns;
 
 import cop.icoman.IconIO;
+import cop.icoman.IconImageHeader;
 import cop.icoman.ImageKey;
 import cop.icoman.bmp.Bitmap;
 import cop.icoman.exceptions.IconManagerException;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @since 17.08.2015
  */
 @SuppressWarnings({ "EnumeratedConstantNamingConvention", "unused" })
-enum Type {
+enum Type implements IconImageHeader {
     // 32-bit image types > 256x256 - no mask (mask is already in image)
     ICNS_1024x1024_32BIT_ARGB_DATA("ic10", ImageKey.xp(1024), null),
     ICNS_512x512_32BIT_ARGB_DATA("ic09", ImageKey.xp(512), null),
@@ -156,6 +157,21 @@ enum Type {
             data = rle24.decompress(key.width(), key.height(), data, mask);
 
         return bitmap.createImage(key.width(), key.height(), colors, data, mask);
+    }
+
+    @Override
+    public int getWidth() {
+        return key.width();
+    }
+
+    @Override
+    public int getHeight() {
+        return key.height();
+    }
+
+    @Override
+    public int getBitsPerPixel() {
+        return key.getBitsPerPixel();
     }
 
     // ========== static ==========

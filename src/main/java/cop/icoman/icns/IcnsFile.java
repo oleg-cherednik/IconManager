@@ -11,7 +11,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,32 +33,27 @@ public final class IcnsFile extends AbstractIconFile {
     // ========== static ==========
 
     private static Map<String, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
-        Map<Type, int[]> mapData = new EnumMap<>(Type.class);
+        Map<Type, int[]> mapData = new TreeMap<>(Type.SORT_BY_BITS_SIZE_ASC);
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
         readData(mapData, mapMask, in);
 
-        Map<ImageKey, Image> images = new TreeMap<>();
+        Map<String, Image> imageById = new LinkedHashMap<>();
 
         for (Map.Entry<Type, int[]> entry : mapData.entrySet()) {
             Type type = entry.getKey();
             BufferedImage image = type.createImage(entry.getValue(), mapMask.get(type.mask));
 
             if (image != null)
-                images.put(type.key, image);
+                imageById.put(type.strKey, image);
         }
 
-        if (images.isEmpty())
-            return Collections.emptyMap();
-
-        Map<String, Image> imageById = new LinkedHashMap<>();
-        images.entrySet().forEach(entry -> imageById.put(entry.getKey().getId(), entry.getValue()));
-        return Collections.unmodifiableMap(imageById);
+        return imageById.isEmpty() ? Collections.emptyMap() : imageById;
     }
 
     // ========== static ==========
 
-    private static void readData(Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask, ImageInputStream in) throws IOException {
+    private static void readData(Map<Type, int[]> mapData, Map<ImageKey, int[]> mapMask, ImageInputStream in) {
         try {
             while (true) {
                 Type.readData(in, mapData, mapMask);

@@ -1,11 +1,15 @@
 package cop.icoman.icns;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import static cop.icoman.bmp.Bitmap.rgb;
 
 /**
  * @author Oleg Cherednik
  * @since 31.08.2015
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ColorTable {
     public static int[] get(int bitsPerPixel) {
         if (bitsPerPixel == 1)
@@ -299,7 +303,4 @@ final class ColorTable {
             rgb(0x11, 0x11, 0x11),
             rgb(0x00, 0x00, 0x00)
     };
-
-    private ColorTable() {
-    }
 }
