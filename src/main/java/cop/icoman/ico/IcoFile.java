@@ -11,11 +11,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * @author Oleg Cherednik
@@ -23,7 +22,7 @@ import java.util.TreeSet;
  */
 public final class IcoFile extends AbstractIconFile {
     public IcoFile(ImageInputStream in) throws IOException, IconManagerException {
-        super(createImageById(new IcoFileHeader(in), in));
+        super(createImageById(new FileHeader(in), in));
     }
 
     // ========== static ==========
@@ -32,7 +31,6 @@ public final class IcoFile extends AbstractIconFile {
         assert total > 0;
         assert in != null;
 
-        Set<ImageHeader> imageHeaders = new TreeSet<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
         List<ImageHeader> headers = new ArrayList<>(total);
 
         for (int i = 0; i < total; i++)
@@ -41,29 +39,33 @@ public final class IcoFile extends AbstractIconFile {
         return Collections.unmodifiableList(headers);
     }
 
-    private static Map<String, Image> createImageById(IcoFileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
+    private static Map<String, Image> createImageById(FileHeader fileHeader, ImageInputStream in) throws IOException, IconManagerException {
         List<ImageHeader> imageHeaders = readImageHeaders(fileHeader.getImageCount(), in);
-        Map<String, Image> imageById = new TreeMap<>();
-        int offs = IcoFileHeader.SIZE + imageHeaders.size() * ImageHeader.SIZE;
+        Map<ImageHeader, Image> imageByHeader = new TreeMap<>(ImageHeader.SORT_BY_BITS_SIZE_ASC);
+        int offs = FileHeader.SIZE + imageHeaders.size() * ImageHeader.SIZE;
 
         for (ImageHeader imageHeader : imageHeaders) {
             checkOffs(offs, imageHeader);
 
-            String id = ImageKey.parse(imageHeader.getWidth(), imageHeader.getHeight(), imageHeader.getBitsPerPixel());
             BufferedImage image = IconIO.readImage(imageHeader.getSize(), in);
 
-            // TODO set default image
-            if (image == null)
-                continue;
-            if (imageById.containsKey(id))
-                System.out.println("duplicate image key '" + id + '\'');
-            else
-                imageById.put(id, image);
+            if (image != null)
+                imageByHeader.put(imageHeader, image);
 
             offs += imageHeader.getSize();
         }
 
-        return imageById.isEmpty() ? Collections.emptyMap() : imageById;
+        if (imageByHeader.isEmpty())
+            return Collections.emptyMap();
+
+        Map<String, Image> imageById = new LinkedHashMap<>();
+
+        imageByHeader.entrySet().forEach(entry -> {
+            String id = ImageKey.parse(entry.getKey().getWidth(), entry.getKey().getHeight(), entry.getKey().getBitsPerPixel());
+            imageById.put(id, entry.getValue());
+        });
+
+        return imageById;
     }
 
     private static void checkOffs(int expected, ImageHeader imageHeader) throws IconManagerException {

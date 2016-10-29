@@ -14,13 +14,13 @@ import static cop.icoman.BitmapType.parseCode;
  * @since 03.07.2013
  */
 @Data
-public final class IcoFileHeader {
+final class FileHeader {
     public static final int SIZE = 6;
 
     private final BitmapType type;
     private final int imageCount;
 
-    public IcoFileHeader(ImageInputStream in) throws IOException, IconManagerException {
+    public FileHeader(ImageInputStream in) throws IOException, IconManagerException {
         in.skipBytes(2);
         type = parseCode(in.readUnsignedShort());
         imageCount = in.readUnsignedShort();
