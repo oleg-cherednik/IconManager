@@ -35,10 +35,9 @@ public final class IcnsFile extends AbstractIconFile {
     private static Map<String, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
         Map<Type, int[]> mapData = new TreeMap<>(Type.SORT_BY_KEY_ASC);
         Map<ImageKey, int[]> mapMask = new HashMap<>();
+        Map<String, Image> imageById = new LinkedHashMap<>();
 
         readData(mapData, mapMask, in);
-
-        Map<String, Image> imageById = new LinkedHashMap<>();
 
         for (Map.Entry<Type, int[]> entry : mapData.entrySet()) {
             Type type = entry.getKey();

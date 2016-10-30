@@ -31,7 +31,7 @@ final class ImageHeader extends ImageKey {
         return new ImageHeader(pos, width, height, bitsPerPixel, planes);
     }
 
-    public ImageHeader(int pos, int width, int height, int planes, int bitsPerPixel) {
+    public ImageHeader(int pos, int width, int height, int bitsPerPixel, int planes) {
         super(width, height, bitsPerPixel);
         this.pos = pos;
         this.planes = planes;
