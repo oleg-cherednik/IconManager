@@ -2,6 +2,7 @@ package cop.icoman.icl;
 
 import cop.icoman.AbstractIconFile;
 import cop.icoman.IconIO;
+import cop.icoman.ImageKey;
 import cop.icoman.exceptions.FormatNotSupportedException;
 import cop.icoman.exceptions.IconManagerException;
 import cop.icoman.exceptions.ImageNotFoundException;
@@ -124,7 +125,10 @@ public final class IclFile extends AbstractIconFile {
 
             entry.getValue().stream()
                  .filter(imageHeader -> icons.containsKey(imageHeader.getPos()))
-                 .forEach(imageHeader -> imageById.put(imageHeader.getId(), icons.get(imageHeader.getPos())));
+                 .forEach(imageHeader -> {
+                     String id = ImageKey.parse(name, imageHeader.getWidth(), imageHeader.getHeight(), imageHeader.getBitsPerPixel());
+                     imageById.put(id, icons.get(imageHeader.getPos()));
+                 });
 
             imageByIdName.put(name, imageById);
         }

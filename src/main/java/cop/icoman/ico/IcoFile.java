@@ -2,7 +2,6 @@ package cop.icoman.ico;
 
 import cop.icoman.AbstractIconFile;
 import cop.icoman.IconIO;
-import cop.icoman.ImageKey;
 import cop.icoman.exceptions.IconManagerException;
 
 import javax.imageio.stream.ImageInputStream;
@@ -59,11 +58,7 @@ public final class IcoFile extends AbstractIconFile {
             return Collections.emptyMap();
 
         Map<String, Image> imageById = new LinkedHashMap<>();
-
-        imageByHeader.entrySet().forEach(entry -> {
-            String id = ImageKey.parse(entry.getKey().getWidth(), entry.getKey().getHeight(), entry.getKey().getBitsPerPixel());
-            imageById.put(id, entry.getValue());
-        });
+        imageByHeader.entrySet().forEach(entry -> imageById.put(entry.getKey().getId(), entry.getValue()));
 
         return imageById;
     }
