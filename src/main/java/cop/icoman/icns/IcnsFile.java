@@ -33,7 +33,7 @@ public final class IcnsFile extends AbstractIconFile {
     // ========== static ==========
 
     private static Map<String, Image> readImages(ImageInputStream in) throws IOException, IconManagerException {
-        Map<Type, int[]> mapData = new TreeMap<>(Type.SORT_BY_BITS_SIZE_ASC);
+        Map<Type, int[]> mapData = new TreeMap<>(Type.SORT_BY_KEY_ASC);
         Map<ImageKey, int[]> mapMask = new HashMap<>();
 
         readData(mapData, mapMask, in);
@@ -45,7 +45,7 @@ public final class IcnsFile extends AbstractIconFile {
             BufferedImage image = type.createImage(entry.getValue(), mapMask.get(type.mask));
 
             if (image != null)
-                imageById.put(type.strKey, image);
+                imageById.put(type.key.getId(), image);
         }
 
         return imageById.isEmpty() ? Collections.emptyMap() : imageById;

@@ -1,7 +1,6 @@
 package cop.icoman.icns;
 
 import cop.icoman.IconIO;
-import cop.icoman.IconImageHeader;
 import cop.icoman.ImageKey;
 import cop.icoman.bmp.Bitmap;
 import cop.icoman.exceptions.IconManagerException;
@@ -10,6 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -17,7 +17,7 @@ import java.util.Map;
  * @since 17.08.2015
  */
 @SuppressWarnings({ "EnumeratedConstantNamingConvention", "unused" })
-enum Type implements IconImageHeader {
+enum Type {
     // 32-bit image types > 256x256 - no mask (mask is already in image)
     ICNS_1024x1024_32BIT_ARGB_DATA("ic10", ImageKey.xp(1024), null),
     ICNS_512x512_32BIT_ARGB_DATA("ic09", ImageKey.xp(512), null),
@@ -107,10 +107,8 @@ enum Type implements IconImageHeader {
     ICNS_16x12_1BIT_MASK("icm#", null, ImageKey.custom(16, 12, 1));
 
     private final long val;
-    public final ImageKey key;
-    public final ImageKey mask;
-    public final String strKey;
-    public final String strMask;
+    protected final ImageKey key;
+    protected final ImageKey mask;
     private final boolean skip;
 
     Type(String id, ImageKey key, ImageKey mask) {
@@ -120,8 +118,6 @@ enum Type implements IconImageHeader {
     Type(String id, ImageKey key, ImageKey mask, boolean skip) {
         this.key = key;
         this.mask = mask;
-        strKey = key != null ? key.toString() : null;
-        strMask = mask != null ? mask.toString() : null;
         val = toInt(id);
         this.skip = skip;
     }
@@ -157,21 +153,6 @@ enum Type implements IconImageHeader {
             data = rle24.decompress(key.getWidth(), key.getHeight(), data, mask);
 
         return bitmap.createImage(key.getWidth(), key.getHeight(), colors, data, mask);
-    }
-
-    @Override
-    public int getWidth() {
-        return key.getWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return key.getHeight();
-    }
-
-    @Override
-    public int getBitsPerPixel() {
-        return key.getBitsPerPixel();
     }
 
     // ========== static ==========
@@ -217,4 +198,6 @@ enum Type implements IconImageHeader {
         if (mapMask.put(mask, ArrayUtils.subarray(buf, buf.length / 2, buf.length)) != null)
             throw new IllegalArgumentException("Duplication image mask: " + mask);
     }
+
+    public static final Comparator<Type> SORT_BY_KEY_ASC = (type1, type2) -> type1.key.compareTo(type2.key);
 }
