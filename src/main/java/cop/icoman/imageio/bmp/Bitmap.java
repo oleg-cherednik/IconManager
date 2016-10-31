@@ -1,8 +1,9 @@
-package cop.icoman.bmp;
+package cop.icoman.imageio.bmp;
 
 import cop.icoman.ImageKey;
 import cop.icoman.exceptions.IconManagerException;
-import cop.icoman.imageio.bmp.BitmapInfoHeader;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
@@ -13,6 +14,7 @@ import java.io.IOException;
  * @since 31.08.2015
  */
 @SuppressWarnings("MethodCanBeVariableArityMethod")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Bitmap {
     public abstract BufferedImage createImage(int width, int height, int[] colors, ImageInputStream in) throws IOException;
 
@@ -28,7 +30,7 @@ public abstract class Bitmap {
 
     // ========== static ==========
 
-    public static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
+    static BufferedImage readImage(ImageInputStream in) throws IOException, IconManagerException {
         BitmapInfoHeader header = new BitmapInfoHeader(in);
         int width = header.getBiWidth();
         int height = header.getBiHeight();
@@ -137,8 +139,5 @@ public abstract class Bitmap {
 
     static int rgb(int red, int green, int blue, int alpha) {
         return ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF);
-    }
-
-    protected Bitmap() {
     }
 }

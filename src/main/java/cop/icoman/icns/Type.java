@@ -2,7 +2,7 @@ package cop.icoman.icns;
 
 import cop.icoman.IconIO;
 import cop.icoman.ImageKey;
-import cop.icoman.bmp.Bitmap;
+import cop.icoman.imageio.bmp.Bitmap;
 import cop.icoman.exceptions.IconManagerException;
 import org.apache.commons.lang3.ArrayUtils;
 

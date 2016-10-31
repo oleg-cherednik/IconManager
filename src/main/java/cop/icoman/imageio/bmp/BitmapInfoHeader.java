@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 @Data
 @SuppressWarnings({ "InstanceVariableNamingConvention", "SpellCheckingInspection" })
-public final class BitmapInfoHeader {
+final class BitmapInfoHeader {
     private final int biSize;
     private final int biWidth;
     private final int biHeight;

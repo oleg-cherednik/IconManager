@@ -3,7 +3,7 @@ package cop.icoman.icns;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import static cop.icoman.bmp.Bitmap.rgb;
+import static cop.icoman.imageio.bmp.Bitmap.rgb;
 
 /**
  * @author Oleg Cherednik

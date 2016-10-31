@@ -1,4 +1,4 @@
-package cop.icoman.bmp;
+package cop.icoman.imageio.bmp;
 
 import cop.icoman.ImageKey;
 
