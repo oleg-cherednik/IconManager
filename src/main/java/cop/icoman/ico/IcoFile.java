@@ -46,9 +46,11 @@ public final class IcoFile extends AbstractIconFile {
         for (ImageHeader imageHeader : imageHeaders) {
             checkOffs(offs, imageHeader);
 
-            BufferedImage image = IconIO.readImage(imageHeader.getSize(), in);
+            BufferedImage image = IconIO.readImage(in, imageHeader.getSize());
 
-            if (image != null)
+            if (image == null)
+                System.err.println("Image '" + imageHeader + "' cannot be read");
+            else
                 imageByHeader.put(imageHeader, image);
 
             offs += imageHeader.getSize();

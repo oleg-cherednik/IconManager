@@ -228,7 +228,7 @@ public final class IclFile extends AbstractIconFile {
             in.seek(getLeafOffs(entry.getValue(), in, offsZero));
             ResourceDataEntry resourceDataEntry = ResourceDataEntry.read(in);
             in.seek(resourceDataEntry.getRva());
-            map.put(entry.getKey(), IconIO.readImage(resourceDataEntry.getSize(), in));
+            map.put(entry.getKey(), IconIO.readImage(in, resourceDataEntry.getSize()));
         }
 
         return map;

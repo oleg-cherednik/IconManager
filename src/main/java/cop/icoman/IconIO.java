@@ -3,11 +3,14 @@ package cop.icoman;
 
 import cop.icoman.imageio.IconReader;
 import cop.icoman.imageio.IconReaderSpi;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ServiceRegistry;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageInputStreamImpl;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,22 +21,17 @@ import java.util.Iterator;
  * @author Oleg Cherednik
  * @since 15.08.2015
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IconIO {
     private static final IIORegistry REGISTRY = IIORegistry.getDefaultInstance();
-
-    public static BufferedImage readImage(int size, ImageInputStream in) throws IOException {
-        return readImage(readBytes(size, in));
-    }
 
     @SuppressWarnings("MethodCanBeVariableArityMethod")
     public static BufferedImage readImage(byte[] buf) throws IOException {
         return ImageIO.read(new ByteArrayInputStream(buf));
     }
 
-    public static byte[] readBytes(int total, ImageInputStream in) throws IOException {
-        byte[] buf = new byte[total];
-        in.read(buf);
-        return buf;
+    public static BufferedImage readImage(ImageInputStream in, int size) throws IOException {
+        return ImageIO.read(new SubImageInputStream(in, size));
     }
 
     public static int[] readUnsignedBytes(int total, ImageInputStream in) throws IOException {
@@ -47,7 +45,7 @@ public final class IconIO {
 
     public static IconFile read(ImageInputStream in) throws IOException {
         if (in == null)
-            throw new IllegalArgumentException("in == null!");
+            throw new IllegalArgumentException("in == null");
 
         Iterator<IconReader> it = getIconReaders(in);
 
@@ -55,14 +53,8 @@ public final class IconIO {
             return null;
 
         IconReader reader = it.next();
-
-        try {
-            reader.setInput(in);
-            return reader.read();
-        } finally {
-            reader.dispose();
-            in.close();
-        }
+        reader.setInput(in);
+        return reader.read();
     }
 
     private static Iterator<IconReader> getIconReaders(ImageInputStream in) {
@@ -86,66 +78,126 @@ public final class IconIO {
 
     // ========= class ==========
 
-    static class CanDecodeInputFilter implements ServiceRegistry.Filter {
-        ImageInputStream in;
+    private static final class CanDecodeInputFilter implements ServiceRegistry.Filter {
+        private final ImageInputStream in;
 
         public CanDecodeInputFilter(ImageInputStream in) {
             this.in = in;
         }
 
+        // ========== ServiceRegistry ==========
+
+        @Override
         public boolean filter(Object elt) {
             try {
                 IconReaderSpi spi = (IconReaderSpi)elt;
 
-                // Perform mark/reset as a defensive measure
-                // even though plug-ins are supposed to take
-                // care of it.
-                boolean canDecode = false;
-                if (in != null) {
+                boolean canDecode;
+
+                if (in != null)
                     in.mark();
-                }
+
                 canDecode = spi.canDecodeInput(in);
-                if (in != null) {
+
+                if (in != null)
                     in.reset();
-                }
 
                 return canDecode;
-            } catch(IOException e) {
+            } catch(IOException ignored) {
                 return false;
             }
         }
     }
 
-    static class IconReaderIterator implements Iterator<IconReader> {
-        // Contains ImageReaderSpis
-        public Iterator iter;
+    private static final class IconReaderIterator implements Iterator<IconReader> {
+        private final Iterator<IconReaderSpi> it;
 
-        public IconReaderIterator(Iterator iter) {
-            this.iter = iter;
+        public IconReaderIterator(Iterator<IconReaderSpi> it) {
+            this.it = it;
         }
 
+        // ========== Iterator ==========
+
+        @Override
         public boolean hasNext() {
-            return iter.hasNext();
+            return it.hasNext();
         }
 
+        @Override
         public IconReader next() {
             IconReaderSpi spi = null;
+
             try {
-                spi = (IconReaderSpi)iter.next();
-                return spi.createReaderInstance();
-            } catch(IOException e) {
-                // Deregister the spi in this case, but only as
-                // an ImageReaderSpi
+                return (spi = it.next()).createReaderInstance();
+            } catch(IOException ignored) {
                 REGISTRY.deregisterServiceProvider(spi, IconReaderSpi.class);
+                return null;
             }
-            return null;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
     }
 
-    private IconIO() {
+    private static final class SubImageInputStream extends ImageInputStreamImpl {
+        private final ImageInputStream in;
+        private final long offsBase;
+        private final int size;
+
+        public SubImageInputStream(ImageInputStream in, int size) throws IOException {
+            this.in = in;
+            offsBase = in.getStreamPosition();
+            this.size = size;
+        }
+
+        // ========== ImageInputStream ==========
+
+        @Override
+        public int read() throws IOException {
+            if (streamPos == size)
+                return -1;
+            else {
+                streamPos++;
+                return in.read();
+            }
+        }
+
+        @Override
+        public int read(byte[] buf, int offs, int len) throws IOException {
+            int bytes = -1;
+
+            if (streamPos < size)
+                streamPos += bytes = in.read(buf, offs, (int)Math.min(len, size - streamPos));
+
+            return bytes;
+        }
+
+        @Override
+        public long length() {
+            return size;
+        }
+
+        @Override
+        public void seek(long pos) throws IOException {
+            in.seek(offsBase + pos);
+            streamPos = pos;
+        }
+
+        @Override
+        public void close() throws IOException {
+            checkClosed();
+            in.seek(offsBase + size);
+            super.close();
+        }
+
+        // ========== Object ==========
+
+        @Override
+        protected void finalize() throws Throwable {
+            // Empty finalizer (for improved performance; no need to call
+            // super.finalize() in this case)
+        }
     }
 }
