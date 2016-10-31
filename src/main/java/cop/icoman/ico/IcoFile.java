@@ -3,6 +3,7 @@ package cop.icoman.ico;
 import cop.icoman.AbstractIconFile;
 import cop.icoman.IconIO;
 import cop.icoman.exceptions.IconManagerException;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Image;
@@ -19,6 +20,7 @@ import java.util.TreeMap;
  * @author Oleg Cherednik
  * @since 03.07.2013
  */
+@Slf4j
 public final class IcoFile extends AbstractIconFile {
     public IcoFile(ImageInputStream in) throws IOException, IconManagerException {
         super(createImageById(new FileHeader(in), in));
@@ -49,7 +51,7 @@ public final class IcoFile extends AbstractIconFile {
             BufferedImage image = IconIO.readImage(in, imageHeader.getSize());
 
             if (image == null)
-                System.err.println("Image '" + imageHeader + "' cannot be read");
+                log.error("Image '{}' cannot be read", imageHeader);
             else
                 imageByHeader.put(imageHeader, image);
 

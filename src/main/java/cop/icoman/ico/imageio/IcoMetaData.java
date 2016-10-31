@@ -15,6 +15,7 @@ import java.util.List;
  * @author Oleg Cherednik
  * @since 01.09.2013
  */
+@SuppressWarnings("Duplicates")
 public final class IcoMetaData extends IIOMetadata {
     private static final String NAME_KEY = "key";
     private static final String NAME_VALUE = "value";

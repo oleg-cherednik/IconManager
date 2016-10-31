@@ -17,6 +17,10 @@ dependencies {
     compile 'commons-collections:commons-collections:3.2.1'
     compile 'javax.validation:validation-api:1.1.0.Final'
     compile 'commons-io:commons-io:2.4'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'org.slf4j:slf4j-simple:1.7.21'
+    compile 'ch.qos.logback:logback-core:1.1.7'
+    compile 'org.assertj:assertj-core:3.5.2'
 
     compileOnly "org.projectlombok:lombok:1.16.10"
 

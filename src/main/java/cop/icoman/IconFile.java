@@ -18,5 +18,4 @@ public interface IconFile extends Iterable<Image> {
     Image getImage(String id) throws ImageNotFoundException;
 
     int getTotalImages();
-
 }

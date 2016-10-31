@@ -15,6 +15,7 @@ import java.util.List;
  * @author Oleg Cherednik
  * @since 14.08.2015
  */
+@SuppressWarnings("Duplicates")
 public final class IcnsMetaData extends IIOMetadata {
     private static final String NAME_KEY = "key";
     private static final String NAME_VALUE = "value";
@@ -28,8 +29,7 @@ public final class IcnsMetaData extends IIOMetadata {
     private final List<String> values = new ArrayList<>();
 
     public IcnsMetaData() {
-        super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null,
-                null);
+        super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null, null);
     }
 
     void put(String key, String value) {
