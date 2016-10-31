@@ -140,14 +140,8 @@ enum Type {
         int[] colors = ColorTable.get(key.getBitsPerPixel());
         mask = key.getBitsPerPixel() == 1 ? mask : bitmap.invertMask(mask);
 
-        if (mask == null) {
-            byte[] buf = new byte[data.length];
-
-            for (int i = 0; i < buf.length; i++)
-                buf[i] = (byte)(data[i] & 0xFF);
-
-            return IconIO.readImage(buf);
-        }
+        if (mask == null)
+            return IconIO.readImage(IconIO.toByteArray(data));
 
         if (key.getBitsPerPixel() == ImageKey.XP)
             data = rle24.decompress(key.getWidth(), key.getHeight(), data, mask);

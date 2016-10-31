@@ -21,11 +21,11 @@ import java.util.Iterator;
  * @author Oleg Cherednik
  * @since 15.08.2015
  */
+@SuppressWarnings("MethodCanBeVariableArityMethod")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IconIO {
     private static final IIORegistry REGISTRY = IIORegistry.getDefaultInstance();
 
-    @SuppressWarnings("MethodCanBeVariableArityMethod")
     public static BufferedImage readImage(byte[] buf) throws IOException {
         return ImageIO.read(new ByteArrayInputStream(buf));
     }
@@ -74,6 +74,15 @@ public final class IconIO {
                 buf.append((char)ch);
 
         return buf.toString();
+    }
+
+    public static byte[] toByteArray(int[] data) {
+        byte[] buf = new byte[data.length];
+
+        for (int i = 0; i < buf.length; i++)
+            buf[i] = (byte)(data[i] & 0xFF);
+
+        return buf;
     }
 
     // ========= class ==========
