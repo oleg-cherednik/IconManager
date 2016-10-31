@@ -21,15 +21,14 @@ public final class IcoMetaData extends IIOMetadata {
     private static final String NAME_NODE = "KeywordValuePair";
 
     private static final boolean STANDARD_METADATA_FORMAT_SUPPORTED = false;
-    private static final String NATIVE_METADATA_FORMAT_NAME = IcoMetaDataFormat.NAME;
-    private static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IcoMetaDataFormat.class.getName();
+    public static final String NATIVE_METADATA_FORMAT_NAME = IcoMetaData.class.getName() + "_1.0";
+    public static final String NATIVE_METADATA_FORMAT_CLASS_NAME = IcoMetaDataFormat.class.getName();
 
     private final List<String> keys = new ArrayList<>();
     private final List<String> values = new ArrayList<>();
 
     public IcoMetaData() {
-        super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null,
-                null);
+        super(STANDARD_METADATA_FORMAT_SUPPORTED, NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null, null);
     }
 
     // ========== IIOMetadata ==========

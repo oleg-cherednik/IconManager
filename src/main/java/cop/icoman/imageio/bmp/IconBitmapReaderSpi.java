@@ -1,8 +1,6 @@
 package cop.icoman.imageio.bmp;
 
 import cop.icoman.VersionData;
-import cop.icoman.ico.imageio.IcoMetaData;
-import cop.icoman.ico.imageio.IcoMetaDataFormat;
 import cop.icoman.ico.imageio.IcoReader;
 
 import javax.imageio.ImageReader;
@@ -12,6 +10,9 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Locale;
+
+import static cop.icoman.ico.imageio.IcoMetaData.NATIVE_METADATA_FORMAT_CLASS_NAME;
+import static cop.icoman.ico.imageio.IcoMetaData.NATIVE_METADATA_FORMAT_NAME;
 
 /**
  * @author Oleg Cherednik
@@ -23,7 +24,7 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
     private IconBitmapReaderSpi() {
         super("cop", VersionData.getVersion(), new String[] { "bmp", "BMP" }, new String[] { "bmp" }, new String[] { "image/bmp" },
                 IcoReader.class.getName(), new Class<?>[] { ImageInputStream.class }, null, false, null, null, null, null, false,
-                IcoMetaDataFormat.NAME, IcoMetaData.class.getName(), null, null);
+                NATIVE_METADATA_FORMAT_NAME, NATIVE_METADATA_FORMAT_CLASS_NAME, null, null);
     }
 
     // ========== ImageReaderSpi ==========
