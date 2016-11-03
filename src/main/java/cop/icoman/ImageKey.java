@@ -1,6 +1,7 @@
 package cop.icoman;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
  * @since 14.12.2012
  */
 @Data
+@EqualsAndHashCode
 public class ImageKey implements Comparable<ImageKey> {
     public static final int HIGH_COLOR = 16;
     public static final int TRUE_COLOR = 24;
@@ -41,7 +43,7 @@ public class ImageKey implements Comparable<ImageKey> {
     }
 
     public static ImageKey custom(int width, int height, int bitsPerPixel) {
-        ImageKey key = MAP.get(getString(width, height, bitsPerPixel));
+        ImageKey key = MAP.get(parse(width, height, bitsPerPixel));
         return key != null ? key : new ImageKey(width, height, bitsPerPixel);
     }
 
@@ -49,9 +51,7 @@ public class ImageKey implements Comparable<ImageKey> {
         this.width = width;
         this.height = height;
         this.bitsPerPixel = bitsPerPixel;
-
-        if (MAP.put(getString(width, height, this.bitsPerPixel), this) != null)
-            assert false : "key duplication";
+        MAP.put(parse(width, height, bitsPerPixel), this);
     }
 
     public String getId() {
@@ -77,37 +77,7 @@ public class ImageKey implements Comparable<ImageKey> {
     // ========== Object ==========
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + bitsPerPixel;
-        result = prime * result + height;
-        result = prime * result + width;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-
-        ImageKey other = (ImageKey)obj;
-
-        return bitsPerPixel == other.bitsPerPixel && height == other.height && width == other.width;
-    }
-
-    @Override
     public String toString() {
-        return getString(width, height, bitsPerPixel);
-    }
-
-    // ========== static ==========
-
-    private static String getString(int width, int height, int bitsPerPixel) {
         StringBuilder buf = new StringBuilder();
 
         buf.append(width).append('x').append(height);
@@ -124,11 +94,13 @@ public class ImageKey implements Comparable<ImageKey> {
         return buf.toString();
     }
 
+    // ========== static ==========
+
     public static String parse(int width, int height, int bitsPerPixel) {
-        return getString(width, height, bitsPerPixel);
+        return String.format("%dx%d_%d", width, height, bitsPerPixel);
     }
 
     public static String parse(String id, int width, int height, int bitsPerPixel) {
-        return String.format("%s[%s]", id.toLowerCase(), parse(width, height, bitsPerPixel));
+        return String.format("%s_%dx%d_%d", id.toLowerCase(), width, height, bitsPerPixel);
     }
 }

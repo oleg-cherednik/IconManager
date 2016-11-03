@@ -65,12 +65,12 @@ public final class IconManager {
     }
 
     @NotNull
-    public IconFile getIconFile(String id) throws IconNotFoundException {
+    public <T extends IconFile> T getIconFile(String id) throws IconNotFoundException {
         IconFile icon = icons.get(id);
 
         if (icon == null)
             throw new IconNotFoundException(id);
 
-        return icon;
+        return (T)icon;
     }
 }
