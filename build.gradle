@@ -22,7 +22,7 @@ dependencies {
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.assertj:assertj-core:3.5.2'
 
-    compileOnly "org.projectlombok:lombok:1.16.10"
+    compileOnly 'org.projectlombok:lombok:1.16.10'
 
     testCompile 'junit:junit:4.12'
 }
