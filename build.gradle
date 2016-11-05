@@ -1,4 +1,4 @@
-group 'cop.swing'
+group 'cop.icoman'
 version '1.1'
 
 apply plugin: 'java'
@@ -60,13 +60,3 @@ task demo(type: Copy) {
     into 'demo'
     include "**/$jar.baseName-$project.version" + '.jar'
 }
-
-//task copyTestResources(type: Copy) {
-//    println "oleg.cherednik"
-//    println "${projectDir}/src/test/resources"
-//    println "${sourceSets.test.output.classesDir}"
-//    from "${projectDir}/src/test/resources"
-//    into "${sourceSets.test.output.classesDir}"
-//}
-
-//processTestResources.dependsOn copyTestResources
