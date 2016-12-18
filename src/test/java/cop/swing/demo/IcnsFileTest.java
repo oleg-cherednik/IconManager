@@ -32,19 +32,19 @@ public class IcnsFileTest {
         IconFile iconFile = IconIO.read(ImageIO.createImageInputStream(IcnsFileTest.class.getResourceAsStream("/test.icns")));
         assertThat(iconFile).isNotNull();
         assertThat(iconFile).isInstanceOf(IcnsFile.class);
-        assertThat(iconFile.getTotalImages()).isEqualTo(4);
+        assertThat(iconFile.getTotalImages()).isEqualTo(7);
 
         Set<String> ids = iconFile.getIds();
-        assertThat(iconFile.getIds()).hasSize(4);
+        assertThat(iconFile.getIds()).hasSize(7);
 
         String id = Utils.getAt(ids.iterator(), 3);
-        assertThat(id).isEqualTo("128x128_32");
+        assertThat(id).isEqualTo("16x16_32");
 
         Image expectedImage = iconFile.getImage(id);
         assertThat(expectedImage).isInstanceOf(BufferedImage.class);
-        assertThat(((RenderedImage)expectedImage).getWidth()).isEqualTo(128);
-        assertThat(((RenderedImage)expectedImage).getHeight()).isEqualTo(128);
+        assertThat(((RenderedImage)expectedImage).getWidth()).isEqualTo(16);
+        assertThat(((RenderedImage)expectedImage).getHeight()).isEqualTo(16);
         assertThat(Utils.getAt(iconFile.iterator(), 3)).isSameAs(expectedImage);
-        assertThat(iconFile.getImage("16x16_256")).isSameAs(expectedImage);
+        assertThat(iconFile.getImage("16x16_32")).isSameAs(expectedImage);
     }
 }
