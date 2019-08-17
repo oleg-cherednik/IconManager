@@ -1,16 +1,19 @@
-group 'cop.icoman'
-version '1.1'
-
-apply plugin: 'java'
-apply plugin: 'maven'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+plugins {
+    id 'java'
+    id 'application'
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+}
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
+
+group 'com.cop.icoman'
+version '1.1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 configurations {
     jar.archiveName = "icon-manager-${version}.jar"
@@ -29,33 +32,34 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.16.10'
 
     testCompile 'junit:junit:4.12'
+    testCompile 'org.assertj:assertj-core:3.11.1'
 }
 
-sourceSets {
-    test {
-        output.resourcesDir = "${output.classesDir}"
-    }
-}
+//sourceSets {
+//    test {
+//        output.resourcesDir = "${output.classesDir}"
+//    }
+//}
 
-task standalone(type: Jar) {
-    description 'Create runnable standalone jar.'
-
-    manifest {
-        attributes 'Implementation-Title': 'Runnable standalone jar',
-                'Implementation-Version': version,
-                'Main-Class': 'cop.swing.demo.LayoutOrganizerDemo'
-    }
-
-    from sourceSets.test.output
-
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-
-    with jar
-}
+//task standalone(type: Jar) {
+//    description 'Create runnable standalone jar.'
+//
+//    manifest {
+//        attributes 'Implementation-Title': 'Runnable standalone jar',
+//                'Implementation-Version': version,
+//                'Main-Class': 'com.cop.icoman.swing.demo.LayoutOrganizerDemo'
+//    }
+//
+//    from sourceSets.test.output
+//
+//    from {
+//        configurations.compile.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+//
+//    with jar
+//}
 
 task demo(type: Copy) {
     description 'Copy demo to separate folder.'
