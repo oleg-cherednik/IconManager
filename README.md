@@ -60,4 +60,6 @@ JLabel label_32x32_HighColor = new JLabel(new ImageIcon(iconFile.getImage(ImageK
 JLabel label_16x16_HighColor = new JLabel(new ImageIcon(iconFile.getImage("doom_16x16_16")));
 JLabel label_24x24_HighColor = new JLabel(new ImageIcon(iconFile.getImage("doom_24x24_16")));
 JLabel label_32x32_HighColor = new JLabel(new ImageIcon(iconFile.getImage("doom_32x32_16")));
-```
+```     
+##### Links
+* Home page: https://github.com/oleg-cherednik/IconManager
