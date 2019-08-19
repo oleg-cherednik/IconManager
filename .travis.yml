@@ -6,6 +6,6 @@ jdk: openjdk8
 
 script:
   - gradle clean build --scan -s
-  - gradle codeCoverageRepor
+  - gradle jacocoTestReport
 after_success:
   - bash <(curl -s https://codecov.io/bash)
