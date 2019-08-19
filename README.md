@@ -1,5 +1,6 @@
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://travis-ci.org/oleg-cherednik/IconManager.svg?branch=master)](https://travis-ci.org/oleg-cherednik/IconManager)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
                
 # Icon Manager
 
@@ -66,6 +67,3 @@ JLabel label_32x32_HighColor = new JLabel(new ImageIcon(iconFile.getImage("doom_
 ```     
 ##### Links
 * Home page: https://github.com/oleg-cherednik/IconManager
-
-
-tmp
