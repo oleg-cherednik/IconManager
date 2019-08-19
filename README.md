@@ -66,3 +66,6 @@ JLabel label_32x32_HighColor = new JLabel(new ImageIcon(iconFile.getImage("doom_
 ```     
 ##### Links
 * Home page: https://github.com/oleg-cherednik/IconManager
+
+
+tmp
