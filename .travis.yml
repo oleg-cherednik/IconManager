@@ -2,6 +2,7 @@ language: java
 install: true
 
 dist: trusty
+jdk: openjdk8
 
 script:
   - gradle build --scan -s
