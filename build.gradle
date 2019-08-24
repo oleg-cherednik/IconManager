@@ -110,11 +110,7 @@ nexus {
     snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.artifactId = 'icon-manager'
-        }
-    }
+nexusStaging {
+    packageGroup = 'ru.oleg-cherednik.icoman'
 }
 
