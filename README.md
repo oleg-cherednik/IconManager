@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/188ca21528e6400c8dcfcfafa7e88266)](https://app.codacy.com/app/oleg-cherednik/IconManager?utm_source=github.com&utm_medium=referral&utm_content=oleg-cherednik/IconManager&utm_campaign=Badge_Grade_Settings)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ru.oleg-cherednik.icoman/icon-manager/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ru.oleg-cherednik.icoman/icon-manager)
 [![Build Status](https://travis-ci.org/oleg-cherednik/IconManager.svg?branch=master)](https://travis-ci.org/oleg-cherednik/IconManager)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
