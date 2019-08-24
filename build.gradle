@@ -99,18 +99,19 @@ modifyPom {
 }
 
 extraArchive {
-    sources = true
-    tests = true
-    javadoc = false
+    sources true
+    tests true
+    javadoc false
 }
 
 nexus {
-    sign = true
-    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
+    sign true
+    repositoryUrl 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    snapshotRepositoryUrl 'https://oss.sonatype.org/content/repositories/snapshots'
 }
 
 nexusStaging {
-    packageGroup = 'ru.oleg-cherednik.icoman'
+    packageGroup 'ru.oleg-cherednik'
+    stagingProfileId 'D3835BF60F05B9'
 }
 
