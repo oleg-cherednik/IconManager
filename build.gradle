@@ -1,8 +1,6 @@
 buildscript {
     repositories {
         jcenter()
-        mavenLocal()
-        mavenCentral()
     }
 
     dependencies {
@@ -18,6 +16,11 @@ plugins {
 }
 
 apply plugin: 'com.bmuschko.nexus'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 
 group 'ru.oleg-cherednik.icoman'
 version '1.0'
@@ -97,7 +100,7 @@ modifyPom {
 extraArchive {
     sources = true
     tests = true
-    javadoc = true
+    javadoc = false
 }
 
 nexus {
