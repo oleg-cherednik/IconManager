@@ -2,6 +2,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![codecov](https://codecov.io/gh/oleg-cherednik/IconManager/branch/master/graph/badge.svg)](https://codecov.io/gh/oleg-cherednik/IconManager)
 [![Known Vulnerabilities](https://snyk.io//test/github/oleg-cherednik/IconManager/badge.svg?targetFile=build.gradle)](https://snyk.io//test/github/oleg-cherednik/IconManager?targetFile=build.gradle)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ru.oleg-cherednik.icoman/icon-manager/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ru.oleg-cherednik.icoman/icon-manager)
                
 # Icon Manager
 
