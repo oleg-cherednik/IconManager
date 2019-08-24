@@ -19,6 +19,7 @@ import java.util.NoSuchElementException;
  * @since 02.09.2013
  */
 public class IconBitmapReader extends ImageReader {
+
     private BitmapInfoHeader header;
     private BufferedImage image;
 
@@ -93,10 +94,10 @@ public class IconBitmapReader extends ImageReader {
      * decoding the current given image.
      * @throws IOException if an error occurs reading the format information
      *                     from the input source.
-     * @todo Implement this javax.imageio.ImageReader method
      */
     @Override
     public Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {
+        // @TODO Implement this javax.imageio.ImageReader method
         return new Iterator<ImageTypeSpecifier>() {
             boolean hasN = true;
 
@@ -128,10 +129,10 @@ public class IconBitmapReader extends ImageReader {
      * required.
      * @throws IOException if an error occurs reading the information from the
      *                     input source.
-     * @todo Implement this javax.imageio.ImageReader method
      */
     @Override
     public int getNumImages(boolean allowSearch) throws IOException {
+        // @TODO Implement this javax.imageio.ImageReader method
         return 1;
     }
 
@@ -143,10 +144,10 @@ public class IconBitmapReader extends ImageReader {
      *
      * @return an <code>IIOMetadata</code> object, or <code>null</code>.
      * @throws IOException if an error occurs during reading.
-     * @todo Implement this javax.imageio.ImageReader method
      */
     @Override
     public IIOMetadata getStreamMetadata() throws IOException {
+        // @TODO Implement this javax.imageio.ImageReader method
         return null;
     }
 
@@ -157,10 +158,10 @@ public class IconBitmapReader extends ImageReader {
      * @return the width of the image, as an <code>int</code>.
      * @throws IOException if an error occurs reading the width information from
      *                     the input source.
-     * @todo Implement this javax.imageio.ImageReader method
      */
     @Override
     public int getWidth(int imageIndex) throws IOException {
+        // @TODO Implement this javax.imageio.ImageReader method
         try {
             return header.getBiWidth();
         } catch(Exception e) {
@@ -171,7 +172,7 @@ public class IconBitmapReader extends ImageReader {
     /**
      * Reads the image indexed by <code>index</code> and returns it as a complete <code>BufferedImage</code>, using a
      * supplied  <code>ImageReadParam</code>.
-     * <p/>
+     * <p>
      * The BufferedImage that is returned is of the type:  BufferedImage.TYPE_INT_ARGB
      * and all transparent pixels in the source ico will be transparent in the buffered image
      *

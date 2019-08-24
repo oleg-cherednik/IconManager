@@ -73,10 +73,10 @@ public final class IconBitmapReaderSpi extends ImageReaderSpi {
      *
      * @param locale a <code>Locale</code> for which the return value should be localized.
      * @return a <code>String</code> containing a description of this service provider.
-     * @todo Implement this javax.imageio.spi.IIOServiceProvider method
      */
     @Override
     public String getDescription(Locale locale) {
+        // @TODO Implement this javax.imageio.spi.IIOServiceProvider method
         return "Microsoft IconFile Format (ICO) Reader version: " + VersionData.getVersion();
     }
 
