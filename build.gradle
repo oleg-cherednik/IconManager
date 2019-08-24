@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
@@ -5,13 +17,10 @@ plugins {
     id 'io.franzbecker.gradle-lombok' version '1.14'
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
+apply plugin: 'com.bmuschko.nexus'
 
 group 'ru.oleg-cherednik.icoman'
-version '1.1'
+version '1.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -52,4 +61,47 @@ task demo(type: Copy) {
     from 'build/libs'
     into 'demo'
     include "**/$jar.baseName-$project.version" + '.jar'
+}
+
+modifyPom {
+    project {
+        name 'IconManager'
+        description 'Icon Manager (ico, icl, icns).'
+        url 'https://github.com/oleg-cherednik/IconManager'
+        inceptionYear '2018'
+
+        scm {
+            url 'https://github.com/oleg-cherednik/IconManager'
+            connection 'scm:https://github.com/oleg-cherednik/IconManager.git'
+            developerConnection 'scm:git@github.com:oleg-cherednik/IconManager.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'oleg.cherednik'
+                name 'Oleg Cherednik'
+                email 'oleg.cherednik@gmail.com'
+            }
+        }
+    }
+}
+
+extraArchive {
+    sources = true
+    tests = true
+    javadoc = true
+}
+
+nexus {
+    sign = true
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
 }

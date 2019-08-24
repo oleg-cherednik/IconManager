@@ -57,5 +57,6 @@ plugins/
 gradle/
 gradlew
 gradlew.bat
+gradle.properties
 
 dependency-reduced-pom.xml
