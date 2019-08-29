@@ -71,6 +71,6 @@ JLabel label_32x32_HighColor = new JLabel(new ImageIcon(iconFile.getImage("doom_
 ##### Links
 * Home page: https://github.com/oleg-cherednik/IconManager
 * Maven:
-- plain: http://repo1.maven.org/maven2/ru/oleg-cherednik/icoman/icon-manager/
-- search: https://mvnrepository.com/artifact/ru.oleg-cherednik.icoman/icon-manager
+  * **central:** https://mvnrepository.com/artifact/ru.oleg-cherednik.icoman/icon-manager
+  * **download:** http://repo1.maven.org/maven2/ru/oleg-cherednik/icoman/icon-manager/
 
